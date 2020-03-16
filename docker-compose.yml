@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  game-servers:
+    build: .
+    volumes:
+      - ./:/app
+    command: reflex --regex='\.go$$' --inverse-regex='_test\.go$$' --start-service -- sh -c 'go build -mod vendor && ./game-servers'
+    networks:
+      - technoservs-net
+
+  test:
+    build: .
+    volumes:
+      - ./:/app
+    stop_signal: SIGKILL
+    command: "tail -F /dev/null"
+    networks:
+      - technoservs-net
+
+networks:
+  technoservs-net:
+    external: true
