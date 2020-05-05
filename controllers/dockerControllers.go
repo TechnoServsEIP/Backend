@@ -8,9 +8,9 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/models"
+	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
 	"net/http"
-	"oauth2server/models"
-	"oauth2server/utils"
 )
 
 var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
@@ -32,12 +32,8 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	port, err := utils.TestHostPort("localhost")
-	if err != nil {
-		fmt.Println("error when searching available port", err)
-		return
-	}
-
+	port:= utils.GetPort()
+	fmt.Println("port" + port)
 	hostBinding := nat.PortBinding{
 		HostIP:   "0.0.0.0",
 		HostPort: port,
@@ -50,7 +46,7 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	portBinding := nat.PortMap{
 		containerPort: []nat.PortBinding{hostBinding},
 	}
-
+	
 	contName := "technoservers_test_" + docker.Game + "_" + utils.GenerateRandomString(6)
 	fmt.Println("containeur name: " + contName)
 	cont, err := cli.ContainerCreate(
@@ -72,8 +68,8 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting container ", cont.ID)
 
 	dockerStore := &models.DockerStore{
-		Game: docker.Game,
-		Id: cont.ID,
+		Game:   docker.Game,
+		Id:     cont.ID,
 		UserId: user,
 	}
 	resp := dockerStore.Create()

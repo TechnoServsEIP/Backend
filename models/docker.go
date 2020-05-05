@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
-	"oauth2server/utils"
+	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
 )
 
 type Docker struct {

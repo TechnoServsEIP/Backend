@@ -1,22 +1,21 @@
 package app
 
 import (
-	"net/http"
-	"oauth2server/utils"
-	"strings"
-	"oauth2server/models"
-	jwt "github.com/dgrijalva/jwt-go"
-	"os"
 	"context"
 	"fmt"
+	jwt "github.com/dgrijalva/jwt-go"
+	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/models"
+	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
+	"net/http"
+	"os"
+	"strings"
+	"time"
 )
 
 var JwtAuthentication = func(next http.Handler) http.Handler {
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		notAuth := []string{"/user/new", "/user/login"} //List of endpoints that doesn't require auth
-		requestPath := r.URL.Path //current request path
+		notAuth := []string{"/user/new", "/user/login", "/user/confirm"} //List of endpoints that doesn't require auth
+		requestPath := r.URL.Path                       //current request path
 
 		//check if request does not need authentication, serve the request if it doesn't need it
 		for _, value := range notAuth {
@@ -27,14 +26,14 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 			}
 		}
 
-		response := make(map[string] interface{})
+		response := make(map[string]interface{})
 		tokenHeader := r.Header.Get("Authorization") //Grab the token from the header
 
 		if tokenHeader == "" { //Token is missing, returns with error code 403 Unauthorized
 			fmt.Println("token is empty")
 			response = utils.Message(false, "Missing auth token")
 			w.Header().Add("Content-Type", "application/json")
-			utils.Respond(w, response , http.StatusForbidden)
+			utils.Respond(w, response, http.StatusForbidden)
 			return
 		}
 
@@ -49,7 +48,8 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 		tokenPart := splitted[1] //Grab the token part, what we are truly interested in
 		tk := &models.Token{}
 
-		token, err := jwt.ParseWithClaims(tokenPart, tk, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(tokenPart, tk,
+			func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("token_password")), nil
 		})
 		if err != nil { //Malformed token, returns with http code 403 as usual
@@ -66,11 +66,33 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 			utils.Respond(w, response, http.StatusForbidden)
 			return
 		}
-
+		tmp := tk.VerifyExpiresAt(time.Now().Unix(), true)
+		fmt.Print("Value expireAt: ", tmp)
+		if !tmp {
+			response = utils.Message(false, "Token is expired.")
+			w.WriteHeader(http.StatusForbidden)
+			w.Header().Add("Content-Type", "application/json")
+			utils.Respond(w, response, http.StatusForbidden)
+			return
+		}
 		//Everything went well, proceed with the request and set the caller to the user retrieved from the parsed token
-		fmt.Sprintf("User %", tk.UserId) //Useful for monitoring
+		fmt.Println("User ", tk.UserId) //Useful for monitoring
 		ctx := context.WithValue(r.Context(), "user", tk.UserId)
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r) //proceed in the middleware chain!
 	})
+}
+
+func DecryptToken(tokenString string) (jwt.Claims, bool, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &models.Token{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(os.Getenv("token_password")), nil
+		})
+	if err != nil { //Malformed token, returns with http code 403 as usual
+		fmt.Println("Malformed authentication token ", err)
+		return token.Claims, token.Valid, err
+	}
+
+	fmt.Println(token.Claims.(*models.Token).UserId)
+	return token.Claims, token.Valid, nil
 }
