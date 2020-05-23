@@ -2,13 +2,14 @@ package models
 
 import (
 	"fmt"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
 	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
 	"golang.org/x/crypto/bcrypt"
-	"os"
-	"strings"
-	"time"
 )
 
 //JWT claims struct
