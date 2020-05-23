@@ -54,7 +54,7 @@ var Confirm = func(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(user)
 	user.Verified = true
 	models.Update(int(user.ID), map[string]interface{}{
-	"verified": true,
+		"verified": true,
 	})
 	//c.Redirect(http.StatusPermanentRedirect, "https://localhost:8000/#/login")
 }

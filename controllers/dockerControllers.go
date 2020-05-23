@@ -32,7 +32,7 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	port:= utils.GetPort()
+	port := utils.GetPort()
 	fmt.Println("port" + port)
 	hostBinding := nat.PortBinding{
 		HostIP:   "0.0.0.0",
@@ -46,7 +46,7 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	portBinding := nat.PortMap{
 		containerPort: []nat.PortBinding{hostBinding},
 	}
-	
+
 	contName := "technoservers_test_" + docker.Game + "_" + utils.GenerateRandomString(6)
 	fmt.Println("containeur name: " + contName)
 	cont, err := cli.ContainerCreate(
@@ -139,5 +139,5 @@ var StopDocker = func(w http.ResponseWriter, r *http.Request) {
 		UserId: userId,
 	}
 	dockerStore.Update()
-	utils.Respond(w,  map[string]interface{} {"status" : 200, "message" : "Container Stop successfully"}, http.StatusOK)
+	utils.Respond(w, map[string]interface{}{"status": 200, "message": "Container Stop successfully"}, http.StatusOK)
 }

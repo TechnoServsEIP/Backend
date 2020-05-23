@@ -10,18 +10,18 @@ type Docker struct {
 }
 
 type DockerDelete struct {
-	UserId string `json:"user_id"`
-	ContainerId string`json:"container_id"`
+	UserId      string `json:"user_id"`
+	ContainerId string `json:"container_id"`
 }
 
 type DockerStore struct {
 	gorm.Model
-	Game string `json:"game"`
-	Id string `json:"id"`
-	UserId uint `json:"user_id"` //The user that this id belongs to
+	Game   string `json:"game"`
+	Id     string `json:"id"`
+	UserId uint   `json:"user_id"` //The user that this id belongs to
 }
 
-func (docker *DockerStore) Validate() (map[string] interface{}, bool) {
+func (docker *DockerStore) Validate() (map[string]interface{}, bool) {
 
 	if docker.Id == "" {
 		return utils.Message(false, "Docker container id can't be null"), false
@@ -30,7 +30,7 @@ func (docker *DockerStore) Validate() (map[string] interface{}, bool) {
 	return utils.Message(true, "success"), true
 }
 
-func (docker *DockerStore) Create() map[string] interface{} {
+func (docker *DockerStore) Create() map[string]interface{} {
 
 	if resp, ok := docker.Validate(); !ok {
 		return resp
@@ -43,7 +43,7 @@ func (docker *DockerStore) Create() map[string] interface{} {
 	return resp
 }
 
-func (docker *DockerStore) Update() map[string] interface{} {
+func (docker *DockerStore) Update() map[string]interface{} {
 
 	if resp, ok := docker.Validate(); !ok {
 		return resp

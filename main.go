@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/app"
 	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/controllers"
+	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
 	"log"
 	"net/http"
 	"os"
@@ -19,7 +20,7 @@ func main() {
 		port = "8000" //localhost
 	}
 
-	fmt.Println(port)
+	fmt.Println("listen on port", port)
 
 	//TODO load database + pass to app struct
 
@@ -29,7 +30,10 @@ func main() {
 	router.HandleFunc("/docker/create", controllers.CreateDocker).Methods("POST")
 	router.HandleFunc("/docker/start", controllers.StartDocker).Methods("POST")
 	router.HandleFunc("/docker/delete", controllers.StopDocker).Methods("GET")
-
+	router.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		resp := map[string]interface{}{"message": "coucou"}
+		utils.Respond(writer, resp, 200)
+	}).Methods("GET")
 
 	router.Use(app.JwtAuthentication) //attach JWT auth middleware
 
