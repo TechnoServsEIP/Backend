@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
-	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/app"
-	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/controllers"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/gorilla/mux"
+	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/app"
+	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/controllers"
 )
 
 func main() {
@@ -29,7 +30,11 @@ func main() {
 	router.HandleFunc("/docker/create", controllers.CreateDocker).Methods("POST")
 	router.HandleFunc("/docker/start", controllers.StartDocker).Methods("POST")
 	router.HandleFunc("/docker/delete", controllers.StopDocker).Methods("GET")
-
+	router.HandleFunc("/offers/list", listOffers).Methods("GET")
+	router.HandleFunc("/offers/{uuid}", getOffer).Methods("GET")
+	router.HandleFunc("/offers/create", createOffer).Methods("POST")
+	router.HandleFunc("/offers/update", updateOffer).Methods("PATCH")
+	router.HandleFunc("/offers/update", deleteOffer).Methods("DELETE")
 
 	router.Use(app.JwtAuthentication) //attach JWT auth middleware
 
