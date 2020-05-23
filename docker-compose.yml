@@ -9,6 +9,14 @@ services:
     volumes:
       - ./docker/db:/var/lib/postgresql
 
+  # Mongo Database
+  mongo:
+    image: mongo:4.2.5
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./docker/mongo:/data/db
+
   technoservs_app:
     build: .
     volumes:
@@ -23,5 +31,7 @@ services:
       - "25579:25579"
     depends_on:
       - technoservs_db
+      - mongo
     links:
       - technoservs_db
+      - mongo

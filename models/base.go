@@ -11,6 +11,8 @@ import (
 var db *gorm.DB //database
 
 func init() {
+	initMongoDb()
+
 	err := godotenv.Load() //Load .env file
 	if err != nil {
 		fmt.Print("error when opening .env file", err)

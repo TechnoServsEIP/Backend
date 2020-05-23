@@ -33,8 +33,8 @@ func main() {
 	router.HandleFunc("/offers/list", controllers.ListOffers).Methods("GET")
 	router.HandleFunc("/offers/{uuid}", controllers.GetOffer).Methods("GET")
 	router.HandleFunc("/offers/create", controllers.CreateOffer).Methods("POST")
-	router.HandleFunc("/offers/update", controllers.updateOffer).Methods("PATCH")
-	router.HandleFunc("/offers/update", controllers.DeleteOffer).Methods("DELETE")
+	router.HandleFunc("/offers/update/{uuid}", controllers.UpdateOffer).Methods("PATCH")
+	router.HandleFunc("/offers/delete/{uuid}", controllers.DeleteOffer).Methods("DELETE")
 
 	router.Use(app.JwtAuthentication) //attach JWT auth middleware
 
