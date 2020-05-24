@@ -17,21 +17,21 @@ services:
     volumes:
       - ./docker/mongo:/data/db
 
-  technoservs_app:
-    build: .
-    volumes:
-      - .:/go/src/app
-      - /var/run/docker.sock:/var/run/docker.sock
-    ports:
-      - "9096:9096"
-      - "25575:25575"
-      - "25576:25576"
-      - "25577:25577"
-      - "25578:25578"
-      - "25579:25579"
-    depends_on:
-      - technoservs_db
-      - mongo
-    links:
-      - technoservs_db
-      - mongo
+#  technoservs_app:
+#    build: .
+#    volumes:
+#      - .:/go/src/app
+#      - /var/run/docker.sock:/var/run/docker.sock
+#    ports:
+#      - "9096:9096"
+#      - "25575:25575"
+#      - "25576:25576"
+#      - "25577:25577"
+#      - "25578:25578"
+#      - "25579:25579"
+#    depends_on:
+#      - technoservs_db
+#      - mongo
+#    links:
+#      - technoservs_db
+#      - mongo

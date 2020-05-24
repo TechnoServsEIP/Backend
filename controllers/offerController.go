@@ -19,7 +19,7 @@ func ListOffers(w http.ResponseWriter, r *http.Request) {
 func GetOffer(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("request /offers/{uuid}")
 
-	resp := models.GetOffer("uuid")
+	resp := models.GetOffer(r.URL.Query()["uuid"][0])
 
 	utils.Respond(w, resp, 200)
 }
@@ -51,7 +51,7 @@ func UpdateOffer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := offer.Update("uuid")
+	resp := offer.Update(r.URL.Query()["uuid"][0])
 
 	utils.Respond(w, resp, 200)
 }
@@ -59,7 +59,7 @@ func UpdateOffer(w http.ResponseWriter, r *http.Request) {
 func DeleteOffer(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("request /offers/delete/{uuid}")
 
-	resp := models.Delete("uuid")
+	resp := models.Delete(r.URL.Query()["uuid"][0])
 
 	utils.Respond(w, resp, 204)
 }
