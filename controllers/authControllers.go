@@ -83,4 +83,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request)  {
 	models.Update(int(user.ID), map[string]interface{}{
 		"role": data.Role,
 	})
+	response := utils.Message(true, "role update")
+	utils.Respond(w, response, 200)
+
 }
