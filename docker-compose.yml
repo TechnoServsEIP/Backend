@@ -10,7 +10,6 @@ services:
       - ./docker/db:/var/lib/postgresql
     ports:
       - "5432:5432"
-    restart: always
   technoservs_app:
     build: .
     volumes:
@@ -23,8 +22,6 @@ services:
       - "25577:25577"
       - "25578:25578"
       - "25579:25579"
-    depends_on:
-      - technoservs_db
-    links:
-      - technoservs_db
+
+
 
