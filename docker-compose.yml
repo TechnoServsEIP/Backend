@@ -1,15 +1,15 @@
 version: "3"
 
 services:
-  # technoservs_db:
-  #   image: postgres:13
-  #   environment:
-  #     - POSTGRES_USER=technoservs
-  #     - POSTGRES_PASSWORD=pass
-  #   volumes:
-  #     - ./docker/db:/var/lib/postgresql
-  #   ports:
-  #     - "5432:5432"
+#   technoservs_db:
+#     image: postgres:13
+#     environment:
+#       - POSTGRES_USER=technoservs
+#       - POSTGRES_PASSWORD=pass
+#     volumes:
+#       - ./docker/db:/var/lib/postgresql
+#     ports:
+#       - "5432:5432"
   technoservs_app:
     build: .
     volumes:

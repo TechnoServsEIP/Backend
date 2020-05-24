@@ -7,6 +7,7 @@ import (
 	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/models"
 	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
 	"net/http"
+	"strings"
 )
 
 var CreateAccount = func(w http.ResponseWriter, r *http.Request) {
@@ -38,6 +39,8 @@ var Authenticate = func(w http.ResponseWriter, r *http.Request) {
 var Confirm = func(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("request /user/confirm")
 	token := r.URL.Query()["token"][0]
+	fmt.Println("len(token)")
+	fmt.Println(len(token))
 	fmt.Println(token)
 	claims, valid, err := app.DecryptToken(token)
 	if !valid {
@@ -61,8 +64,10 @@ var Confirm = func(w http.ResponseWriter, r *http.Request) {
 
 func UpdateAccount(w http.ResponseWriter, r *http.Request)  {
 	defer r.Body.Close()
-	fmt.Println("request /user/confirm")
-	token := r.Header["token"][0]
+	fmt.Println("request /user/update")
+	token := r.Header.Get("Authorization")
+	splitToken := strings.Split(token, "Bearer ")
+	token = splitToken[1]
 	fmt.Println(token)
 	claims, valid, err := app.DecryptToken(token)
 	if !valid {

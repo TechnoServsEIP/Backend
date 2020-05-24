@@ -31,7 +31,7 @@ func main() {
 	router.HandleFunc("/docker/create", controllers.CreateDocker).Methods("POST")
 	router.HandleFunc("/docker/start", controllers.StartDocker).Methods("POST")
 	router.HandleFunc("/docker/delete", controllers.StopDocker).Methods("GET")
-	router.HandleFunc("admin/Test", func(writer http.ResponseWriter, request *http.Request) {
+	router.HandleFunc("/admin/Test", func(writer http.ResponseWriter, request *http.Request) {
 		resp := map[string]interface{}{"message": "coucou"}
 		utils.Respond(writer, resp, 200)
 	}).Methods("GET")
