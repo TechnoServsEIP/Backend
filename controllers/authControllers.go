@@ -58,3 +58,29 @@ var Confirm = func(w http.ResponseWriter, r *http.Request) {
 	})
 	//c.Redirect(http.StatusPermanentRedirect, "https://localhost:8000/#/login")
 }
+
+func UpdateAccount(w http.ResponseWriter, r *http.Request)  {
+	defer r.Body.Close()
+	fmt.Println("request /user/confirm")
+	token := r.Header["token"][0]
+	fmt.Println(token)
+	claims, valid, err := app.DecryptToken(token)
+	if !valid {
+		fmt.Println("invalid token")
+		if err != nil {
+			fmt.Println("error ", err)
+		}
+		return
+	}
+
+	fmt.Println("after decrypt")
+
+	user := models.GetUserFromId(int(claims.(*models.Token).UserId))
+	fmt.Println(user)
+	data := &struct{Role string}{}
+	err = json.NewDecoder(r.Body).Decode(data)
+
+	models.Update(int(user.ID), map[string]interface{}{
+		"role": data.Role,
+	})
+}
