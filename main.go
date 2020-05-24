@@ -20,11 +20,12 @@ func main() {
 		port = "8000" //localhost
 	}
 
-	fmt.Println(port)
+	fmt.Println("listen on port", port)
 
 	//TODO load database + pass to app struct
 
 	router.HandleFunc("/user/new", controllers.CreateAccount).Methods("POST")
+	router.HandleFunc("/user/update", controllers.UpdateAccount).Methods("POST")
 	router.HandleFunc("/user/confirm", controllers.Confirm).Methods("POST")
 	router.HandleFunc("/user/login", controllers.Authenticate).Methods("POST")
 	router.HandleFunc("/docker/create", controllers.CreateDocker).Methods("POST")

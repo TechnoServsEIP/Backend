@@ -15,12 +15,14 @@ import (
 //JWT claims struct
 type Token struct {
 	UserId uint
+	Role string
 	jwt.StandardClaims
 }
 
 //a struct to rep user account
 type Account struct {
 	gorm.Model
+	Role     string
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	Token    string `json:"token";sql:"-"`
@@ -31,6 +33,7 @@ func (account Account) generateJWT() (string, error) {
 	fmt.Println("attribute user number ", account.ID)
 	tk := &Token{
 		UserId: account.ID,
+		Role: account.Role,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 1 * 1).Unix(),
 		},
@@ -77,6 +80,7 @@ func (account *Account) Create() map[string]interface{} {
 	}
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)
 	account.Password = string(hashedPassword)
+	account.Role = "user"
 
 	//if account.ID <= 0 {
 	//	return utils.Message(false, "Failed to create account, connection error.")

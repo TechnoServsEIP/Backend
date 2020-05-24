@@ -15,9 +15,9 @@ RUN apt install -y -qq --no-install-recommends \
         software-properties-common \
         docker.io
 
+COPY . ./
 RUN usermod -aG docker user_technoservs
 
-COPY . ./
 
 RUN go mod vendor
 

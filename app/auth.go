@@ -15,8 +15,9 @@ import (
 
 var JwtAuthentication = func(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		notAuth := []string{"/user/new", "/user/login", "/user/confirm", "/offers/list", "/offers/", "/offers/create", "/offers/delete", "/offers/update"} //List of endpoints that doesn't require auth
-		requestPath := r.URL.Path                                                                                                                          //current request path
+		notAuth := []string{"/user/new", "/user/login", "/user/confirm", "/offers/list", "/offers/"} //List of endpoints that doesn't require auth
+		adminOnlyPath := []string{"/user/update", "/offers/create", "/offers/delete", "/offers/update"}
+		requestPath := r.URL.Path //current request path
 
 		//check if request does not need authentication, serve the request if it doesn't need it
 		for _, value := range notAuth {
@@ -76,7 +77,18 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 			utils.Respond(w, response, http.StatusForbidden)
 			return
 		}
-		//Everything went well, proceed with the request and set the caller to the user retrieved from the parsed token
+		for _, value := range adminOnlyPath {
+			if value == requestPath {
+				if tk.Role != "admin" {
+					response = utils.Message(false, "request path Forbidden.")
+					w.WriteHeader(http.StatusForbidden)
+					w.Header().Add("Content-Type", "application/json")
+					utils.Respond(w, response, http.StatusForbidden)
+					return
+				}
+			}
+		}
+		//everything went well, proceed with the request and set the caller to the user retrieved from the parsed token
 		fmt.Println("User ", tk.UserId) //Useful for monitoring
 		ctx := context.WithValue(r.Context(), "user", tk.UserId)
 		r = r.WithContext(ctx)
