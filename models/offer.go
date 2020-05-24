@@ -3,6 +3,8 @@ package models
 import (
 	//"github.com/jinzhu/gorm"
 	//"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
+	"fmt"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -69,6 +71,9 @@ type Port struct {
 	HourlyPrice  float32 `json:"hourly_price" bson:"hourly_price"`
 }
 
+type GetUuid struct {
+	UUID string `json:"uuid" bson:"uuid,omitempty"`
+}
 
 func (offer *Offer) Create() map[string]interface{} {
 	offerdb := GetMongoDB().Collection("offer")
@@ -77,7 +82,7 @@ func (offer *Offer) Create() map[string]interface{} {
 	if err != nil {
 		// return errors.Wrap(err, "message")
 		return map[string]interface{}{
-			"result": err,
+			"result": err.Error(),
 		}
 	}
 
@@ -86,7 +91,7 @@ func (offer *Offer) Create() map[string]interface{} {
 	filter := bson.M{"_id": uuid}
 
 	data := Offer{
-		UUID: uuid.Hex(),
+		UUID:       uuid.Hex(),
 		Name:       offer.Name,
 		OfferTypes: offer.OfferTypes,
 	}
@@ -99,12 +104,12 @@ func (offer *Offer) Create() map[string]interface{} {
 
 	if err != nil {
 		return map[string]interface{}{
-			"result": err,
+			"result": err.Error(),
 		}
 	}
 
-	return map[string]interface{} {
-		"result": offer,
+	return map[string]interface{}{
+		"result": data,
 	}
 }
 
@@ -127,7 +132,7 @@ func (offer *Offer) Update(uuid string) map[string]interface{} {
 		}
 	}
 
-	return map[string]interface{} {
+	return map[string]interface{}{
 		"result": offer,
 	}
 }
@@ -136,7 +141,7 @@ func GetOfferList() map[string]interface{} {
 	iter, err := GetMongoDB().Collection("offer").Find(ctx, bson.D{})
 	if err != nil {
 		return map[string]interface{}{
-			"result": err,
+			"result": err.Error(),
 		}
 	}
 
@@ -145,7 +150,7 @@ func GetOfferList() map[string]interface{} {
 		item := Offer{}
 		if err := iter.Decode(&item); err != nil {
 			return map[string]interface{}{
-				"result": err,
+				"result": err.Error(),
 			}
 		}
 		items = append(items, item)
@@ -163,16 +168,19 @@ func GetOffer(uuid string) map[string]interface{} {
 
 	data := Offer{}
 
+	err := result.Decode(&data)
+
 	//decode and write to data
-	if err := result.Decode(&data); err != nil {
+	if err != nil {
+		fmt.Println(data.Name)
 		return map[string]interface{}{
-			"result": err,
+			"result": err.Error(),
 		}
 	}
 
 	return map[string]interface{}{
-		"uuid":       data.UUID,
-		"name":       data.Name,
+		"uuid":        data.UUID,
+		"name":        data.Name,
 		"offer_types": data.OfferTypes,
 	}
 }
@@ -190,5 +198,3 @@ func Delete(uuid string) map[string]interface{} {
 
 	return map[string]interface{}{}
 }
-
-
