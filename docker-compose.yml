@@ -1,21 +1,21 @@
 version: "3"
 
 services:
-  technoservs_db:
-    image: postgres
-    environment:
-      - POSTGRES_USER=technoservs
-      - POSTGRES_PASSWORD=pass
-    volumes:
-      - ./docker/db:/var/lib/postgresql
+  # technoservs_db:
+  #   image: postgres
+  #   environment:
+  #     - POSTGRES_USER=technoservs
+  #     - POSTGRES_PASSWORD=pass
+  #   volumes:
+  #     - ./docker/db:/var/lib/postgresql
 
-  # Mongo Database
-  mongo:
-    image: mongo:4.2.5
-    ports:
-      - "27017:27017"
-    volumes:
-      - ./docker/mongo:/data/db
+  # # Mongo Database
+  # mongo:
+  #   image: mongo:4.2.5
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - ./docker/mongo:/data/db
 
  technoservs_app:
    build: .

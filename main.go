@@ -28,6 +28,7 @@ func main() {
 	router.HandleFunc("/user/update", controllers.UpdateAccount).Methods("POST")
 	router.HandleFunc("/user/confirm", controllers.Confirm).Methods("POST")
 	router.HandleFunc("/user/login", controllers.Authenticate).Methods("POST")
+	router.HandleFunc("/user/", controllers.GetUsers).Methods("GET")
 	router.HandleFunc("/docker/create", controllers.CreateDocker).Methods("POST")
 	router.HandleFunc("/docker/start", controllers.StartDocker).Methods("POST")
 	router.HandleFunc("/docker/delete", controllers.StopDocker).Methods("GET")
