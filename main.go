@@ -31,7 +31,7 @@ func main() {
 	router.HandleFunc("/docker/start", controllers.StartDocker).Methods("POST")
 	router.HandleFunc("/docker/delete", controllers.StopDocker).Methods("GET")
 	router.HandleFunc("/offers/list", controllers.ListOffers).Methods("GET")
-	router.HandleFunc("/offers/{uuid}", controllers.GetOffer).Methods("GET")
+	router.HandleFunc("/offers/", controllers.GetOffer).Methods("POST")
 	router.HandleFunc("/offers/create", controllers.CreateOffer).Methods("POST")
 	router.HandleFunc("/offers/update/{uuid}", controllers.UpdateOffer).Methods("PATCH")
 	router.HandleFunc("/offers/delete/{uuid}", controllers.DeleteOffer).Methods("DELETE")

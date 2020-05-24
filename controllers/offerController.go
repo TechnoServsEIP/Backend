@@ -17,11 +17,18 @@ func ListOffers(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetOffer(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("request /offers/{uuid}")
-
-	resp := models.GetOffer(r.URL.Query()["uuid"][0])
-
-	utils.Respond(w, resp, 200)
+	fmt.Println("request /offers/")
+	data := &struct {
+		uuid string
+	}{}
+	err := json.NewDecoder(r.Body).Decode(data)
+	if err != nil {
+		fmt.Println("An error occurred while decoding request ", err)
+		utils.Respond(w, utils.Message(false, "Invalid request"), 400)
+		return
+	}
+	res := models.GetOffer(data.uuid)
+	utils.Respond(w, res, 200)
 }
 
 func CreateOffer(w http.ResponseWriter, r *http.Request) {
