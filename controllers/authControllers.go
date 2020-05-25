@@ -27,12 +27,16 @@ var CreateAccount = func(w http.ResponseWriter, r *http.Request) {
 var Authenticate = func(w http.ResponseWriter, r *http.Request) {
 	account := &models.Account{}
 	err := json.NewDecoder(r.Body).Decode(account) //decode the request body into struct and failed if any error occur
-	if err != nil {
+	if err != nil  {
 		utils.Respond(w, utils.Message(false, "Invalid request"), 400)
 		return
 	}
 
 	resp := models.Login(account.Email, account.Password)
+	if resp["status"] == false {
+		utils.Respond(w, resp, 400)
+		return
+	}
 	utils.Respond(w, resp, 200)
 }
 
