@@ -2,15 +2,19 @@
 
 Service that handles configurations for different games and manages game servers
 
+<br/>
 
 
-If the code doesn't change:
+- If the code doesn't change:
     
 $ docker rm -vf $(docker ps -a -q)
 
 $ docker rmi -f $(docker images -a -q)
 
-comment the next lines into docker-compose.yml:
+<br/>
+
+
+- comment the next lines into docker-compose.yml:
 
 ```
 technoservs_app:
@@ -31,21 +35,19 @@ and run:
 
 $ docker-compose up -d
 
+<br/>
 
 
-
-
-Verify ip address of postgres and mongo and update the "db_host" variable into .env
-
-Also update the ip address into models/mongodb.go (line 23) "mongodb://X.X.X.X:27017/technoservs-billing"
+- Verify ip address of postgres and mongo and update the "db_host" and "mongodb_host" variable into .env
 
 $ docker ps (See all container)
 
 $ docker inspect "container_id" (See ip address of the container)
 
+<br/>
 
 
-Uncomment the next lines into docker-compose.yml:
+- Uncomment the next lines into docker-compose.yml:
 
 ```
 technoservs_app:
@@ -62,7 +64,8 @@ technoservs_app:
      - "25579:25579"
 ```
 
-And comment the next lines into docker-compose.yml:
+
+- And comment the next lines into docker-compose.yml:
 
 ```
 technoservs_db:
