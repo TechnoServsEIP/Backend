@@ -1,16 +1,19 @@
 package controllers
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/models"
 	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
-	"net/http"
 )
 
 var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
@@ -140,4 +143,43 @@ var StopDocker = func(w http.ResponseWriter, r *http.Request) {
 	}
 	dockerStore.Update()
 	utils.Respond(w, map[string]interface{}{"status": 200, "message": "Container Stop successfully"}, http.StatusOK)
+}
+
+var GetServerLogs = func(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Error failed to contact docker api"), http.StatusBadRequest)
+		return
+	}
+
+	options := types.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Details:    true,
+	}
+
+	docker := &models.DockerDelete{}
+
+	err = json.NewDecoder(r.Body).Decode(docker)
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
+		return
+	}
+
+	out, err := cli.ContainerLogs(ctx, docker.ContainerId, options)
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Error bad container_id"), http.StatusBadRequest)
+		return
+	}
+
+	var logs bytes.Buffer
+
+	io.Copy(&logs, out)
+
+	resp := map[string]interface{}{
+		"logs": logs.String(),
+	}
+
+	utils.Respond(w, resp, 200)
 }
