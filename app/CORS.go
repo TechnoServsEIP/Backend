@@ -11,7 +11,7 @@ func Cors(next http.Handler) http.Handler {
 		// Set headers
 		w.Header().Set("Access-Control-Allow-Headers:", "*")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
 
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
