@@ -168,7 +168,7 @@ func Update(Id int, fieldsToUpdate map[string]interface{}) *Account {
 
 
 func GetUsers() interface{} {
-	users := Account{}
+	users := []Account{}
 	res := GetDB().Find(&users)
 	return res
 }
