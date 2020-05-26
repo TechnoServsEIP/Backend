@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3"
 
 services:
   #  technoservs_db:
@@ -17,9 +17,7 @@ services:
   #      - ./docker/mongo:/data/db
   #
   technoservs_app:
-    build:
-      network: host
-      context: .
+    build: .
     volumes:
       - .:/go/src/app
       - /var/run/docker.sock:/var/run/docker.sock
