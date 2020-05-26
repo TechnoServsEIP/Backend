@@ -78,3 +78,16 @@ func UserServers(id uint) *[]DockerStore {
 	}
 	return dockers
 }
+
+func RemoveContainer(user_id uint, docker_id string) map[string]interface{} {
+	docker := &DockerStore{}
+
+	err := GetDB().Table("docker_stores").Where("id_docker = ?", docker_id).Delete(docker).Error
+	if err != nil {
+		return map[string]interface{}{
+			"error": err.Error,
+		}
+	}
+
+	return map[string]interface{}{}
+}

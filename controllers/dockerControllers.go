@@ -76,6 +76,17 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 		UserId:   user,
 	}
 	resp := dockerStore.Create()
+
+	info, err := cli.ContainerInspect(ctx, cont.ID)
+
+	if err != nil {
+		fmt.Println(err)
+		utils.Respond(w, resp, http.StatusCreated)
+		return
+	}
+
+	resp["settings"] = &info
+
 	utils.Respond(w, resp, http.StatusCreated)
 }
 
@@ -102,6 +113,19 @@ var StartDocker = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("Starting container ", docker.ContainerId)
+
+	info, err := cli.ContainerInspect(ctx, docker.ContainerId)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	resp := map[string]interface{}{}
+
+	resp["settings"] = &info
+
+	utils.Respond(w, resp, 200)
 }
 
 var StopDocker = func(w http.ResponseWriter, r *http.Request) {
@@ -186,28 +210,32 @@ var GetServerLogs = func(w http.ResponseWriter, r *http.Request) {
 
 var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 
+	userId := r.Context().Value("user").(uint)
+	ctx := context.Background()
+	cli, err := client.NewEnvClient()
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Error failed to contact docker api"), http.StatusBadRequest)
+		return
+	}
+
 	docker := &models.DockerDelete{}
 
-	err := json.NewDecoder(r.Body).Decode(docker)
+	err = json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
 		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
 		return
 	}
 
-	uri := "http://localhost:5555/v1.24/containers/" + docker.ContainerId
-
-	fmt.Println(uri)
-
-	_, err = http.NewRequest("DELETE", uri, nil)
-
+	err = cli.ContainerRemove(ctx, docker.ContainerId, types.ContainerRemoveOptions{
+		RemoveVolumes: true,
+		Force:         true,
+	})
 	if err != nil {
-		utils.Respond(w, utils.Message(false, "Error bad container id"), http.StatusBadRequest)
+		utils.Respond(w, utils.Message(false, "Error while removing container"), http.StatusBadRequest)
 		return
 	}
 
-	resp := map[string]interface{}{}
-
-	fmt.Println("ok")
+	resp := models.RemoveContainer(userId, docker.ContainerId)
 
 	utils.Respond(w, resp, 204)
 }
