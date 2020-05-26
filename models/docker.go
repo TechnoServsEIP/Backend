@@ -16,14 +16,18 @@ type DockerDelete struct {
 
 type DockerStore struct {
 	gorm.Model
-	Game   string `json:"game"`
-	Id     string `json:"id"`
-	UserId uint   `json:"user_id"` //The user that this id belongs to
+	Game     string `json:"game"`
+	IdDocker string `json:"id_docker"`
+	UserId   uint   `json:"user_id"` //The user that this id belongs to
+}
+
+type DockerList struct {
+	UserId string `json:"user_id"`
 }
 
 func (docker *DockerStore) Validate() (map[string]interface{}, bool) {
 
-	if docker.Id == "" {
+	if docker.IdDocker == "" {
 		return utils.Message(false, "Docker container id can't be null"), false
 	}
 	//All the required parameters are present
@@ -63,4 +67,14 @@ func ListDockerByUserId(id uint) *Docker {
 		return nil
 	}
 	return docker
+}
+
+func UserServers(id uint) *[]DockerStore {
+	dockers := &[]DockerStore{}
+
+	err := GetDB().Table("docker_stores").Where("user_id = ?", id).Find(dockers).Error
+	if err != nil {
+		return nil
+	}
+	return dockers
 }

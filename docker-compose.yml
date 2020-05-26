@@ -1,31 +1,32 @@
-version: "3"
+version: "3.8"
 
 services:
-#   technoservs_db:
-#     image: postgres
-#     environment:
-#       - POSTGRES_USER=technoservs
-#       - POSTGRES_PASSWORD=pass
-#     volumes:
-#       - ./docker/db:/var/lib/postgresql
-#
-#   # Mongo Database
-#   mongo:
-#     image: mongo:4.2.5
-#     ports:
-#       - "27017:27017"
-#     volumes:
-#       - ./docker/mongo:/data/db
-
- technoservs_app:
-   build: .
-   volumes:
-     - .:/go/src/app
-     - /var/run/docker.sock:/var/run/docker.sock
-   ports:
-     - "9096:9096"
-     - "25575:25575"
-     - "25576:25576"
-     - "25577:25577"
-     - "25578:25578"
-     - "25579:25579"
+  #  technoservs_db:
+  #    image: postgres
+  #    environment:
+  #      - POSTGRES_USER=technoservs
+  #      - POSTGRES_PASSWORD=pass
+  #    volumes:
+  #      - ./docker/db:/var/lib/postgresql
+  #
+  #  mongo:
+  #    image: mongo:4.2.5
+  #    ports:
+  #      - "27017:27017"
+  #    volumes:
+  #      - ./docker/mongo:/data/db
+  #
+  technoservs_app:
+    build:
+      network: host
+      context: .
+    volumes:
+      - .:/go/src/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "9096:9096"
+      - "25575:25575"
+      - "25576:25576"
+      - "25577:25577"
+      - "25578:25578"
+      - "25579:25579"

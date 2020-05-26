@@ -8,7 +8,7 @@ require (
 	github.com/denisenkom/go-mssqldb v0.0.0-20200206145737-bbfc9a55622e // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/distribution v2.7.1+incompatible // indirect
-	github.com/docker/docker v1.4.2-0.20191101170500-ac7306503d23
+	github.com/docker/docker v1.13.1
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df

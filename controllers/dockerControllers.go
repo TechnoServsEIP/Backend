@@ -71,9 +71,9 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting container ", cont.ID)
 
 	dockerStore := &models.DockerStore{
-		Game:   docker.Game,
-		Id:     cont.ID,
-		UserId: user,
+		Game:     docker.Game,
+		IdDocker: cont.ID,
+		UserId:   user,
 	}
 	resp := dockerStore.Create()
 	utils.Respond(w, resp, http.StatusCreated)
@@ -138,8 +138,8 @@ var StopDocker = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	dockerStore := &models.DockerStore{
-		Id:     docker.ContainerId,
-		UserId: userId,
+		IdDocker: docker.ContainerId,
+		UserId:   userId,
 	}
 	dockerStore.Update()
 	utils.Respond(w, map[string]interface{}{"status": 200, "message": "Container Stop successfully"}, http.StatusOK)
@@ -147,7 +147,7 @@ var StopDocker = func(w http.ResponseWriter, r *http.Request) {
 
 var GetServerLogs = func(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	cli, err := client.NewEnvClient()
 	if err != nil {
 		utils.Respond(w, utils.Message(false, "Error failed to contact docker api"), http.StatusBadRequest)
 		return
@@ -179,6 +179,54 @@ var GetServerLogs = func(w http.ResponseWriter, r *http.Request) {
 
 	resp := map[string]interface{}{
 		"logs": logs.String(),
+	}
+
+	utils.Respond(w, resp, 200)
+}
+
+var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
+
+	docker := &models.DockerDelete{}
+
+	err := json.NewDecoder(r.Body).Decode(docker)
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
+		return
+	}
+
+	uri := "http://localhost:5555/v1.24/containers/" + docker.ContainerId
+
+	fmt.Println(uri)
+
+	_, err = http.NewRequest("DELETE", uri, nil)
+
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Error bad container id"), http.StatusBadRequest)
+		return
+	}
+
+	resp := map[string]interface{}{}
+
+	fmt.Println("ok")
+
+	utils.Respond(w, resp, 204)
+}
+
+var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
+
+	docker := &models.DockerList{}
+	userId := r.Context().Value("user").(uint)
+
+	err := json.NewDecoder(r.Body).Decode(docker)
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
+		return
+	}
+
+	allDocker := models.UserServers(userId)
+
+	resp := map[string]interface{}{
+		"list": allDocker,
 	}
 
 	utils.Respond(w, resp, 200)
