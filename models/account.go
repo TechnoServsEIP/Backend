@@ -27,6 +27,7 @@ type Account struct {
 	Password string `json:"password"`
 	Token    string `json:"token";sql:"-"`
 	Verified bool
+	Activate bool
 }
 
 func (account Account) generateJWT() (string, error) {
@@ -81,6 +82,7 @@ func (account *Account) Create() map[string]interface{} {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)
 	account.Password = string(hashedPassword)
 	account.Role = "user"
+	account.Activate = true
 
 	//if account.ID <= 0 {
 	//	return utils.Message(false, "Failed to create account, connection error.")
@@ -110,6 +112,9 @@ func (account *Account) Create() map[string]interface{} {
 func Login(email, password string) map[string]interface{} {
 	account := &Account{}
 	err := GetDB().Table("accounts").Where("email = ?", email).First(account).Error
+	if !account.Activate {
+		return utils.Message(false, "account deacivate")
+	}
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return utils.Message(false, "Email address not found")
@@ -144,6 +149,7 @@ func GetUserFromId(Id int) *Account {
 	err := GetDB().Table("accounts").Where("id = ?", Id).First(acc).Error
 	if err != nil {
 		fmt.Println("error fetching user ", err)
+		return nil
 	}
 	fmt.Println(acc)
 	if acc.Email == "" { //User not found!
@@ -158,6 +164,7 @@ func Update(Id int, fieldsToUpdate map[string]interface{}) *Account {
 	acc := &Account{}
 
 	GetDB().Table("accounts").Where("id = ?", Id).Update(fieldsToUpdate).First(acc)
+
 	if acc.Email == "" { //User not found!
 		return nil
 	}
@@ -170,5 +177,25 @@ func Update(Id int, fieldsToUpdate map[string]interface{}) *Account {
 func GetUsers() interface{} {
 	users := []Account{}
 	res := GetDB().Find(&users)
+	return res
+}
+
+func DeactivateUser(id int) interface{} {
+	user := GetUserFromId(id)
+	if user == nil {
+		return nil
+	}
+	user.Activate = false
+	res := GetDB().Save(&user)
+	return res
+}
+
+func ActivateUser(id int) interface{} {
+	user := GetUserFromId(id)
+	if user == nil {
+		return nil
+	}
+	user.Activate = true
+	res := GetDB().Save(&user)
 	return res
 }
