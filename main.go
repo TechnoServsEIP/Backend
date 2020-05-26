@@ -42,6 +42,7 @@ func main() {
 	router.HandleFunc("/offers/create", controllers.CreateOffer).Methods("POST")
 	router.HandleFunc("/offers/update", controllers.UpdateOffer).Methods("POST")
 	router.HandleFunc("/offers/delete", controllers.DeleteOffer).Methods("POST")
+
 	router.Use(app.Cors)
 	router.Use(app.JwtAuthentication) //attach JWT auth middleware
 
