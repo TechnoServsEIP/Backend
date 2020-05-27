@@ -143,11 +143,11 @@ var StartDocker = func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dockerStore := &models.DockerStore{
-		IdDocker:     docker.ContainerId,
-		UserId:       userId,
-		ServerStatus: "Stoped",
+		IdDocker: docker.ContainerId,
+		UserId:   userId,
 	}
-	dockerStore.Update()
+
+	dockerStore.UpdateServerStatus("Started")
 
 	resp := map[string]interface{}{}
 
@@ -198,11 +198,11 @@ var StopDocker = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	dockerStore := &models.DockerStore{
-		IdDocker:     docker.ContainerId,
-		UserId:       userId,
-		ServerStatus: "Stoped",
+		IdDocker: docker.ContainerId,
+		UserId:   userId,
 	}
-	dockerStore.Update()
+	// dockerStore.Update()
+	dockerStore.UpdateServerStatus("Stoped")
 	utils.Respond(w, map[string]interface{}{"status": 200, "message": "Container Stop successfully"}, http.StatusOK)
 }
 

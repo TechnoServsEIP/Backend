@@ -97,3 +97,20 @@ func RemoveContainer(user_id uint, docker_id string) map[string]interface{} {
 
 	return map[string]interface{}{}
 }
+
+func (docker *DockerStore) UpdateServerStatus(status string) map[string]interface{} {
+
+	err := GetDB().First(docker).Error
+
+	if err != nil {
+		return map[string]interface{}{
+			"error": err.Error,
+		}
+	}
+
+	docker.ServerStatus = status
+
+	GetDB().Save(docker)
+
+	return nil
+}
