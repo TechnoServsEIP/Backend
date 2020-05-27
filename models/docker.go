@@ -18,10 +18,10 @@ type DockerDelete struct {
 
 type DockerStore struct {
 	gorm.Model
-	Game     string               `json:"game"`
-	IdDocker string               `json:"id_docker"`
-	UserId   uint                 `json:"user_id"` //The user that this id belongs to
-	Settings *types.ContainerJSON `json:"settings"`
+	Game     string              `json:"game"`
+	IdDocker string              `json:"id_docker"`
+	UserId   uint                `json:"user_id"` //The user that this id belongs to
+	Settings types.ContainerJSON `json:"settings"`
 }
 
 type DockerList struct {

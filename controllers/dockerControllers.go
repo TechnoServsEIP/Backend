@@ -126,7 +126,7 @@ var StartDocker = func(w http.ResponseWriter, r *http.Request) {
 
 	resp := map[string]interface{}{}
 
-	resp["settings"] = &info
+	resp["settings"] = info
 
 	utils.Respond(w, resp, 200)
 }
@@ -234,8 +234,8 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 		Force:         true,
 	})
 	if err != nil {
+		fmt.Println("An error appear when removing container: ", docker.ContainerId, "err ", err)
 		utils.Respond(w, utils.Message(false, "Error while removing container"), http.StatusBadRequest)
-		return
 	}
 
 	resp := models.RemoveContainer(userId, docker.ContainerId)
@@ -244,7 +244,6 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 }
 
 var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
-
 	ctx := context.Background()
 	docker := &models.DockerList{}
 	// userId := r.Context().Value("user").(uint)
@@ -269,6 +268,7 @@ var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Key:", key, "=>", "Element:", element)
 
 		info, err := cli.ContainerInspect(ctx, element.IdDocker)
+		fmt.Println(info)
 
 		if err != nil {
 			fmt.Println(err)
@@ -278,9 +278,9 @@ var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		fmt.Println("infos:", &info)
+		fmt.Println("infos:", info)
 
-		element.Settings = &info
+		element.Settings = info
 	}
 
 	resp := map[string]interface{}{
