@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -17,8 +18,8 @@ import (
 )
 
 var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
-	user := r.Context().Value("user").(uint) //Grab the id of the user that send the request
-	fmt.Println("user: (", user, ")")
+	// user := r.Context().Value("user").(uint) //Grab the id of the user that send the request
+	// fmt.Println("user: (", user, ")")
 
 	docker := &models.Docker{}
 
@@ -70,10 +71,12 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println("Starting container ", cont.ID)
 
+	u64, err := strconv.ParseUint(docker.UserId, 10, 32)
+
 	dockerStore := &models.DockerStore{
 		Game:     docker.Game,
 		IdDocker: cont.ID,
-		UserId:   user,
+		UserId:   uint(u64),
 	}
 	resp := dockerStore.Create()
 
@@ -244,7 +247,7 @@ var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 	docker := &models.DockerList{}
-	userId := r.Context().Value("user").(uint)
+	// userId := r.Context().Value("user").(uint)
 
 	err := json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
@@ -252,7 +255,9 @@ var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	allDocker := models.UserServers(userId)
+	u64, err := strconv.ParseUint(docker.UserId, 10, 32)
+
+	allDocker := models.UserServers(uint(u64))
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
