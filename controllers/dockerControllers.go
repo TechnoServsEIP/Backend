@@ -297,6 +297,11 @@ var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 
 	allDocker := models.UserServers(uint(u64))
 
+	if allDocker == nil {
+		utils.Respond(w, utils.Message(false, "invalid user_id"), 500)
+		return
+	}
+
 	list := make([]models.DockerStore, 0)
 
 	for _, element := range *allDocker {
@@ -319,4 +324,65 @@ var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.Respond(w, resp, 200)
+}
+
+var GetInfosUserServer = func(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	docker := &models.DockerDelete{}
+
+	cli, err := client.NewEnvClient()
+	if err != nil {
+		fmt.Println("error when creating docker client", err)
+		return
+	}
+
+	err = json.NewDecoder(r.Body).Decode(docker)
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
+		return
+	}
+
+	u64, err := strconv.ParseUint(docker.UserId, 10, 32)
+
+	OneDocker := models.OneUserServer(uint(u64), docker.ContainerId)
+
+	if OneDocker == nil {
+		utils.Respond(w, utils.Message(false, "invalid user_id or container_id"), 500)
+		return
+	}
+
+	serverInfo := map[string]interface{}{}
+
+	serverInfo["server_infos"] = OneDocker
+
+	info, err := cli.ContainerInspect(ctx, OneDocker.IdDocker)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		utils.Respond(w, map[string]interface{}{
+			"error": err.Error(),
+		}, 500)
+		return
+	}
+
+	serverInfo["settings"] = &info
+
+	options := types.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Details:    true,
+	}
+
+	out, err := cli.ContainerLogs(ctx, docker.ContainerId, options)
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Error bad container_id"), http.StatusBadRequest)
+		return
+	}
+
+	var logs bytes.Buffer
+
+	io.Copy(&logs, out)
+	serverInfo["logs"] = logs.String()
+
+	utils.Respond(w, serverInfo, 200)
 }
