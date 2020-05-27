@@ -31,6 +31,8 @@ func main() {
 	router.HandleFunc("/user/", controllers.GetUsers).Methods("GET")
 	router.HandleFunc("/user/activate", controllers.Activate).Methods("POST")
 	router.HandleFunc("/user/deactivate", controllers.Deactivate).Methods("POST")
+	router.HandleFunc("/user/forgotpassword", controllers.SendPasswordReset).Methods("POST")
+	router.HandleFunc("/user/resetpassword", controllers.ChangePassword).Methods("POST")
 	router.HandleFunc("/docker/create", controllers.CreateDocker).Methods("POST")
 	router.HandleFunc("/docker/start", controllers.StartDocker).Methods("POST")
 	router.HandleFunc("/docker/stop", controllers.StopDocker).Methods("GET")
