@@ -199,3 +199,14 @@ func ActivateUser(id int) interface{} {
 	res := GetDB().Save(&user)
 	return res
 }
+
+func ChangePassword(password string, id uint) error {
+	account := GetUserFromId(int(id))
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	account.Password = string(hashedPassword)
+	GetDB().Save(&account)
+	return nil
+}
