@@ -7,8 +7,9 @@ import (
 )
 
 type Docker struct {
-	UserId string `json:"user_id"`
-	Game   string `json:"game"`
+	UserId     string `json:"user_id"`
+	Game       string `json:"game"`
+	ServerName string `json:"server_name"`
 }
 
 type DockerDelete struct {
@@ -18,10 +19,12 @@ type DockerDelete struct {
 
 type DockerStore struct {
 	gorm.Model
-	Game     string              `json:"game"`
-	IdDocker string              `json:"id_docker"`
-	UserId   uint                `json:"user_id"` //The user that this id belongs to
-	Settings types.ContainerJSON `json:"settings"`
+	IdDocker     string              `json:"id_docker"`
+	Game         string              `json:"game"`
+	ServerName   string              `json:"server_name"`
+	ServerStatus string              `json:"server_status"`
+	UserId       uint                `json:"user_id"` //The user that this id belongs to
+	Settings     types.ContainerJSON `json:"settings"`
 }
 
 type DockerList struct {

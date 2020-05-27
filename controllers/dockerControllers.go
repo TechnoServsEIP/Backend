@@ -82,9 +82,11 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	u64, err := strconv.ParseUint(docker.UserId, 10, 32)
 
 	dockerStore := &models.DockerStore{
-		Game:     docker.Game,
-		IdDocker: cont.ID,
-		UserId:   uint(u64),
+		Game:         docker.Game,
+		IdDocker:     cont.ID,
+		UserId:       uint(u64),
+		ServerName:   docker.ServerName,
+		ServerStatus: "Started",
 	}
 	resp := dockerStore.Create()
 
@@ -140,6 +142,13 @@ var StartDocker = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	dockerStore := &models.DockerStore{
+		IdDocker:     docker.ContainerId,
+		UserId:       userId,
+		ServerStatus: "Stoped",
+	}
+	dockerStore.Update()
+
 	resp := map[string]interface{}{}
 
 	resp["settings"] = info
@@ -189,8 +198,9 @@ var StopDocker = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	dockerStore := &models.DockerStore{
-		IdDocker: docker.ContainerId,
-		UserId:   userId,
+		IdDocker:     docker.ContainerId,
+		UserId:       userId,
+		ServerStatus: "Stoped",
 	}
 	dockerStore.Update()
 	utils.Respond(w, map[string]interface{}{"status": 200, "message": "Container Stop successfully"}, http.StatusOK)
