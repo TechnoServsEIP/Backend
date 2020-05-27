@@ -22,7 +22,14 @@ func Message(status bool, message string) map[string]interface{} {
 }
 
 func Respond(w http.ResponseWriter, data map[string]interface{}, httpCode int) {
-	w.Header().Add("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods",
+		"GET, POST, PATCH, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers",
+		"Accept, Content-Type, Content-Length, Accept-Encoding, "+
+			"X-CSRF-Token, Authorization, Origin, X-Auth-Token")
+	w.Header().Set("Access-Control-Expose-Headers",
+		"Authorization")
 	w.WriteHeader(httpCode)
 	json.NewEncoder(w).Encode(data)
 }

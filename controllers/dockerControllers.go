@@ -18,6 +18,14 @@ import (
 )
 
 var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods",
+		"GET, POST, PATCH, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers",
+		"Accept, Content-Type, Content-Length, Accept-Encoding, "+
+			"X-CSRF-Token, Authorization, Origin, X-Auth-Token")
+	w.Header().Set("Access-Control-Expose-Headers",
+		"Authorization")
 	// user := r.Context().Value("user").(uint) //Grab the id of the user that send the request
 	// fmt.Println("user: (", user, ")")
 
@@ -94,6 +102,14 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 }
 
 var StartDocker = func(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods",
+		"GET, POST, PATCH, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers",
+		"Accept, Content-Type, Content-Length, Accept-Encoding, "+
+			"X-CSRF-Token, Authorization, Origin, X-Auth-Token")
+	w.Header().Set("Access-Control-Expose-Headers",
+		"Authorization")
 	ctx := context.Background()
 	userId := r.Context().Value("user").(uint) //Grab the id of the user that send the request
 	fmt.Println("userId: (", userId, ")")
@@ -132,6 +148,14 @@ var StartDocker = func(w http.ResponseWriter, r *http.Request) {
 }
 
 var StopDocker = func(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods",
+		"GET, POST, PATCH, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers",
+		"Accept, Content-Type, Content-Length, Accept-Encoding, "+
+			"X-CSRF-Token, Authorization, Origin, X-Auth-Token")
+	w.Header().Set("Access-Control-Expose-Headers",
+		"Authorization")
 	ctx := context.Background()
 	userId := r.Context().Value("user").(uint) //Grab the id of the user that send the request
 	fmt.Println("userId: (", userId, ")")
@@ -212,7 +236,6 @@ var GetServerLogs = func(w http.ResponseWriter, r *http.Request) {
 }
 
 var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
-
 	userId := r.Context().Value("user").(uint)
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()

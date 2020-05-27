@@ -26,7 +26,7 @@ var CreateAccount = func(w http.ResponseWriter, r *http.Request) {
 var Authenticate = func(w http.ResponseWriter, r *http.Request) {
 	account := &models.Account{}
 	err := json.NewDecoder(r.Body).Decode(account) //decode the request body into struct and failed if any error occur
-	if err != nil  {
+	if err != nil {
 		utils.Respond(w, utils.Message(false, "Invalid request"), 400)
 		return
 	}
@@ -65,13 +65,13 @@ var Confirm = func(w http.ResponseWriter, r *http.Request) {
 	//c.Redirect(http.StatusPermanentRedirect, "https://localhost:8000/#/login")
 }
 
-func UpdateAccount(w http.ResponseWriter, r *http.Request)  {
+func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	fmt.Println("request /user/update")
 
 	idJson := &struct {
-				Id int `json:"Id,string,omitempty"`
-				Role string
+		Id   int `json:"Id,string,omitempty"`
+		Role string
 	}{}
 	err := json.NewDecoder(r.Body).Decode(idJson)
 	if err != nil {
@@ -87,5 +87,4 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request)  {
 	})
 	response := utils.Message(true, "role update")
 	utils.Respond(w, response, 200)
-
 }
