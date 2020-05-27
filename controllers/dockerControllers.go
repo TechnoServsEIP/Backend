@@ -242,6 +242,7 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 
 var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 
+	ctx := context.Background()
 	docker := &models.DockerList{}
 	userId := r.Context().Value("user").(uint)
 
@@ -252,6 +253,30 @@ var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	allDocker := models.UserServers(userId)
+
+	cli, err := client.NewEnvClient()
+	if err != nil {
+		fmt.Println("error when creating docker client", err)
+		return
+	}
+
+	for key, element := range *allDocker {
+		fmt.Println("Key:", key, "=>", "Element:", element)
+
+		info, err := cli.ContainerInspect(ctx, element.IdDocker)
+
+		if err != nil {
+			fmt.Println(err)
+			utils.Respond(w, map[string]interface{}{
+				"error": err.Error,
+			}, http.StatusCreated)
+			return
+		}
+
+		fmt.Println("infos:", &info)
+
+		element.Settings = &info
+	}
 
 	resp := map[string]interface{}{
 		"list": allDocker,

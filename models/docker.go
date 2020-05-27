@@ -1,12 +1,14 @@
 package models
 
 import (
+	"github.com/docker/docker/api/types"
 	"github.com/jinzhu/gorm"
 	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
 )
 
 type Docker struct {
-	Game string `json:"game"`
+	UserId string `json:"user_id"`
+	Game   string `json:"game"`
 }
 
 type DockerDelete struct {
@@ -16,9 +18,10 @@ type DockerDelete struct {
 
 type DockerStore struct {
 	gorm.Model
-	Game     string `json:"game"`
-	IdDocker string `json:"id_docker"`
-	UserId   uint   `json:"user_id"` //The user that this id belongs to
+	Game     string               `json:"game"`
+	IdDocker string               `json:"id_docker"`
+	UserId   uint                 `json:"user_id"` //The user that this id belongs to
+	Settings *types.ContainerJSON `json:"settings"`
 }
 
 type DockerList struct {
