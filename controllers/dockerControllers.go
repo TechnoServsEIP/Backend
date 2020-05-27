@@ -281,7 +281,13 @@ var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 	docker := &models.DockerList{}
 	// userId := r.Context().Value("user").(uint)
 
-	err := json.NewDecoder(r.Body).Decode(docker)
+	cli, err := client.NewEnvClient()
+	if err != nil {
+		fmt.Println("error when creating docker client", err)
+		return
+	}
+
+	err = json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
 		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
 		return
@@ -291,33 +297,25 @@ var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 
 	allDocker := models.UserServers(uint(u64))
 
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		fmt.Println("error when creating docker client", err)
-		return
-	}
+	list := make([]models.DockerStore, 0)
 
-	for key, element := range *allDocker {
-		fmt.Println("Key:", key, "=>", "Element:", element)
-
+	for _, element := range *allDocker {
 		info, err := cli.ContainerInspect(ctx, element.IdDocker)
-		fmt.Println(info)
 
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(err.Error())
 			utils.Respond(w, map[string]interface{}{
-				"error": err.Error,
-			}, http.StatusCreated)
+				"error": err.Error(),
+			}, 500)
 			return
 		}
 
-		fmt.Println("infos:", info)
-
-		element.Settings = info
+		element.Settings = &info
+		list = append(list, element)
 	}
 
 	resp := map[string]interface{}{
-		"list": allDocker,
+		"list": list,
 	}
 
 	utils.Respond(w, resp, 200)
