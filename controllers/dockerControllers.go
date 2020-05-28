@@ -149,6 +149,10 @@ var StartDocker = func(w http.ResponseWriter, r *http.Request) {
 
 	dockerStore.UpdateServerStatus("Started")
 
+	if err != nil {
+		fmt.Println("Error while updating status server")
+	}
+
 	resp := map[string]interface{}{}
 
 	resp["settings"] = info
@@ -201,8 +205,13 @@ var StopDocker = func(w http.ResponseWriter, r *http.Request) {
 		IdDocker: docker.ContainerId,
 		UserId:   userId,
 	}
-	// dockerStore.Update()
+
 	dockerStore.UpdateServerStatus("Stoped")
+
+	if err != nil {
+		fmt.Println("Error while updating status server")
+	}
+
 	utils.Respond(w, map[string]interface{}{"status": 200, "message": "Container Stop successfully"}, http.StatusOK)
 }
 
@@ -385,4 +394,34 @@ var GetInfosUserServer = func(w http.ResponseWriter, r *http.Request) {
 	serverInfo["logs"] = logs.String()
 
 	utils.Respond(w, serverInfo, 200)
+}
+
+var ModifyGameServer = func(w http.ResponseWriter, r *http.Request) {
+	docker := &models.GameServer{}
+
+	err := json.NewDecoder(r.Body).Decode(docker)
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
+		return
+	}
+
+	userID, err := strconv.ParseUint(docker.UserId, 10, 32)
+
+	dockerStore := &models.DockerStore{
+		IdDocker: docker.ContainerId,
+		UserId:   uint(userID),
+	}
+
+	err = dockerStore.UpdateGameServer(docker)
+
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Error while updating game server"), 500)
+		return
+	}
+
+	resp := map[string]interface{}{
+		"game_server_updated": docker,
+	}
+
+	utils.Respond(w, resp, 200)
 }

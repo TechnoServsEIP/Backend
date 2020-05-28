@@ -31,6 +31,12 @@ type DockerList struct {
 	UserId string `json:"user_id"`
 }
 
+type GameServer struct {
+	UserId      string `json:"user_id"`
+	ContainerId string `json:"container_id"`
+	ServerName  string `json:"server_name"`
+}
+
 func (docker *DockerStore) Validate() (map[string]interface{}, bool) {
 
 	if docker.IdDocker == "" {
@@ -108,17 +114,30 @@ func RemoveContainer(user_id uint, docker_id string) map[string]interface{} {
 	return map[string]interface{}{}
 }
 
-func (docker *DockerStore) UpdateServerStatus(status string) map[string]interface{} {
+func (docker *DockerStore) UpdateServerStatus(status string) error {
 
 	err := GetDB().First(docker).Error
 
 	if err != nil {
-		return map[string]interface{}{
-			"error": err.Error,
-		}
+		return err
 	}
 
 	docker.ServerStatus = status
+
+	GetDB().Save(docker)
+
+	return nil
+}
+
+func (docker *DockerStore) UpdateGameServer(gameSrv *GameServer) error {
+
+	err := GetDB().First(docker).Error
+
+	if err != nil {
+		return err
+	}
+
+	docker.ServerName = gameSrv.ServerName
 
 	GetDB().Save(docker)
 
