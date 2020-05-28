@@ -23,11 +23,12 @@ func main() {
 	fmt.Println("listen on port", port)
 
 	//TODO load database + pass to app struct
-
+	router.HandleFunc("/", controllers.Home).Methods("GET")
 	router.HandleFunc("/user/new", controllers.CreateAccount).Methods("POST")
 	router.HandleFunc("/user/update", controllers.UpdateAccount).Methods("POST")
 	router.HandleFunc("/user/confirm", controllers.Confirm).Methods("POST")
 	router.HandleFunc("/user/login", controllers.Authenticate).Methods("POST")
+	router.HandleFunc("/user/currentUser", controllers.GetEmail).Methods("GET")
 	router.HandleFunc("/user/", controllers.GetUsers).Methods("GET")
 	router.HandleFunc("/user/activate", controllers.Activate).Methods("POST")
 	router.HandleFunc("/user/deactivate", controllers.Deactivate).Methods("POST")

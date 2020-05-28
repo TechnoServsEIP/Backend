@@ -88,3 +88,18 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 
 	utils.Respond(w, msgSuccess, 400)
 }
+
+func GetEmail(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	userId := r.Context().Value("user")
+	user := &models.Account{}
+	msgFailure := utils.Message(false, "request failed")
+
+	err := models.GetDB().Where("id = ?", userId).Find(user).Error
+	if err != nil {
+		utils.Respond(w, msgFailure, 400)
+		return
+	}
+	msgSuccess := utils.Message(true, user.Email)
+	utils.Respond(w, msgSuccess, 200)
+}
