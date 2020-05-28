@@ -50,7 +50,7 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 		HostIP:   "0.0.0.0",
 		HostPort: port,
 	}
-	containerPort, err := nat.NewPort("tcp", port)
+	containerPort, err := nat.NewPort("tcp", "25565")
 	if err != nil {
 		fmt.Println("error when creating container port", err)
 		return
