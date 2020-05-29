@@ -94,7 +94,7 @@ func UserServers(id uint) *[]DockerStore {
 func OneUserServer(id uint, docker_id string) *DockerStore {
 	docker := &DockerStore{}
 
-	err := GetDB().Table("docker_stores").Where("user_id = ? AND id_docker = ?", id, docker_id).First(docker).Error
+	err := GetDB().Table("docker_stores").Where("id_docker = ?", docker_id).First(docker).Error
 	if err != nil {
 		return nil
 	}
@@ -116,7 +116,7 @@ func RemoveContainer(user_id uint, docker_id string) map[string]interface{} {
 
 func (docker *DockerStore) UpdateServerStatus(status string) error {
 
-	err := GetDB().First(docker).Error
+	err := GetDB().Table("docker_stores").Where("id_docker = ?", docker.IdDocker).First(docker).Error
 
 	if err != nil {
 		return err
@@ -131,7 +131,7 @@ func (docker *DockerStore) UpdateServerStatus(status string) error {
 
 func (docker *DockerStore) UpdateGameServer(gameSrv *GameServer) error {
 
-	err := GetDB().First(docker).Error
+	err := GetDB().Table("docker_stores").Where("id_docker = ?", docker.IdDocker).First(docker).Error
 
 	if err != nil {
 		return err
