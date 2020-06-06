@@ -86,7 +86,7 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.Respond(w, msgSuccess, 400)
+	utils.Respond(w, msgSuccess, 200)
 }
 
 func GetEmail(w http.ResponseWriter, r *http.Request) {
