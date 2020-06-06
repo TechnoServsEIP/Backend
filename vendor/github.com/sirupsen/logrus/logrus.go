@@ -51,7 +51,11 @@ func (level *Level) UnmarshalText(text []byte) error {
 		return err
 	}
 
+<<<<<<< HEAD
 	*level = Level(l)
+=======
+	*level = l
+>>>>>>> clientGRPCBilling
 
 	return nil
 }

@@ -28,6 +28,12 @@ type JSONFormatter struct {
 	// DisableTimestamp allows disabling automatic timestamps in output
 	DisableTimestamp bool
 
+<<<<<<< HEAD
+=======
+	// DisableHTMLEscape allows disabling html escaping in output
+	DisableHTMLEscape bool
+
+>>>>>>> clientGRPCBilling
 	// DataKey allows users to put all the log entry parameters into a nested dictionary at a given key.
 	DataKey string
 
@@ -110,6 +116,10 @@ func (f *JSONFormatter) Format(entry *Entry) ([]byte, error) {
 	}
 
 	encoder := json.NewEncoder(b)
+<<<<<<< HEAD
+=======
+	encoder.SetEscapeHTML(!f.DisableHTMLEscape)
+>>>>>>> clientGRPCBilling
 	if f.PrettyPrint {
 		encoder.SetIndent("", "  ")
 	}

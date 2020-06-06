@@ -82,6 +82,37 @@ type Stat_t struct {
 
 type Statfs_t [0]byte
 
+<<<<<<< HEAD
+=======
+type Statvfs_t struct {
+	Flag        uint64
+	Bsize       uint64
+	Frsize      uint64
+	Iosize      uint64
+	Blocks      uint64
+	Bfree       uint64
+	Bavail      uint64
+	Bresvd      uint64
+	Files       uint64
+	Ffree       uint64
+	Favail      uint64
+	Fresvd      uint64
+	Syncreads   uint64
+	Syncwrites  uint64
+	Asyncreads  uint64
+	Asyncwrites uint64
+	Fsidx       Fsid
+	Fsid        uint64
+	Namemax     uint64
+	Owner       uint32
+	Spare       [4]uint32
+	Fstypename  [32]byte
+	Mntonname   [1024]byte
+	Mntfromname [1024]byte
+	_           [4]byte
+}
+
+>>>>>>> clientGRPCBilling
 type Flock_t struct {
 	Start  int64
 	Len    int64
@@ -108,6 +139,14 @@ const (
 )
 
 const (
+<<<<<<< HEAD
+=======
+	ST_WAIT   = 0x1
+	ST_NOWAIT = 0x2
+)
+
+const (
+>>>>>>> clientGRPCBilling
 	FADV_NORMAL     = 0x0
 	FADV_RANDOM     = 0x1
 	FADV_SEQUENTIAL = 0x2

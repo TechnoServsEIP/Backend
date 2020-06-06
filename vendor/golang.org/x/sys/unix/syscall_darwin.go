@@ -155,6 +155,7 @@ func getAttrList(path string, attrList attrList, attrBuf []byte, options uint) (
 
 //sys getattrlist(path *byte, list unsafe.Pointer, buf unsafe.Pointer, size uintptr, options int) (err error)
 
+<<<<<<< HEAD
 func SysctlClockinfo(name string) (*Clockinfo, error) {
 	mib, err := sysctlmib(name)
 	if err != nil {
@@ -172,6 +173,8 @@ func SysctlClockinfo(name string) (*Clockinfo, error) {
 	return &ci, nil
 }
 
+=======
+>>>>>>> clientGRPCBilling
 //sysnb pipe() (r int, w int, err error)
 
 func Pipe(p []int) (err error) {
@@ -333,6 +336,11 @@ func utimensat(dirfd int, path string, times *[2]Timespec, flags int) error {
  * Wrapped
  */
 
+<<<<<<< HEAD
+=======
+//sys	fcntl(fd int, cmd int, arg int) (val int, err error)
+
+>>>>>>> clientGRPCBilling
 //sys	kill(pid int, signum int, posix int) (err error)
 
 func Kill(pid int, signum syscall.Signal) (err error) { return kill(pid, int(signum), 1) }

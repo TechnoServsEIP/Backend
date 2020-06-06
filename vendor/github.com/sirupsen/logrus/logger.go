@@ -68,10 +68,17 @@ func (mw *MutexWrap) Disable() {
 // `Out` and `Hooks` directly on the default logger instance. You can also just
 // instantiate your own:
 //
+<<<<<<< HEAD
 //    var log = &Logger{
 //      Out: os.Stderr,
 //      Formatter: new(JSONFormatter),
 //      Hooks: make(LevelHooks),
+=======
+//    var log = &logrus.Logger{
+//      Out: os.Stderr,
+//      Formatter: new(logrus.JSONFormatter),
+//      Hooks: make(logrus.LevelHooks),
+>>>>>>> clientGRPCBilling
 //      Level: logrus.DebugLevel,
 //    }
 //
@@ -100,8 +107,14 @@ func (logger *Logger) releaseEntry(entry *Entry) {
 	logger.entryPool.Put(entry)
 }
 
+<<<<<<< HEAD
 // Adds a field to the log entry, note that it doesn't log until you call
 // Debug, Print, Info, Warn, Error, Fatal or Panic. It only creates a log entry.
+=======
+// WithField allocates a new entry and adds a field to it.
+// Debug, Print, Info, Warn, Error, Fatal or Panic must be then applied to
+// this new returned entry.
+>>>>>>> clientGRPCBilling
 // If you want multiple fields, use `WithFields`.
 func (logger *Logger) WithField(key string, value interface{}) *Entry {
 	entry := logger.newEntry()

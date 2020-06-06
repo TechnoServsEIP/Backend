@@ -82,7 +82,11 @@
 //
 //     if err, ok := err.(stackTracer); ok {
 //             for _, f := range err.StackTrace() {
+<<<<<<< HEAD
 //                     fmt.Printf("%+s:%d", f)
+=======
+//                     fmt.Printf("%+s:%d\n", f, f)
+>>>>>>> clientGRPCBilling
 //             }
 //     }
 //
@@ -159,6 +163,12 @@ type withStack struct {
 
 func (w *withStack) Cause() error { return w.error }
 
+<<<<<<< HEAD
+=======
+// Unwrap provides compatibility for Go 1.13 error chains.
+func (w *withStack) Unwrap() error { return w.error }
+
+>>>>>>> clientGRPCBilling
 func (w *withStack) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 'v':
@@ -241,6 +251,12 @@ type withMessage struct {
 func (w *withMessage) Error() string { return w.msg + ": " + w.cause.Error() }
 func (w *withMessage) Cause() error  { return w.cause }
 
+<<<<<<< HEAD
+=======
+// Unwrap provides compatibility for Go 1.13 error chains.
+func (w *withMessage) Unwrap() error { return w.cause }
+
+>>>>>>> clientGRPCBilling
 func (w *withMessage) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 'v':

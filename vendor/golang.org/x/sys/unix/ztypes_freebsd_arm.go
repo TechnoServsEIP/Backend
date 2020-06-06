@@ -405,7 +405,11 @@ type PtraceIoDesc struct {
 	Op   int32
 	Offs *byte
 	Addr *byte
+<<<<<<< HEAD
 	Len  uint
+=======
+	Len  uint32
+>>>>>>> clientGRPCBilling
 }
 
 type Kevent_t struct {
@@ -681,3 +685,16 @@ type Utsname struct {
 	Version  [256]byte
 	Machine  [256]byte
 }
+<<<<<<< HEAD
+=======
+
+const SizeofClockinfo = 0x14
+
+type Clockinfo struct {
+	Hz     int32
+	Tick   int32
+	Spare  int32
+	Stathz int32
+	Profhz int32
+}
+>>>>>>> clientGRPCBilling

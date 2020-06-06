@@ -345,4 +345,10 @@ const (
 	SYS_FSMOUNT                = 5432
 	SYS_FSPICK                 = 5433
 	SYS_PIDFD_OPEN             = 5434
+<<<<<<< HEAD
+=======
+	SYS_CLONE3                 = 5435
+	SYS_OPENAT2                = 5437
+	SYS_PIDFD_GETFD            = 5438
+>>>>>>> clientGRPCBilling
 )

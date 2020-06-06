@@ -128,9 +128,15 @@ type Statfs_t struct {
 	Owner       uint32
 	Fsid        Fsid
 	Charspare   [80]int8
+<<<<<<< HEAD
 	Fstypename  [16]int8
 	Mntfromname [1024]int8
 	Mntonname   [1024]int8
+=======
+	Fstypename  [16]byte
+	Mntfromname [1024]byte
+	Mntonname   [1024]byte
+>>>>>>> clientGRPCBilling
 }
 
 type statfs_freebsd11_t struct {
@@ -153,9 +159,15 @@ type statfs_freebsd11_t struct {
 	Owner       uint32
 	Fsid        Fsid
 	Charspare   [80]int8
+<<<<<<< HEAD
 	Fstypename  [16]int8
 	Mntfromname [88]int8
 	Mntonname   [88]int8
+=======
+	Fstypename  [16]byte
+	Mntfromname [88]byte
+	Mntonname   [88]byte
+>>>>>>> clientGRPCBilling
 }
 
 type Flock_t struct {
@@ -375,6 +387,7 @@ type PtraceLwpInfoStruct struct {
 }
 
 type __Siginfo struct {
+<<<<<<< HEAD
 	Signo    int32
 	Errno    int32
 	Code     int32
@@ -384,6 +397,17 @@ type __Siginfo struct {
 	Addr     *byte
 	Value    [4]byte
 	X_reason [32]byte
+=======
+	Signo  int32
+	Errno  int32
+	Code   int32
+	Pid    int32
+	Uid    uint32
+	Status int32
+	Addr   *byte
+	Value  [4]byte
+	_      [32]byte
+>>>>>>> clientGRPCBilling
 }
 
 type Sigset_t struct {
@@ -423,7 +447,11 @@ type PtraceIoDesc struct {
 	Op   int32
 	Offs *byte
 	Addr *byte
+<<<<<<< HEAD
 	Len  uint
+=======
+	Len  uint32
+>>>>>>> clientGRPCBilling
 }
 
 type Kevent_t struct {
@@ -458,7 +486,11 @@ type ifMsghdr struct {
 	Addrs   int32
 	Flags   int32
 	Index   uint16
+<<<<<<< HEAD
 	_       [2]byte
+=======
+	_       uint16
+>>>>>>> clientGRPCBilling
 	Data    ifData
 }
 
@@ -469,7 +501,10 @@ type IfMsghdr struct {
 	Addrs   int32
 	Flags   int32
 	Index   uint16
+<<<<<<< HEAD
 	_       [2]byte
+=======
+>>>>>>> clientGRPCBilling
 	Data    IfData
 }
 
@@ -536,7 +571,11 @@ type IfaMsghdr struct {
 	Addrs   int32
 	Flags   int32
 	Index   uint16
+<<<<<<< HEAD
 	_       [2]byte
+=======
+	_       uint16
+>>>>>>> clientGRPCBilling
 	Metric  int32
 }
 
@@ -547,7 +586,11 @@ type IfmaMsghdr struct {
 	Addrs   int32
 	Flags   int32
 	Index   uint16
+<<<<<<< HEAD
 	_       [2]byte
+=======
+	_       uint16
+>>>>>>> clientGRPCBilling
 }
 
 type IfAnnounceMsghdr struct {
@@ -564,7 +607,11 @@ type RtMsghdr struct {
 	Version uint8
 	Type    uint8
 	Index   uint16
+<<<<<<< HEAD
 	_       [2]byte
+=======
+	_       uint16
+>>>>>>> clientGRPCBilling
 	Flags   int32
 	Addrs   int32
 	Pid     int32
@@ -698,3 +745,16 @@ type Utsname struct {
 	Version  [256]byte
 	Machine  [256]byte
 }
+<<<<<<< HEAD
+=======
+
+const SizeofClockinfo = 0x14
+
+type Clockinfo struct {
+	Hz     int32
+	Tick   int32
+	Spare  int32
+	Stathz int32
+	Profhz int32
+}
+>>>>>>> clientGRPCBilling

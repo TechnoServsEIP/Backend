@@ -6,6 +6,7 @@
 package unix
 
 const (
+<<<<<<< HEAD
 	SizeofPtr      = 0x8
 	SizeofShort    = 0x2
 	SizeofInt      = 0x4
@@ -19,6 +20,14 @@ type (
 	_C_int       int32
 	_C_long      int64
 	_C_long_long int64
+=======
+	SizeofPtr  = 0x8
+	SizeofLong = 0x8
+)
+
+type (
+	_C_long int64
+>>>>>>> clientGRPCBilling
 )
 
 type Timespec struct {
@@ -88,6 +97,7 @@ type Rusage struct {
 	Nivcsw   int64
 }
 
+<<<<<<< HEAD
 type Rlimit struct {
 	Cur uint64
 	Max uint64
@@ -95,6 +105,8 @@ type Rlimit struct {
 
 type _Gid_t uint32
 
+=======
+>>>>>>> clientGRPCBilling
 type Stat_t struct {
 	Dev     uint64
 	Ino     uint64
@@ -115,6 +127,7 @@ type Stat_t struct {
 	_       uint64
 }
 
+<<<<<<< HEAD
 type StatxTimestamp struct {
 	Sec  int64
 	Nsec uint32
@@ -145,6 +158,8 @@ type Statx_t struct {
 	_               [14]uint64
 }
 
+=======
+>>>>>>> clientGRPCBilling
 type Dirent struct {
 	Ino    uint64
 	Off    int64
@@ -154,10 +169,13 @@ type Dirent struct {
 	_      [5]byte
 }
 
+<<<<<<< HEAD
 type Fsid struct {
 	Val [2]int32
 }
 
+=======
+>>>>>>> clientGRPCBilling
 type Flock_t struct {
 	Type   int16
 	Whence int16
@@ -167,6 +185,7 @@ type Flock_t struct {
 	_      [4]byte
 }
 
+<<<<<<< HEAD
 type FscryptPolicy struct {
 	Version                   uint8
 	Contents_encryption_mode  uint8
@@ -294,6 +313,13 @@ type RawSockaddrTIPC struct {
 	Addr     [12]byte
 }
 
+=======
+const (
+	FADV_DONTNEED = 0x4
+	FADV_NOREUSE  = 0x5
+)
+
+>>>>>>> clientGRPCBilling
 type RawSockaddr struct {
 	Family uint16
 	Data   [14]uint8
@@ -304,6 +330,7 @@ type RawSockaddrAny struct {
 	Pad  [96]uint8
 }
 
+<<<<<<< HEAD
 type _Socklen uint32
 
 type Linger struct {
@@ -311,11 +338,14 @@ type Linger struct {
 	Linger int32
 }
 
+=======
+>>>>>>> clientGRPCBilling
 type Iovec struct {
 	Base *byte
 	Len  uint64
 }
 
+<<<<<<< HEAD
 type IPMreq struct {
 	Multiaddr [4]byte /* in_addr */
 	Interface [4]byte /* in_addr */
@@ -339,6 +369,8 @@ type PacketMreq struct {
 	Address [8]uint8
 }
 
+=======
+>>>>>>> clientGRPCBilling
 type Msghdr struct {
 	Name       *byte
 	Namelen    uint32
@@ -356,6 +388,7 @@ type Cmsghdr struct {
 	Type  int32
 }
 
+<<<<<<< HEAD
 type Inet4Pktinfo struct {
 	Ifindex  int32
 	Spec_dst [4]byte /* in_addr */
@@ -733,6 +766,18 @@ type InotifyEvent struct {
 
 const SizeofInotifyEvent = 0x10
 
+=======
+const (
+	SizeofIovec   = 0x10
+	SizeofMsghdr  = 0x38
+	SizeofCmsghdr = 0x10
+)
+
+const (
+	SizeofSockFprog = 0x10
+)
+
+>>>>>>> clientGRPCBilling
 type PtraceRegs struct {
 	Gpr       [32]uint64
 	Nip       uint64
@@ -771,6 +816,7 @@ type Sysinfo_t struct {
 	_         [4]byte
 }
 
+<<<<<<< HEAD
 type Utsname struct {
 	Sysname    [65]byte
 	Nodename   [65]byte
@@ -780,6 +826,8 @@ type Utsname struct {
 	Domainname [65]byte
 }
 
+=======
+>>>>>>> clientGRPCBilling
 type Ustat_t struct {
 	Tfree  int32
 	Tinode uint64
@@ -796,6 +844,7 @@ type EpollEvent struct {
 }
 
 const (
+<<<<<<< HEAD
 	AT_EMPTY_PATH   = 0x1000
 	AT_FDCWD        = -0x64
 	AT_NO_AUTOMOUNT = 0x800
@@ -825,6 +874,9 @@ const (
 	POLLERR   = 0x8
 	POLLHUP   = 0x10
 	POLLNVAL  = 0x20
+=======
+	POLLRDHUP = 0x2000
+>>>>>>> clientGRPCBilling
 )
 
 type Sigset_t struct {
@@ -833,6 +885,7 @@ type Sigset_t struct {
 
 const _C__NSIG = 0x41
 
+<<<<<<< HEAD
 type SignalfdSiginfo struct {
 	Signo     uint32
 	Errno     int32
@@ -860,6 +913,8 @@ type SignalfdSiginfo struct {
 
 const PERF_IOC_FLAG_GROUP = 0x1
 
+=======
+>>>>>>> clientGRPCBilling
 type Termios struct {
 	Iflag  uint32
 	Oflag  uint32
@@ -871,6 +926,7 @@ type Termios struct {
 	Ospeed uint32
 }
 
+<<<<<<< HEAD
 type Winsize struct {
 	Row    uint16
 	Col    uint16
@@ -878,6 +934,8 @@ type Winsize struct {
 	Ypixel uint16
 }
 
+=======
+>>>>>>> clientGRPCBilling
 type Taskstats struct {
 	Version                   uint16
 	Ac_exitcode               uint32
@@ -925,6 +983,7 @@ type Taskstats struct {
 	Freepages_delay_total     uint64
 	Thrashing_count           uint64
 	Thrashing_delay_total     uint64
+<<<<<<< HEAD
 }
 
 const (
@@ -1198,6 +1257,15 @@ const (
 	PERF_FLAG_FD_OUTPUT   = 0x2
 	PERF_FLAG_PID_CGROUP  = 0x4
 	PERF_FLAG_FD_CLOEXEC  = 0x8
+=======
+	Ac_btime64                uint64
+}
+
+type cpuMask uint64
+
+const (
+	_NCPUBITS = 0x40
+>>>>>>> clientGRPCBilling
 )
 
 const (
@@ -1273,6 +1341,7 @@ type SockaddrStorage struct {
 	_      uint64
 }
 
+<<<<<<< HEAD
 type TCPMD5Sig struct {
 	Addr      SockaddrStorage
 	Flags     uint8
@@ -1289,6 +1358,8 @@ type HDDriveCmdHdr struct {
 	Count   uint8
 }
 
+=======
+>>>>>>> clientGRPCBilling
 type HDGeometry struct {
 	Heads     uint8
 	Sectors   uint8
@@ -1296,6 +1367,7 @@ type HDGeometry struct {
 	Start     uint64
 }
 
+<<<<<<< HEAD
 type HDDriveID struct {
 	Config         uint16
 	Cyls           uint16
@@ -1378,6 +1450,8 @@ type HDDriveID struct {
 	Integrity_word uint16
 }
 
+=======
+>>>>>>> clientGRPCBilling
 type Statfs_t struct {
 	Type    int64
 	Bsize   int64
@@ -1393,6 +1467,7 @@ type Statfs_t struct {
 	Spare   [4]int64
 }
 
+<<<<<<< HEAD
 const (
 	ST_MANDLOCK    = 0x40
 	ST_NOATIME     = 0x400
@@ -1405,6 +1480,8 @@ const (
 	ST_SYNCHRONOUS = 0x10
 )
 
+=======
+>>>>>>> clientGRPCBilling
 type TpacketHdr struct {
 	Status  uint64
 	Len     uint32
@@ -1416,6 +1493,7 @@ type TpacketHdr struct {
 	_       [4]byte
 }
 
+<<<<<<< HEAD
 type Tpacket2Hdr struct {
 	Status    uint32
 	Len       uint32
@@ -1999,6 +2077,12 @@ type RTCWkAlrm struct {
 	Time    RTCTime
 }
 
+=======
+const (
+	SizeofTpacketHdr = 0x20
+)
+
+>>>>>>> clientGRPCBilling
 type RTCPLLInfo struct {
 	Ctrl    int32
 	Value   int32
@@ -2009,6 +2093,7 @@ type RTCPLLInfo struct {
 	Clock   int64
 }
 
+<<<<<<< HEAD
 type BlkpgIoctlArg struct {
 	Op      int32
 	Flags   int32
@@ -2016,6 +2101,8 @@ type BlkpgIoctlArg struct {
 	Data    *byte
 }
 
+=======
+>>>>>>> clientGRPCBilling
 type BlkpgPartition struct {
 	Start   int64
 	Length  int64
@@ -2026,6 +2113,7 @@ type BlkpgPartition struct {
 }
 
 const (
+<<<<<<< HEAD
 	BLKPG                  = 0x20001269
 	BLKPG_ADD_PARTITION    = 0x1
 	BLKPG_DEL_PARTITION    = 0x2
@@ -2052,11 +2140,17 @@ type XDPMmapOffsets struct {
 	Cr XDPRingOffset
 }
 
+=======
+	BLKPG = 0x20001269
+)
+
+>>>>>>> clientGRPCBilling
 type XDPUmemReg struct {
 	Addr     uint64
 	Len      uint64
 	Size     uint32
 	Headroom uint32
+<<<<<<< HEAD
 }
 
 type XDPStatistics struct {
@@ -2188,6 +2282,12 @@ const (
 	CRYPTOCFGA_STAT_ACOMP       = 0x15
 )
 
+=======
+	Flags    uint32
+	_        [4]byte
+}
+
+>>>>>>> clientGRPCBilling
 type CryptoUserAlg struct {
 	Name        [64]uint8
 	Driver_name [64]uint8
@@ -2318,6 +2418,7 @@ type CryptoReportAcomp struct {
 	Type [64]uint8
 }
 
+<<<<<<< HEAD
 const (
 	BPF_REG_0                           = 0x0
 	BPF_REG_1                           = 0x1
@@ -2530,6 +2631,8 @@ const (
 	LO_FLAGS_DIRECT_IO = 0x10
 )
 
+=======
+>>>>>>> clientGRPCBilling
 type LoopInfo struct {
 	Number           int32
 	Device           uint64
@@ -2545,6 +2648,7 @@ type LoopInfo struct {
 	Reserved         [4]uint8
 	_                [4]byte
 }
+<<<<<<< HEAD
 type LoopInfo64 struct {
 	Device           uint64
 	Inode            uint64
@@ -2577,6 +2681,8 @@ type TIPCServiceName struct {
 	Instance uint32
 	Domain   uint32
 }
+=======
+>>>>>>> clientGRPCBilling
 
 type TIPCSubscr struct {
 	Seq     TIPCServiceRange
@@ -2585,6 +2691,7 @@ type TIPCSubscr struct {
 	Handle  [8]uint8
 }
 
+<<<<<<< HEAD
 type TIPCEvent struct {
 	Event uint32
 	Lower uint32
@@ -2600,6 +2707,8 @@ type TIPCGroupReq struct {
 	Flags    uint32
 }
 
+=======
+>>>>>>> clientGRPCBilling
 type TIPCSIOCLNReq struct {
 	Peer     uint32
 	Id       uint32
@@ -2610,6 +2719,7 @@ type TIPCSIOCNodeIDReq struct {
 	Peer uint32
 	Id   [16]uint8
 }
+<<<<<<< HEAD
 
 const (
 	TIPC_CLUSTER_SCOPE = 0x2
@@ -2758,3 +2868,5 @@ const (
 	DEVLINK_DPIPE_HEADER_IPV4                 = 0x1
 	DEVLINK_DPIPE_HEADER_IPV6                 = 0x2
 )
+=======
+>>>>>>> clientGRPCBilling

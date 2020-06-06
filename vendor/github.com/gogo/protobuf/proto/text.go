@@ -476,6 +476,11 @@ func (tm *TextMarshaler) writeStruct(w *textWriter, sv reflect.Value) error {
 	return nil
 }
 
+<<<<<<< HEAD
+=======
+var textMarshalerType = reflect.TypeOf((*encoding.TextMarshaler)(nil)).Elem()
+
+>>>>>>> clientGRPCBilling
 // writeAny writes an arbitrary field.
 func (tm *TextMarshaler) writeAny(w *textWriter, v reflect.Value, props *Properties) error {
 	v = reflect.Indirect(v)
@@ -589,8 +594,13 @@ func (tm *TextMarshaler) writeAny(w *textWriter, v reflect.Value, props *Propert
 			// mutating this value.
 			v = v.Addr()
 		}
+<<<<<<< HEAD
 		if etm, ok := v.Interface().(encoding.TextMarshaler); ok {
 			text, err := etm.MarshalText()
+=======
+		if v.Type().Implements(textMarshalerType) {
+			text, err := v.Interface().(encoding.TextMarshaler).MarshalText()
+>>>>>>> clientGRPCBilling
 			if err != nil {
 				return err
 			}

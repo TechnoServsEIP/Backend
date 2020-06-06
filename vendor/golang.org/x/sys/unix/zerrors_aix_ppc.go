@@ -459,6 +459,18 @@ const (
 	MAP_SHARED                    = 0x1
 	MAP_TYPE                      = 0xf0
 	MAP_VARIABLE                  = 0x0
+<<<<<<< HEAD
+=======
+	MCAST_BLOCK_SOURCE            = 0x40
+	MCAST_EXCLUDE                 = 0x2
+	MCAST_INCLUDE                 = 0x1
+	MCAST_JOIN_GROUP              = 0x3e
+	MCAST_JOIN_SOURCE_GROUP       = 0x42
+	MCAST_LEAVE_GROUP             = 0x3f
+	MCAST_LEAVE_SOURCE_GROUP      = 0x43
+	MCAST_SOURCE_FILTER           = 0x49
+	MCAST_UNBLOCK_SOURCE          = 0x41
+>>>>>>> clientGRPCBilling
 	MCL_CURRENT                   = 0x100
 	MCL_FUTURE                    = 0x200
 	MSG_ANY                       = 0x4
@@ -483,6 +495,10 @@ const (
 	MS_INVALIDATE                 = 0x40
 	MS_PER_SEC                    = 0x3e8
 	MS_SYNC                       = 0x20
+<<<<<<< HEAD
+=======
+	NFDBITS                       = 0x20
+>>>>>>> clientGRPCBilling
 	NL0                           = 0x0
 	NL1                           = 0x4000
 	NL2                           = 0x8000
@@ -688,7 +704,11 @@ const (
 	SIOCGHIWAT                    = 0x40047301
 	SIOCGIFADDR                   = -0x3fd796df
 	SIOCGIFADDRS                  = 0x2000698c
+<<<<<<< HEAD
 	SIOCGIFBAUDRATE               = -0x3fd79693
+=======
+	SIOCGIFBAUDRATE               = -0x3fdf9669
+>>>>>>> clientGRPCBilling
 	SIOCGIFBRDADDR                = -0x3fd796dd
 	SIOCGIFCONF                   = -0x3ff796bb
 	SIOCGIFCONFGLOB               = -0x3ff79670
