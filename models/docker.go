@@ -3,7 +3,7 @@ package models
 import (
 	"github.com/docker/docker/api/types"
 	"github.com/jinzhu/gorm"
-	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
+	"github.com/TechnoServsEIP/Backend/utils"
 )
 
 type Docker struct {

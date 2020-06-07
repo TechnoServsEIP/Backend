@@ -1,15 +1,5 @@
-module gitlab.sysroot.ovh/technoservs/microservices/game-servers
+module github.com/TechnoServsEIP/Backend
 
-<<<<<<< HEAD
-go 1.14
-
-require (
-	github.com/micro/go-micro v1.18.0
-	github.com/micro/go-plugins/broker/nsq v0.0.0-20200119172437-4fe21aa238fd
-	github.com/micro/go-plugins/registry/consul v0.0.0-20200119172437-4fe21aa238fd
-	gitlab.sysroot.ovh/technoservs/grpc-protos/go-game-servers v0.0.0-20200127175754-bf7cb2a7774a
-	gitlab.sysroot.ovh/technoservs/internal-libs/go-utils v0.0.0-20200121144808-2cac40c6b8cf
-=======
 go 1.12
 
 require (
@@ -50,5 +40,4 @@ require (
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
->>>>>>> clientGRPCBilling
 )

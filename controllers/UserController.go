@@ -3,8 +3,8 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/models"
-	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
+	"github.com/TechnoServsEIP/Backend/models"
+	"github.com/TechnoServsEIP/Backend/utils"
 	"net/http"
 )
 

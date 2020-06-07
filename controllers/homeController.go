@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
+	"github.com/TechnoServsEIP/Backend/utils"
 	"net/http"
 )
 

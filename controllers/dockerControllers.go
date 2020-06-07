@@ -13,8 +13,8 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
-	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/models"
-	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
+	"github.com/TechnoServsEIP/Backend/models"
+	"github.com/TechnoServsEIP/Backend/utils"
 )
 
 var CreateDocker = func(w http.ResponseWriter, r *http.Request) {

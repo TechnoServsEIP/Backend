@@ -2,7 +2,7 @@ package models
 
 import (
 	//"github.com/jinzhu/gorm"
-	//"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
+	//"github.com/TechnoServsEIP/Backend/utils"
 	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"

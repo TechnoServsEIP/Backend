@@ -9,8 +9,8 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/models"
-	"gitlab.sysroot.ovh/technoservs/microservices/game-servers/utils"
+	"github.com/TechnoServsEIP/Backend/models"
+	"github.com/TechnoServsEIP/Backend/utils"
 )
 
 var JwtAuthentication = func(next http.Handler) http.Handler {
