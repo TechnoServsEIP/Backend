@@ -8,6 +8,9 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"os/exec"
+	"regexp"
+	"strings"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -393,7 +396,54 @@ var GetInfosUserServer = func(w http.ResponseWriter, r *http.Request) {
 	io.Copy(&logs, out)
 	serverInfo["logs"] = logs.String()
 
+	serverInfo["playersOnline"] = GetNumberPlayers(docker.ContainerId)
+
 	utils.Respond(w, serverInfo, 200)
+}
+
+var GetNumberPlayers = func(containerId string) map[string]interface{} {
+	cmd := exec.Command("docker", "exec", containerId, "rcon-cli", "list")
+	outputListPlayer, err := cmd.CombinedOutput()
+
+	if err != nil {
+		return map[string]interface{}{}
+	}
+
+	re := regexp.MustCompile("[0-9]+")	
+	result := strings.Split(string(outputListPlayer), ":")
+	nbPlayers := result[0]
+	listPlayers := strings.Split(result[1][:len(result[1])-1], ",")
+	
+	players := re.FindAllString(nbPlayers, -1)
+	connectedPlayers := players[0]
+	maxPlayers := players[1]
+
+	// fmt.Println("connected players: " + connectedPlayers + "/" + maxPlayers)
+	// fmt.Print(listPlayers)
+
+	conP, _ := strconv.ParseInt(connectedPlayers, 10, 64)
+	maxP, _ := strconv.ParseInt(maxPlayers, 10, 64)
+
+	return map[string]interface{}{
+		"connectedPlayers": conP,
+		"maxPlayers": maxP,
+		"listPlayers": listPlayers,
+	}
+}
+
+var GetPlayersOnline = func(w http.ResponseWriter, r *http.Request) {
+	docker := &models.DockerDelete{}
+
+	err := json.NewDecoder(r.Body).Decode(docker)
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
+		return
+	}
+
+	playersOnline := map[string]interface{}{}
+	playersOnline["playersOnline"] = GetNumberPlayers(docker.ContainerId)
+
+	utils.Respond(w, playersOnline, 200)
 }
 
 var ModifyGameServer = func(w http.ResponseWriter, r *http.Request) {
