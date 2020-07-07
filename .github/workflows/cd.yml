@@ -1,0 +1,13 @@
+name: technoservs continuous deployment
+
+on:
+  push:
+    branches:
+      - feature/cd
+
+jobs:
+  technoservsCD:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy backend
+      run: docker-compose build && docker-compose up
