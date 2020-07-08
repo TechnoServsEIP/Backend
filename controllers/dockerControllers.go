@@ -424,6 +424,10 @@ var GetNumberPlayers = func(containerId string) map[string]interface{} {
 	conP, _ := strconv.ParseInt(connectedPlayers, 10, 64)
 	maxP, _ := strconv.ParseInt(maxPlayers, 10, 64)
 
+	if conP == 0 {
+		listPlayers = []string{}
+	}
+
 	return map[string]interface{}{
 		"connectedPlayers": conP,
 		"maxPlayers": maxP,
