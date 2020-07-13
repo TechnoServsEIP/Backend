@@ -1,13 +1,21 @@
-name: technoservs continuous deployment
+name: CD technoservs
 
 on:
-  push:
-    branches:
-      - feature/cd
+    push:
+        branches:
+            - develop
 
 jobs:
-  technoservsCD:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Deploy backend
-      run: docker-compose build && docker-compose up
+        - uses: actions/checkout@master
+        - name: Copy repo into azure Vm
+          uses: appleboy/scp-action@master
+          with:
+            source: "."
+            target: /home/sulli/Backend
+            host: ${{ secrets.HOST }}
+            username: ${{ secrets.USERNAME }}
+            key: ${{ secrets.PRIVATEKEY }}
