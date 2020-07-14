@@ -11,7 +11,7 @@ import (
 
 var db *gorm.DB //database
 
-func init() {
+func Initialization() {
 	initMongoDb()
 
 	err := godotenv.Load() //Load .env file
