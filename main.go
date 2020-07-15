@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/TechnoServsEIP/Backend/models"
 	"log"
 	"net/http"
 	"os"
@@ -13,7 +14,7 @@ import (
 )
 
 func main() {
-
+	models.Initialization()
 	router := mux.NewRouter()
 
 	port := os.Getenv("server_port") //Get port from .env file, we did not specify any port so this should return an empty string when tested locally
