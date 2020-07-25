@@ -3,7 +3,7 @@ name: CD technoservs
 on:
     push:
         branches:
-            - develop
+            - feature/cd
 
 jobs:
   build:
@@ -15,7 +15,8 @@ jobs:
           uses: appleboy/scp-action@master
           with:
             source: "."
-            target: /home/sulli/Backend
+            target: /home/technoservs_user/Backend
             host: ${{ secrets.HOST }}
             username: ${{ secrets.USERNAME }}
             key: ${{ secrets.PRIVATEKEY }}
+            port: ${{ secrets.PORT }}
