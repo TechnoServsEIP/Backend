@@ -3,7 +3,7 @@ name: CD technoservs
 on:
     push:
         branches:
-            - feature/cd
+            - develop
 
 jobs:
   build:
@@ -20,4 +20,3 @@ jobs:
             username: ${{ secrets.USERNAME }}
             key: ${{ secrets.PRIVATEKEY }}
             port: ${{ secrets.PORT }}
- 
