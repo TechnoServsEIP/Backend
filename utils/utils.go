@@ -15,7 +15,7 @@ import (
 
 const charset = "abcdefghijklmnopqrstuvwxyz" +
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
+//
 var ports = [...]string{"25576", "25577", "25578", "25579", "26000", "26001"}
 
 func Message(status bool, message string) map[string]interface{} {
