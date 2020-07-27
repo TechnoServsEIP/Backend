@@ -75,6 +75,6 @@ func main() {
 
 	go http.ListenAndServe(":"+port, certManager.HTTPHandler(nil))
 
-	log.Fatal(server.ListenAndServeTLS(":443", "", "", handler))
+	log.Fatal(server.ListenAndServeTLS(":443", "/etc/letsencrypt/live/www.yourdomain.com/fullchain.pem", "/etc/letsencrypt/live/www.yourdomain.com/privkey.pem", nil))
 	// log.Fatal(http.ListenAndServe(":"+port, handler))
 }
