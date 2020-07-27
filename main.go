@@ -73,7 +73,7 @@ func main() {
         },
 	}
 
-	go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
+	go http.ListenAndServe(":"+port, certManager.HTTPHandler(nil))
 
 	log.Fatal(server.ListenAndServeTLS("", ""))
 	// log.Fatal(http.ListenAndServe(":"+port, handler))
