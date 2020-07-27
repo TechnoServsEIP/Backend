@@ -24,7 +24,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "443:443"
-      - "80:80"
       - "80:9096"
       - "9096:9096"
       # - "25575:25575"
