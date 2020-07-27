@@ -5,6 +5,8 @@ import (
 	"github.com/TechnoServsEIP/Backend/models"
 	"log"
 	"net/http"
+	"crypto/tls"
+	"golang.org/x/crypto/acme/autocert"
 	"os"
 
 	"github.com/gorilla/mux"
@@ -56,5 +58,23 @@ func main() {
 
 	handler := cors.Default().Handler(router)
 
-	log.Fatal(http.ListenAndServe(":"+port, handler))
+	// Https config
+	certManager := autocert.Manager{
+        Prompt:     autocert.AcceptTOS,
+        HostPolicy: autocert.HostWhitelist("testeip.southcentralus.cloudapp.azure.com"), //Your domain here
+        Cache:      autocert.DirCache("certs"),            //Folder for storing certificates
+	}
+
+	server := &http.Server{
+		Addr: ":https",
+		Handler:   handler,
+        TLSConfig: &tls.Config{
+            GetCertificate: certManager.GetCertificate,
+        },
+	}
+
+	go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
+
+	log.Fatal(server.ListenAndServeTLS("", ""))
+	// log.Fatal(http.ListenAndServe(":"+port, handler))
 }
