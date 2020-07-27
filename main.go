@@ -61,7 +61,7 @@ func main() {
 	// Https config
 	certManager := autocert.Manager{
         Prompt:     autocert.AcceptTOS,
-        HostPolicy: autocert.HostWhitelist("testeip.southcentralus.cloudapp.azure.com"),
+        HostPolicy: autocert.HostWhitelist("x2021alsablue1371139462001.northeurope.cloudapp.azure.com"),
         Cache:      autocert.DirCache("certs"),
 	}
 
