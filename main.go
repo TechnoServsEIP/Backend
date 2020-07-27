@@ -61,8 +61,8 @@ func main() {
 	// Https config
 	certManager := autocert.Manager{
         Prompt:     autocert.AcceptTOS,
-        HostPolicy: autocert.HostWhitelist("testeip.southcentralus.cloudapp.azure.com"), //Your domain here
-        Cache:      autocert.DirCache("certs"),            //Folder for storing certificates
+        HostPolicy: autocert.HostWhitelist("testeip.southcentralus.cloudapp.azure.com"),
+        Cache:      autocert.DirCache("certs"),
 	}
 
 	server := &http.Server{
