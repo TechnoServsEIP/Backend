@@ -5,8 +5,6 @@ import (
 	"github.com/TechnoServsEIP/Backend/models"
 	"log"
 	"net/http"
-	"crypto/tls"
-	"golang.org/x/crypto/acme/autocert"
 	"os"
 
 	"github.com/gorilla/mux"
@@ -58,23 +56,5 @@ func main() {
 
 	handler := cors.Default().Handler(router)
 
-	// Https config
-	certManager := autocert.Manager{
-        Prompt:     autocert.AcceptTOS,
-        HostPolicy: autocert.HostWhitelist("testeip.southcentralus.cloudapp.azure.com"),
-        Cache:      autocert.DirCache("certs"),
-	}
-
-	server := &http.Server{
-		Addr: ":443",
-		Handler:   handler,
-        TLSConfig: &tls.Config{
-            GetCertificate: certManager.GetCertificate,
-        },
-	}
-
-	go http.ListenAndServe(":"+port, certManager.HTTPHandler(nil))
-
-	log.Fatal(server.ListenAndServeTLS(":443", "/etc/letsencrypt/live/www.yourdomain.com/fullchain.pem", "/etc/letsencrypt/live/www.yourdomain.com/privkey.pem", nil))
-	// log.Fatal(http.ListenAndServe(":"+port, handler))
+	log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))
 }
