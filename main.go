@@ -57,14 +57,7 @@ func main() {
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
 		AllowCredentials: true,
-		AllowedHeaders: []string{
-			"Accept",
-			"Accept-Encoding",
-			"Authorization",
-			"Content-Type",
-			"Content-Length",
-			"X-CSRF-Token"
-		},
+		AllowedHeaders: []string{ "Accept", "Accept-Encoding", "Authorization", "Content-Type", "Content-Length", "X-CSRF-Token" },
 		Debug: true,
 	})
 
