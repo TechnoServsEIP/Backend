@@ -21,8 +21,8 @@ import (
 )
 
 var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
-	user := r.Context().Value("user").(uint) //Grab the id of the user that send the request
-	fmt.Println("user: (", user, ")")
+	//user := r.Context().Value("user").(uint) //Grab the id of the user that send the request
+	//fmt.Println("user: (", user, ")")
 
 	docker := &models.Docker{}
 
