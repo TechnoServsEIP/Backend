@@ -20,6 +20,38 @@ import (
 	"github.com/TechnoServsEIP/Backend/utils"
 )
 
+var GetAllPortBinded = func() []string {
+	ctx := context.Background()
+	cli, err := client.NewEnvClient()
+	
+	if err != nil {
+		fmt.Printf("Impossible to use the docker client\n")
+		return []string{}
+	}
+
+	containers := models.ListAllDockers()
+	if err != nil {
+		fmt.Printf("Error when try to retrieve containers ports\n")
+		return []string{}
+	}
+
+	tmpPortsBinded := []string{}
+
+	if containers != nil {
+		for _, container := range *containers {
+			info, err := cli.ContainerInspect(ctx, container.IdDocker)
+
+			if err != nil {
+				fmt.Println(err.Error())
+				return []string{}
+			}
+			tmpPortsBinded = append(tmpPortsBinded, info.HostConfig.PortBindings["25565/tcp"][0].HostPort)
+		}
+	}
+
+	return tmpPortsBinded
+}
+
 var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	//user := r.Context().Value("user").(uint) //Grab the id of the user that send the request
 	//fmt.Println("user: (", user, ")")
@@ -40,6 +72,11 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	port := utils.GetPort()
+
+	if port == "no port available" {
+		utils.Respond(w, utils.Message(false, "No port available"), 413)
+		return
+	}
 	fmt.Println("port" + port)
 	hostBinding := nat.PortBinding{
 		HostIP:   "0.0.0.0",

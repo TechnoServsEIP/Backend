@@ -11,10 +11,15 @@ import (
 	"github.com/TechnoServsEIP/Backend/app"
 	"github.com/TechnoServsEIP/Backend/controllers"
 	"github.com/rs/cors"
+	"github.com/TechnoServsEIP/Backend/utils"
 )
 
 func main() {
 	models.Initialization()
+
+	// Set ports already binded
+	utils.ReOrderPorts(controllers.GetAllPortBinded())
+	
 	router := mux.NewRouter()
 
 	port := os.Getenv("server_port") //Get port from .env file, we did not specify any port so this should return an empty string when tested locally
@@ -64,8 +69,8 @@ func main() {
 	handler := c.Handler(router)
 	
 	// *** http ***
-	// log.Fatal(http.ListenAndServe(":"+port, handler))
+	log.Fatal(http.ListenAndServe(":"+port, handler))
 
 	// *** https ***
-	log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))
+	// log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))
 }

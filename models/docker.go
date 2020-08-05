@@ -143,3 +143,13 @@ func (docker *DockerStore) UpdateGameServer(gameSrv *GameServer) error {
 
 	return nil
 }
+
+func ListAllDockers() *[]DockerStore {
+	dockers := &[]DockerStore{}
+
+	err := GetDB().Table("docker_stores").Find(dockers).Error
+	if err != nil {
+		return nil
+	}
+	return dockers
+}
