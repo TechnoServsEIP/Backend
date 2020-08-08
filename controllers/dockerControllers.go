@@ -70,7 +70,7 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !checkIfUserCanCreate(docker.UserId) {
-		utils.Respond(w, utils.Message(false, "User already have max server reached"), http.StatusBadRequest)
+		utils.Respond(w, utils.Message(false, "User already have max server reached"), 413)
 		return
 	}
 
