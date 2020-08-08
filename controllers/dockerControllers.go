@@ -64,6 +64,16 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if docker.UserId == "" {
+		utils.Respond(w, utils.Message(false, "User ID is empty"), http.StatusBadRequest)
+		return
+	}
+
+	if !checkIfUserCanCreate(docker.UserId) {
+		utils.Respond(w, utils.Message(false, "User already have max server reached"), http.StatusBadRequest)
+		return
+	}
+
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
@@ -330,6 +340,11 @@ var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if docker.UserId == "" {
+		utils.Respond(w, utils.Message(false, "User ID is empty"), http.StatusBadRequest)
+		return
+	}
+
 	u64, err := strconv.ParseUint(docker.UserId, 10, 32)
 
 	allDocker := models.UserServers(uint(u64))
@@ -503,4 +518,32 @@ var ModifyGameServer = func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.Respond(w, resp, 200)
+}
+
+
+func checkIfUserCanCreate(UserId string) bool {
+	userID, err := strconv.Atoi(UserId)
+	user := models.GetUserFromId(int(userID))
+
+	if user.Role == "admin" {
+		return true
+	}
+
+	u64, err := strconv.ParseUint(UserId, 10, 32)
+
+	if err != nil {
+		return false
+	}
+
+	allDocker := models.UserServers(uint(u64))
+
+	if allDocker == nil {
+		return false
+	}
+
+	if len(*allDocker) >= 1 {
+		return false
+	}
+
+	return true
 }
