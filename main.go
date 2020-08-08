@@ -56,7 +56,6 @@ func main() {
 	router.HandleFunc("/offers/update", controllers.UpdateOffer).Methods("POST")
 	router.HandleFunc("/offers/delete", controllers.DeleteOffer).Methods("POST")
 
-	//router.Use(app.Cors)
 	router.Use(app.JwtAuthentication) //attach JWT auth middleware
 
 	c := cors.New(cors.Options{
@@ -69,8 +68,8 @@ func main() {
 	handler := c.Handler(router)
 	
 	// *** http ***
-	log.Fatal(http.ListenAndServe(":"+port, handler))
+	// log.Fatal(http.ListenAndServe(":"+port, handler))
 
 	// *** https ***
-	// log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))
+	log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))
 }
