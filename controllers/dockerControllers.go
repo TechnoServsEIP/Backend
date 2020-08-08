@@ -287,6 +287,15 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// retrieve the port to free
+	info, err := cli.ContainerInspect(ctx, docker.ContainerId)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		utils.Respond(w, utils.Message(false, "Error while retrieving port of the container"), 500)
+		return 
+	}
+
 	err = cli.ContainerRemove(ctx, docker.ContainerId, types.ContainerRemoveOptions{
 		RemoveVolumes: true,
 		Force:         true,
@@ -294,7 +303,10 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("An error appear when removing container: ", docker.ContainerId, "err ", err)
 		utils.Respond(w, utils.Message(false, "Error while removing container"), http.StatusBadRequest)
+		return
 	}
+
+	utils.FreeThePort(info.HostConfig.PortBindings["25565/tcp"][0].HostPort)
 
 	resp := models.RemoveContainer(userId, docker.ContainerId)
 

@@ -88,8 +88,22 @@ func GenerateRandomString(length int) string {
 	return string(b)
 }
 
+func FreeThePort(portToFree string) {
+	i, res := Find(portsBinded, portToFree)
+
+	if (res) {
+		ports = append(ports, portToFree)
+
+		portsBinded[i] = portsBinded[len(portsBinded)-1]
+		portsBinded[len(portsBinded)-1] = ""
+		portsBinded = portsBinded[:len(portsBinded)-1]
+	}
+
+	fmt.Println("ports binded: ", portsBinded)
+	fmt.Println("ports: ", ports)
+}
+
 func GetPort() string {
-	// return ports[seededRand.Intn(len(ports))]
 	if (len(ports) > 0) {
 		portState := checkBindedPort(ports[0])
 
