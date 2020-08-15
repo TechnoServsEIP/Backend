@@ -17,18 +17,7 @@ namespace models {
          {static} ActivateUser(id int) <font color=blue>interface</font>{}
          {static} ChangePassword(password string, id uint) error
     }
-    class Base {
-        {static} *gorm.DB db
-        {static} Initialization()
-        {static} GetDB() *gorm.DB
-    }
-    class MongoDB {
-        {static} mongoDB *mongo.Database
-        {static} context.Context
-        {static} initMongoDb()
-        {static} GetMongoDB() *mongo.Database
-        {static} GetCtx() context.Context
-    }
+
     class DedicatedIPAddress << (S,Aquamarine) >> {
         + DedicatedIp bool
         + MonthlyPrice float32
@@ -138,15 +127,30 @@ namespace models {
         + Role string
 
     }
-
-    class Auth {
+}
+namespace App {
+      class Auth {
         {static} JwtAuthentication(next http.Handler) http.Handler
         {static} DecryptToken(tokenString string) (jwt.Claims, bool, error)
     }
     class Cors {
         {static} Cors(next http.Handler) http.Handler
     }
-    class AuthController {
+        class Base {
+        {static} *gorm.DB db
+        {static} Initialization()
+        {static} GetDB() *gorm.DB
+    }
+    class MongoDB {
+        {static} *mongo.Database mongoDB
+        {static} context.Context ctx
+        {static} initMongoDb()
+        {static} GetMongoDB() *mongo.Database
+        {static} GetCtx() context.Context
+    }
+}
+namespace Controllers {
+        class AuthController {
         {static} CreateController(w http.ResponseWriter, r *http.Request)
         {static} Authenticate(w http.ResponseWriter, r *http.Request)
         {static} Confirm(w http.ResponseWriter, r *http.Request)
