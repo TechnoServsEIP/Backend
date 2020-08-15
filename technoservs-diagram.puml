@@ -12,7 +12,22 @@ namespace models {
 
         + Validate() (<font color=blue>map</font>[string]<font color=blue>interface</font>{}, bool)
         + Create() <font color=blue>map</font>[string]<font color=blue>interface</font>{}
-
+         {static} Update(id int, fieldsToUpdate <font color=blue>map</font>[string]<font color=blue>interface</font>{}) *Account
+         {static} DeactivateUser(id int) <font color=blue>interface</font>{}
+         {static} ActivateUser(id int) <font color=blue>interface</font>{}
+         {static} ChangePassword(password string, id uint) error
+    }
+    class Base {
+        {static} *gorm.DB db
+        {static} Initialization()
+        {static} GetDB() *gorm.DB
+    }
+    class MongoDB {
+        {static} mongoDB *mongo.Database
+        {static} context.Context
+        {static} initMongoDb()
+        {static} GetMongoDB() *mongo.Database
+        {static} GetCtx() context.Context
     }
     class DedicatedIPAddress << (S,Aquamarine) >> {
         + DedicatedIp bool
@@ -32,6 +47,7 @@ namespace models {
         + UserId string
         + Game string
         + ServerName string
+        {static} ListDockerByUserId(id uint) *Docker
 
     }
     class DockerDelete << (S,Aquamarine) >> {
@@ -56,6 +72,10 @@ namespace models {
         + Update() <font color=blue>map</font>[string]<font color=blue>interface</font>{}
         + UpdateServerStatus(status string) error
         + UpdateGameServer(gameSrv *GameServer) error
+        {static} UserServers(id uint) *[]DockerStore
+        {static} OneUserServer(id uint, docker_id string) *DockerStore
+        {static} ListAllDockers() *[]DockerStore
+        {static} RemoveContainer(user_id uint, docker_id string) <font color=blue>map</font>[string]<font color=blue>interface</font>{}
 
     }
     class GameServer << (S,Aquamarine) >> {
@@ -94,7 +114,9 @@ namespace models {
 
         + Create() <font color=blue>map</font>[string]<font color=blue>interface</font>{}
         + Update(uuid string) <font color=blue>map</font>[string]<font color=blue>interface</font>{}
-
+        {static} GetOfferList() <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+        {static} GetOffer(uuid string) <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+        {static} Delete(uuid string) <font color=blue>map</font>[string]<font color=blue>interface</font>{}
     }
     class OfferType << (S,Aquamarine) >> {
         + UUID string
@@ -115,6 +137,54 @@ namespace models {
         + UserId uint
         + Role string
 
+    }
+
+    class Auth {
+        {static} JwtAuthentication(next http.Handler) http.Handler
+        {static} DecryptToken(tokenString string) (jwt.Claims, bool, error)
+    }
+    class Cors {
+        {static} Cors(next http.Handler) http.Handler
+    }
+    class AuthController {
+        {static} CreateController(w http.ResponseWriter, r *http.Request)
+        {static} Authenticate(w http.ResponseWriter, r *http.Request)
+        {static} Confirm(w http.ResponseWriter, r *http.Request)
+        {static} UpdateAccount(w http.ResponseWriter, r *http.Request)
+
+    }
+    class DockerController {
+        {static} GetAllPortBinded() []string
+        {static} CreateDocker(w http.ResponseWriter, r *http.Request)
+        {static} StartDocker(w http.ResponseWriter, r *http.Request)
+        {static} StopDocker(w http.ResponseWriter, r *http.Request)
+        {static} GetServerLogs(w http.ResponseWriter, r *http.Request)
+        {static} DeleteDocker(w http.ResponseWriter, r *http.Request)
+        {static} ListUserServers(w http.ResponseWriter, r *http.Request)
+        {static} GetInfosUserServer(w http.ResponseWriter, r *http.Request)
+        {static} GetNumberPlayers(containerId string) <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+        {static} GetPlayersOnline(w http.ResponseWriter, r *http.Request)
+        {static} ModifyGameServer(w http.ResponseWriter, r *http.Request)
+        {static} checkIfUserCanCreate(UserId string) bool
+    }
+    class HomeController {
+        {static} Home(w http.ResponseWriter, r *http.Request)
+    }
+    class OfferController {
+        {static} ListOffers(w http.ResponseWriter, r *http.Request)
+        {static} GetOffer(w http.ResponseWriter, r *http.Request)
+        {static} CreateOffer(w http.ResponseWriter, r *http.Request)
+        {static} UpdateOffer(w http.ResponseWriter, r *http.Request)
+        {static} DeleteOffer(w http.ResponseWriter, r *http.Request)
+    }
+    class UserController {
+        {static} GetUsers(w http.ResponseWriter, r *http.Request)
+        {static} Activate(w http.ResponseWriter, r *http.Request)
+        {static} Deactivate(w http.ResponseWriter, r *http.Request)
+        {static} SendPasswordReset(w http.ResponseWriter, r *http.Request)
+        {static} ChangePassword(w http.ResponseWriter, r *http.Request)
+        {static} GetEmail(w http.ResponseWriter, r *http.Request)
+        
     }
 }
 "gorm.Model" *-- "models.Account"
