@@ -1,0 +1,131 @@
+@startuml
+namespace models {
+    class Account << (S,Aquamarine) >> {
+        + Role string
+        + Email string
+        + Password string
+        + Token string
+        + Verified bool
+        + Activate bool
+
+        - generateJWT() (string, error)
+
+        + Validate() (<font color=blue>map</font>[string]<font color=blue>interface</font>{}, bool)
+        + Create() <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+
+    }
+    class DedicatedIPAddress << (S,Aquamarine) >> {
+        + DedicatedIp bool
+        + MonthlyPrice float32
+        + HourlyPrice float32
+
+    }
+    class DiskSpace << (S,Aquamarine) >> {
+        + CurrentDiskSpace int64
+        + Min int64
+        + Max int64
+        + MonthlyPrice float32
+        + HourlyPrice float32
+
+    }
+    class Docker << (S,Aquamarine) >> {
+        + UserId string
+        + Game string
+        + ServerName string
+
+    }
+    class DockerDelete << (S,Aquamarine) >> {
+        + UserId string
+        + ContainerId string
+
+    }
+    class DockerList << (S,Aquamarine) >> {
+        + UserId string
+
+    }
+    class DockerStore << (S,Aquamarine) >> {
+        + IdDocker string
+        + Game string
+        + ServerName string
+        + ServerStatus string
+        + UserId uint
+        + Settings *types.ContainerJSON
+
+        + Validate() (<font color=blue>map</font>[string]<font color=blue>interface</font>{}, bool)
+        + Create() <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+        + Update() <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+        + UpdateServerStatus(status string) error
+        + UpdateGameServer(gameSrv *GameServer) error
+
+    }
+    class GameServer << (S,Aquamarine) >> {
+        + UserId string
+        + ContainerId string
+        + ServerName string
+
+    }
+    class GetUuid << (S,Aquamarine) >> {
+        + UUID string
+
+    }
+    class Model << (S,Aquamarine) >> {
+        + UUID string
+        + Name string
+        + PlayersSlots int64
+        + PluginsLimit int64
+        + RAMMemory int64
+        + DiskSpace DiskSpace
+        + Port Port
+        + CustomDomainAddress bool
+        + DedicatedIPAddress DedicatedIPAddress
+        + ModdedServersAllowed bool
+        + AutomatedBackups bool
+        + PlannedTasks bool
+        + PrioritizedSupport bool
+        + SLA float32
+        + MonthlyPrice float32
+        + HourlyPrice float32
+
+    }
+    class Offer << (S,Aquamarine) >> {
+        + UUID string
+        + Name string
+        + OfferTypes []OfferType
+
+        + Create() <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+        + Update(uuid string) <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+
+    }
+    class OfferType << (S,Aquamarine) >> {
+        + UUID string
+        + Name string
+        + Type string
+        + Models []Model
+
+    }
+    class Port << (S,Aquamarine) >> {
+        + CurrentNbPort int64
+        + Min int64
+        + Max int64
+        + MonthlyPrice float32
+        + HourlyPrice float32
+
+    }
+    class Token << (S,Aquamarine) >> {
+        + UserId uint
+        + Role string
+
+    }
+}
+"gorm.Model" *-- "models.Account"
+"gorm.Model" *-- "models.DockerStore"
+"mongoDB.Model" *-- "models.Offer"
+"models.Offer" *-- "models.OfferType"
+"models.OfferType" *-- "models.Model"
+"models.Model" *-- "models.Port"
+"models.Model" *-- "models.DedicatedIPAddress"
+"models.Model" *-- "models.DiskSpace"
+"jwt.StandardClaims" *-- "models.Token"
+
+
+@enduml
