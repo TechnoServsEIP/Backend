@@ -1,0 +1,318 @@
+{
+    "SpawnProtection": {
+        "Choices": [],
+        "Description": "Determines the side length of the square spawn protection area as 2x+1. Setting this to 0 does not disable spawn protection, but protects the single block at the spawn point. A value of 1 protects a 3×3 square centered on the spawn point. 2 protects 5×5, 3 protects 7×7, etc. This option is not generated on the first server start and appears when the first player joins. If there are no ops set on the server, the spawn protection is disabled automatically.",
+        "Min": null,
+        "Max": null,
+        "Name": "spawn-protection",
+        "DataType": "Number",
+        "DefaultValue": "16",
+        "Value": ""
+    },
+    "GeneratorSettings": {
+        "Choices": [],
+        "Description": "The settings used to customize world generation. Follow its format and write the corresponding JSON string. Remember to escape all : with \\:.",
+        "Min": null,
+        "Max": null,
+        "Name": "generator-settings",
+        "DataType": "string",
+        "DefaultValue": "",
+        "Value": ""
+    },
+    "ForceGamemode": {
+        "Choices": [],
+        "Description": "Force players to join in the default game mode. false - Players join in the gamemode they left in. true - Players always join in the default gamemode.",
+        "Min": null,
+        "Max": null,
+        "Name": "force-gamemode",
+        "DataType": "boolean",
+        "DefaultValue": "false",
+        "Value": ""
+    },
+    "AllowNether": {
+        "Choices": [],
+        "Description": "Allows players to travel to the Nether. false - Nether portals do not work. true - The server allows portals to send players to the Nether.",
+        "Min": null,
+        "Max": null,
+        "Name": "allow-nether",
+        "DataType": "boolean",
+        "DefaultValue": "true",
+        "Value": ""
+    },
+    "EnforceWhitelist": {
+        "Choices": [],
+        "Description": "Enforces the whitelist on the server. When this option is enabled, users who are not present on the whitelist (if it's enabled) get kicked from the server after the server reloads the whitelist file. false - No user gets kicked if not on the whitelist. true - Online users not on the whitelist get kicked.",
+        "Min": null,
+        "Max": null,
+        "Name": "enforce-whitelist",
+        "DataType": "boolean",
+        "DefaultValue": "false",
+        "Value": ""
+    },
+    "Gamemode": {
+        "Choices": [
+            "survival",
+            "creative",
+            "adventure",
+            "spectator"
+        ],
+        "Description": "Defines the mode of gameplay. If a legacy gamemode number is specified, it is silently converted to a gamemode name. survival (0) creative (1) adventure (2) spectator (3)",
+        "Min": null,
+        "Max": null,
+        "Name": "gamemode",
+        "DataType": "string",
+        "DefaultValue": "survival",
+        "Value": ""
+    },
+    "PlayerIdleTimeout": {
+        "Choices": [],
+        "Description": "If non-zero, players are kicked from the server if they are idle for more than that many minutes. Note: Idle time is reset when the server receives one of the following packets: Click Window, Enchant Item, Update Sign, Player Digging, Player Block Placement, Held Item Change, Animation (swing arm), Entity Action, Client Status, Chat Message, Use Entity",
+        "Min": null,
+        "Max": null,
+        "Name": "player-idle-timeout",
+        "DataType": "Number",
+        "DefaultValue": "0",
+        "Value": ""
+    },
+    "Difficulty": {
+        "Choices": [
+            "peaceful",
+            "easy",
+            "normal",
+            "hard"
+        ],
+        "Description": "Defines the difficulty (such as damage dealt by mobs and the way hunger and poison affects players) of the server. If a legacy difficulty number is specified, it is silently converted to a difficulty name. peaceful (0) easy (1) normal (2) hard (3)",
+        "Min": null,
+        "Max": null,
+        "Name": "difficulty",
+        "DataType": "string",
+        "DefaultValue": "easy",
+        "Value": ""
+    },
+    "SpawnMonsters": {
+        "Choices": [],
+        "Description": "Determines if monsters can spawn. true - Enabled. Monsters appear at night and in the dark. false - Disabled. No monsters. This setting has no effect if difficulty = 0 (peaceful). If difficulty is not = 0, a monster can still spawn from a spawner. If the player has major lag, it is recommended to turn this off/set to false.",
+        "Min": null,
+        "Max": null,
+        "Name": "spawn-monsters",
+        "DataType": "boolean",
+        "DefaultValue": "true",
+        "Value": ""
+    },
+    "OpPermissionLevel": {
+        "Choices": [],
+        "Description": "Sets the default permission level for functions. See #op-permission-level for the details on the 4 levels.",
+        "Min": 1,
+        "Max": 4,
+        "Name": "op-permission-level",
+        "DataType": "Number",
+        "DefaultValue": "2",
+        "Value": ""
+    },
+    "Pvp": {
+        "Choices": [],
+        "Description": "Enable PvP on the server. Players shooting themselves with arrows receive damage only if PvP is enabled. true - Players can kill each other. false - Players cannot kill other players (also known as Player versus Environment (PvE)). Note: Indirect damage sources spawned by players (such as lava, fire, TNT and to some extent water, sand and gravel) still deal damage to other players.",
+        "Min": null,
+        "Max": null,
+        "Name": "pvp", 
+        "DataType": "boolean",
+        "DefaultValue": "true",
+        "Value": ""
+    },
+    "SnooperEnabled": {
+        "Choices": [],
+        "Description": "Sets whether the server sends snoop data regularly to http://snoop.minecraft.net. false - disable snooping. true - enable snooping.",
+        "Min": null,
+        "Max": null,
+        "Name": "snooper-enabled",
+        "DataType": "boolean",
+        "DefaultValue": "true",
+        "Value": ""
+    },
+    "LevelType": {
+        "Choices": [
+            "default",
+            "flat",
+            "largeBiomes",
+            "amplified",
+            "buffet"
+        ],
+        "Description": "Determines the type of map that is generated. default - Standard world with hills, valleys, water, etc. flat - A flat world with no features, can be modified with generator-settings. largeBiomes - Same as default but all biomes are larger. amplified - Same as default but world-generation height limit is increased. buffet - Only for 1.15 or before. Same as default unless generator-settings is set.",
+        "Min": null,
+        "Max": null,
+        "Name": "level-type",
+        "DataType": "string",
+        "DefaultValue": "default",
+        "Value": ""
+    },
+    "Hardcore": {
+        "Choices": [],
+        "Description": "If set to true, server difficulty is ignored and set to hard and players are set to spectator mode if they die.",
+        "Min": null,
+        "Max": null,
+        "Name": "hardcore",
+        "DataType": "boolean",
+        "DefaultValue": "false",
+        "Value": ""
+    },
+    "EnableStatus": {
+        "Choices": [],
+        "Description": "Makes the server appear as 'online' on the server list. If set to false, it will suppress replies from clients. This means it will appear as offline, but will still accept connections.",
+        "Min": null,
+        "Max": null,
+        "Name": "enable-status",
+        "DataType": "boolean",
+        "DefaultValue": "true",
+        "Value": ""
+    },
+    "EnableCommandBlock": {
+        "Choices": [],
+        "Description": "Enables command blocks",
+        "Min": null,
+        "Max": null,
+        "Name": "enable-command-block",
+        "DataType": "boolean",
+        "DefaultValue": "false",
+        "Value": ""
+    },
+    "MaxPlayers": {
+        "Choices": [],
+        "Description": "The maximum number of players that can play on the server at the same time. Note that more players on the server consume more resources.",
+        "Min": 0,
+        "Max": 2147483647,
+        "Name": "max-players",
+        "DataType": "Number",
+        "DefaultValue": "20",
+        "Value": ""
+    },
+    "MaxWorldSize": {
+        "Choices": [],
+        "Description": "This sets the maximum possible size in blocks, expressed as a radius, that the world border can obtain. Setting the world border bigger causes the commands to complete successfully but the actual border does not move past this block limit. Setting the max-world-size higher than the default doesn't appear to do anything. Examples: Setting max-world-size to 1000 allows the player to have a 2000×2000 world border.Setting max-world-size to 4000 gives the player an 8000×8000 world border.",
+        "Min": 1,
+        "Max": 29999984,
+        "Name": "max-world-size",
+        "DataType": "Number",
+        "DefaultValue": "29999984",
+        "Value": ""
+    },
+    "FunctionPermissionLevel": {
+        "Choices": [],
+        "Description": "Sets the default permission level for functions. See #op-permission-level for the details on the 4 levels.",
+        "Min": 1,
+        "Max": 4,
+        "Name": "function-permission-level",
+        "DataType": "Number",
+        "DefaultValue": "2",
+        "Value": ""
+    },
+    "SpawnNpcs": {
+        "Choices": [],
+        "Description": "Determines whether villagers can spawn. true - Enabled. Villagers spawn. false - Disabled. No villagers.",
+        "Min": null,
+        "Max": null,
+        "Name": "spawn-npcs",
+        "DataType": "boolean",
+        "DefaultValue": "true",
+        "Value": ""
+    },
+    "AllowFlight": {
+        "Choices": [],
+        "Description": "Allows users to use flight on the server while in Survival mode, if they have a mod that provides flight installed. With allow-flight enabled, griefers may become more common, because it makes their work easier. In Creative mode, this has no effect. false - Flight is not allowed (players in air for at least 5 seconds get kicked). true - Flight is allowed, and used if the player has a fly mod installed.",
+        "Min": null,
+        "Max": null,
+        "Name": "allow-flight",
+        "DataType": "boolean",
+        "DefaultValue": "false",
+        "Value": ""
+    },
+    "LevelName": {
+        "Choices": [],
+        "Description": "The 'level-name' value is used as the world name and its folder name. The player may also copy their saved game folder here, and change the name to the same as that folder's to load it instead. Characters such as ' (apostrophe) may need to be escaped by adding a backslash before them.",
+        "Min": null,
+        "Max": null,
+        "Name": "level-name",
+        "DataType": "string",
+        "DefaultValue": "world",
+        "Value": ""
+    },
+    "ViewDistance": {
+        "Choices": [],
+        "Description": "Sets the amount of world data the server sends the client, measured in chunks in each direction of the player (radius, not diameter). It determines the server-side viewing distance. 10 is the default/recommended. If the player has major lag, this value is recommended to be reduced.",
+        "Min": 9,
+        "Max": 32,
+        "Name": "view-distance",
+        "DataType": "Number",
+        "DefaultValue": "10",
+        "Value": ""
+    },
+    "ResourcePack": {
+        "Choices": [],
+        "Description": "Optional URI to a resource pack. The player may choose to use it. The resource pack may not have a larger file size than 100 MiB (Before 1.15: 50 MiB (≈ 50.4 MB)). Note that download success or failure is logged by the client, and not by the server.",
+        "Min": null,
+        "Max": null,
+        "Name": "resource-pack",
+        "DataType": "string",
+        "DefaultValue": "",
+        "Value": ""
+    },
+    "SpawnAnimals": {
+        "Choices": [],
+        "Description": "Determines if animals can spawn. true - Animals spawn as normal. false - Animals immediately vanish. If the player has major lag, it is recommended to turn this off/set to false.",
+        "Min": null,
+        "Max": null,
+        "Name": "spawn-animals",
+        "DataType": "boolean",
+        "DefaultValue": "true",
+        "Value": ""
+    },
+    "WhitLlist": {
+        "Choices": [],
+        "Description": "Enables a whitelist on the server. With a whitelist enabled, users not on the whitelist cannot connect. Intended for private servers, such as those for real-life friends or strangers carefully selected via an application process, for example. false - No white list is used. true - The file whitelist.json is used to generate the white list. Note: Ops are automatically whitelisted, and there is no need to add them to the whitelist.",
+        "Min": null,
+        "Max": null,
+        "Name": "white-list",
+        "DataType": "boolean",
+        "DefaultValue": "false",
+        "Value": ""
+    },
+    "GenerateStructures": {
+        "Choices": [],
+        "Description": "Defines whether structures (such as villages) can be generated. false - Structures are not generated in new chunks. true - Structures are generated in new chunks. Note: Dungeons still generate if this is set to false.",
+        "Min": null,
+        "Max": null,
+        "Name": "generate-structures",
+        "DataType": "boolean",
+        "DefaultValue": "true",
+        "Value": ""
+    },
+    "OnlineMode": {
+        "Choices": [],
+        "Description": "Server checks connecting players against Minecraft account database. Set this to false only if the player's server is not connected to the Internet. Hackers with fake accounts can connect if this is set to false! If minecraft.net is down or inaccessible, no players can connect if this is set to true. Setting this variable to off purposely is called 'cracking' a server, and servers that are present with online mode off are called 'cracked' servers, allowing players with unlicensed copies of Minecraft to join. true - Enabled. The server assumes it has an Internet connection and checks every connecting player. false - Disabled. The server does not attempt to check connecting players.",
+        "Min": null,
+        "Max": null,
+        "Name": "online-mode",
+        "DataType": "boolean",
+        "DefaultValue": "true",
+        "Value": ""
+    },
+    "LevelSeed": {
+        "Choices": [],
+        "Description": "Add a seed for the player's world, as in Singleplayer. Some examples are: minecraft, 404, 1a2b3c.",
+        "Min": null,
+        "Max": null,
+        "Name": "level-seed",
+        "DataType": "string",
+        "DefaultValue": "",
+        "Value": ""
+    },
+    "Motd": {
+        "Choices": [],
+        "Description": "This is the message that is displayed in the server list of the client, below the name. The MOTD supports color and formatting codes. The MOTD supports special characters. However, such characters must be converted to escaped Unicode form. An online converter can be found here. If the MOTD is over 59 characters, the server list may report a communication error.",
+        "Min": null,
+        "Max": null,
+        "Name": "motd", 
+        "DataType": "string",
+        "DefaultValue": "A Minecraft Server",
+        "Value": ""
+    }
+}
