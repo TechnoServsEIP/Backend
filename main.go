@@ -50,6 +50,7 @@ func main() {
 	router.HandleFunc("/docker/infos", controllers.GetInfosUserServer).Methods("POST")
 	router.HandleFunc("/docker/playersonline", controllers.GetPlayersOnline).Methods("GET")
 	router.HandleFunc("/minecraft/serverproperties", controllers.GetServerProperties).Methods("GET")
+	router.HandleFunc("/minecraft/serverproperties", controllers.UpdateServerProperties).Methods("POST")
 	router.HandleFunc("/docker/update", controllers.ModifyGameServer).Methods("POST")
 	router.HandleFunc("/offers/list", controllers.ListOffers).Methods("GET")
 	router.HandleFunc("/offers/", controllers.GetOffer).Methods("POST")
