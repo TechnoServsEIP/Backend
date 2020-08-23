@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"os/exec"
 	"time"
 	"net"
 
@@ -180,4 +181,45 @@ func DecryptToken(tokenString string) (jwt.StandardClaims, bool, error) {
 	//	return tokenParsed.Claims.(jwt.StandardClaims), false, errors.New("error")
 	//}
 	//return tokenParsed.Claims.(jwt.StandardClaims), tokenParsed.Valid, nil
+}
+
+func CreateTmpFolder(folderName string) error {
+    cmd := exec.Command("mkdir", folderName)
+
+    _, err := cmd.CombinedOutput()
+
+	if err != nil {
+		return err
+    }
+
+    return nil
+}
+
+func DeleteTmpFolder(folderName string) error {
+    cmd := exec.Command("rm", "-rf", folderName)
+
+    _, err := cmd.CombinedOutput()
+
+	if err != nil {
+		return err
+    }
+
+    return nil
+}
+
+//  Example:
+//  local to container
+//  path => {localPath}/{file}, destination => {containerID}:/{path}/{file}
+//  container to local
+//  path => {containerID}:/{path}/{file}, destination => {localPath}/{file}
+func DockerCopy(path string, destination string) error {
+    cmd := exec.Command("docker", "cp", path, destination)
+
+    _, err := cmd.CombinedOutput()
+
+	if err != nil {
+		return err
+    }
+
+    return nil
 }
