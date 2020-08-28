@@ -16,6 +16,7 @@ require (
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/protobuf v1.4.0 // indirect
 	github.com/gorilla/mux v1.7.4
+	github.com/jfeliu007/goplantuml v1.5.0 // indirect
 	github.com/jinzhu/gorm v1.9.12
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/joho/godotenv v1.3.0
@@ -27,6 +28,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rs/cors v1.7.0
 	github.com/sirupsen/logrus v1.5.0 // indirect
+	github.com/spf13/afero v1.3.4 // indirect
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.5.1 // indirect
 	github.com/yuin/goldmark v1.1.29 // indirect
