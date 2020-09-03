@@ -8,14 +8,14 @@ import (
 	"strings"
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/TechnoServsEIP/Backend/models"
 	"github.com/TechnoServsEIP/Backend/utils"
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 var JwtAuthentication = func(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		notAuth := []string{"/user/new", "/user/login", "/user/confirm", "/offers/list", "/offers/", "/docker/list", "/docker/create", "/user/forgotpassword", "/user/resetpassword", "/"} //List of endpoints that doesn't require auth
+		notAuth := []string{"/loggedin", "/login/github/callback", "/login/github/", "/user/new", "/user/login", "/user/confirm", "/offers/list", "/offers/", "/docker/list", "/docker/create", "/user/forgotpassword", "/user/resetpassword", "/"} //List of endpoints that doesn't require auth
 		adminOnlyPath := []string{"/user/update", "/offers/create", "/offers/delete", "/offers/update", "/user/activate", "/user/deactivate"}
 		requestPath := r.URL.Path //current request path
 

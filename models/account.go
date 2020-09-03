@@ -1,21 +1,23 @@
 package models
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/TechnoServsEIP/Backend/utils"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
-	"github.com/TechnoServsEIP/Backend/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
 //JWT claims struct
 type Token struct {
 	UserId uint
-	Role string
+	Role   string
 	jwt.StandardClaims
 }
 
@@ -30,11 +32,16 @@ type Account struct {
 	Activate bool
 }
 
+type GithubData struct {
+	Login string `json:"login"`
+	Id    int    `json:"id"`
+}
+
 func (account Account) generateJWT() (string, error) {
 	fmt.Println("attribute user number ", account.ID)
 	tk := &Token{
 		UserId: account.ID,
-		Role: account.Role,
+		Role:   account.Role,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 1 * 1).Unix(),
 		},
@@ -173,7 +180,6 @@ func Update(Id int, fieldsToUpdate map[string]interface{}) *Account {
 	return acc
 }
 
-
 func GetUsers() interface{} {
 	users := []Account{}
 	res := GetDB().Find(&users)
@@ -209,4 +215,52 @@ func ChangePassword(password string, id uint) error {
 	account.Password = string(hashedPassword)
 	GetDB().Save(&account)
 	return nil
+}
+
+// OAuth2
+
+func DecryptToken(tokenString string) (jwt.Claims, bool, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &Token{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(os.Getenv("token_password")), nil
+		})
+	if err != nil {
+		fmt.Println("Malformed authentication token ", err)
+		return token.Claims, token.Valid, err
+	}
+
+	fmt.Println(token.Claims.(*Token).UserId)
+	return token.Claims, token.Valid, nil
+}
+
+func AuthenticateOAuth2User(account *Account) map[string]interface{} {
+	passwordTmp := account.Password
+	if _, newUser := account.Validate(); !newUser {
+		return Login(account.Email, account.Password)
+	} else {
+		response := account.Create()
+
+		jsonString, _ := json.Marshal(response["account"])
+		r := bytes.NewReader(jsonString)
+		json.NewDecoder(r).Decode(account)
+
+		claims, _, _ := DecryptToken(account.Token)
+
+		user := GetUserFromId(int(claims.(*Token).UserId))
+		user.Verified = true
+		Update(int(user.ID), map[string]interface{}{
+			"verified": true,
+		})
+
+		return Login(account.Email, passwordTmp)
+	}
+}
+
+func LoginGithub(email string, password string) map[string]interface{} {
+	account := &Account{}
+
+	account.Email = email
+	account.Password = password
+
+	return AuthenticateOAuth2User(account)
 }
