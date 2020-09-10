@@ -1,6 +1,11 @@
 version: "3"
 
 services:
+  serverlog:
+    build: ./logbot/
+    command: node .
+    ports:
+      - "3000:3000"
   technoservs_db:
     image: postgres
     environment:

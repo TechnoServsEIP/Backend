@@ -11,6 +11,7 @@ import (
 
 var db *gorm.DB //database
 var logType []string
+
 func Initialization() {
 	initMongoDb()
 

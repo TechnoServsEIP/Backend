@@ -2,10 +2,11 @@ package app
 
 import (
 	"fmt"
-	"github.com/TechnoServsEIP/Backend/models"
-	"log"
 	"os"
+
+	"github.com/TechnoServsEIP/Backend/models"
 )
+
 func checkIfExist(path string, err error) {
 	if os.IsNotExist(err) {
 		var file, err = os.Create(path)
@@ -17,24 +18,24 @@ func checkIfExist(path string, err error) {
 }
 func CreateLogFile() {
 	for _, log := range models.LogType() {
-		path := log +".log"
+		path := log + ".log"
 		_, err := os.Stat(path)
 		checkIfExist(path, err)
 	}
 }
 func writeError(terr string, err error) {
-	file, err := os.OpenFile("LogFile/"+terr+".log", os.O_APPEND, 0644)
-	if err != nil {
-		fmt.Println(err.Error())
+	file, errFile := os.OpenFile("LogFile/"+terr+".log", os.O_CREATE|os.O_APPEND, 0644)
+	if errFile != nil {
+		fmt.Println(errFile.Error())
 	}
-	defer file.Close()
-	log.SetOutput(file)
-	log.Print(err.Error())
-
+	d1 := []byte(err.Error())
+	_, err = file.Write(d1)
+	// log.SetOutput(file)
+	// log.Print(err.Error())
+	file.Close()
 }
 
 func LogErr(terr string, err error) {
 	PublishError(terr, err)
-	CreateLogFile()
 	writeError(terr, err)
 }

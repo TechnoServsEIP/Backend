@@ -2,16 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/TechnoServsEIP/Backend/models"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/gorilla/mux"
+	"github.com/TechnoServsEIP/Backend/models"
+
 	"github.com/TechnoServsEIP/Backend/app"
 	"github.com/TechnoServsEIP/Backend/controllers"
-	"github.com/rs/cors"
 	"github.com/TechnoServsEIP/Backend/utils"
+	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -19,7 +20,7 @@ func main() {
 
 	// Set ports already binded
 	utils.ReOrderPorts(controllers.GetAllPortBinded())
-	
+
 	router := mux.NewRouter()
 
 	port := os.Getenv("server_port") //Get port from .env file, we did not specify any port so this should return an empty string when tested locally
@@ -61,17 +62,17 @@ func main() {
 	router.Use(app.JwtAuthentication) //attach JWT auth middleware
 
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
+		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
-		AllowedHeaders: []string{ "Accept", "Accept-Encoding", "Authorization", "Content-Type", "Content-Length", "X-CSRF-Token" },
-		Debug: true,
+		AllowedHeaders:   []string{"Accept", "Accept-Encoding", "Authorization", "Content-Type", "Content-Length", "X-CSRF-Token"},
+		Debug:            true,
 	})
 
 	handler := c.Handler(router)
-	
+
 	// *** http ***
-	// log.Fatal(http.ListenAndServe(":"+port, handler))
+	log.Fatal(http.ListenAndServe(":"+port, handler))
 
 	// *** https ***
-	log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))
+	// log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))
 }

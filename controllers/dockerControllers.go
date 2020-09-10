@@ -7,23 +7,24 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 	"os/exec"
 	"regexp"
+	"strconv"
 	"strings"
 
+	"github.com/TechnoServsEIP/Backend/app"
+	"github.com/TechnoServsEIP/Backend/models"
+	"github.com/TechnoServsEIP/Backend/utils"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
-	"github.com/TechnoServsEIP/Backend/models"
-	"github.com/TechnoServsEIP/Backend/utils"
 )
 
 var GetAllPortBinded = func() []string {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
-	
+
 	if err != nil {
 		fmt.Printf("Impossible to use the docker client\n")
 		return []string{}
@@ -265,6 +266,7 @@ var GetServerLogs = func(w http.ResponseWriter, r *http.Request) {
 
 	out, err := cli.ContainerLogs(ctx, docker.ContainerId, options)
 	if err != nil {
+		app.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error bad container_id"), http.StatusBadRequest)
 		return
 	}
@@ -303,7 +305,7 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err.Error())
 		utils.Respond(w, utils.Message(false, "Error while retrieving port of the container"), 500)
-		return 
+		return
 	}
 
 	err = cli.ContainerRemove(ctx, docker.ContainerId, types.ContainerRemoveOptions{
@@ -449,11 +451,11 @@ var GetNumberPlayers = func(containerId string) map[string]interface{} {
 		return map[string]interface{}{}
 	}
 
-	re := regexp.MustCompile("[0-9]+")	
+	re := regexp.MustCompile("[0-9]+")
 	result := strings.Split(string(outputListPlayer), ":")
 	nbPlayers := result[0]
 	listPlayers := strings.Split(result[1][:len(result[1])-1], ",")
-	
+
 	players := re.FindAllString(nbPlayers, -1)
 	connectedPlayers := players[0]
 	maxPlayers := players[1]
@@ -470,8 +472,8 @@ var GetNumberPlayers = func(containerId string) map[string]interface{} {
 
 	return map[string]interface{}{
 		"connectedPlayers": conP,
-		"maxPlayers": maxP,
-		"listPlayers": listPlayers,
+		"maxPlayers":       maxP,
+		"listPlayers":      listPlayers,
 	}
 }
 
@@ -519,7 +521,6 @@ var ModifyGameServer = func(w http.ResponseWriter, r *http.Request) {
 
 	utils.Respond(w, resp, 200)
 }
-
 
 func checkIfUserCanCreate(UserId string) bool {
 	userID, err := strconv.Atoi(UserId)
