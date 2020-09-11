@@ -61,13 +61,13 @@ func main() {
 
 	// OAuth2
 	// Login route
-	router.HandleFunc("/login/github/", controllers.GithubLoginHandler)
+	// router.HandleFunc("/login/github/", controllers.GithubLoginHandler)
 
 	// Github callback
 	router.HandleFunc("/login/github/callback", controllers.GithubCallbackHandler)
 
 	// Rout where the authenticated user is redirect to
-	router.HandleFunc("/loggedin", controllers.Loggedin)
+	// router.HandleFunc("/loggedin", controllers.Loggedin)
 
 	router.Use(app.JwtAuthentication) //attach JWT auth middleware
 
