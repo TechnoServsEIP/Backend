@@ -26,6 +26,7 @@ var GetAllPortBinded = func() []string {
 	cli, err := client.NewEnvClient()
 
 	if err != nil {
+		app.LogErr("docker", err)
 		fmt.Printf("Impossible to use the docker client\n")
 		return []string{}
 	}
@@ -61,6 +62,7 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
+		app.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
 		return
 	}
@@ -78,6 +80,7 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
+		app.LogErr("docker", err)
 		fmt.Println("error when creating docker client", err)
 		return
 	}
@@ -95,6 +98,7 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	}
 	containerPort, err := nat.NewPort("tcp", "25565")
 	if err != nil {
+		app.LogErr("docker", err)
 		fmt.Println("error when creating container port", err)
 		return
 	}
@@ -111,6 +115,7 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 		nil,
 		contName)
 	if err != nil {
+		app.LogErr("docker", err)
 		fmt.Println("error when creating container", err)
 		return
 	}
@@ -136,6 +141,7 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	info, err := cli.ContainerInspect(ctx, cont.ID)
 
 	if err != nil {
+		app.LogErr("docker", err)
 		fmt.Println(err)
 		utils.Respond(w, resp, http.StatusCreated)
 		return
@@ -155,12 +161,14 @@ var StartDocker = func(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
+		app.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
 		return
 	}
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
+		app.LogErr("docker", err)
 		panic(err)
 	}
 	err = cli.ContainerStart(ctx, docker.ContainerId, types.ContainerStartOptions{})
@@ -173,6 +181,7 @@ var StartDocker = func(w http.ResponseWriter, r *http.Request) {
 	info, err := cli.ContainerInspect(ctx, docker.ContainerId)
 
 	if err != nil {
+		app.LogErr("docker", err)
 		fmt.Println(err)
 		return
 	}
@@ -204,17 +213,20 @@ var StopDocker = func(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
+		app.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
 		return
 	}
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
+		app.LogErr("docker", err)
 		panic(err)
 	}
 
 	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
 	if err != nil {
+		app.LogErr("docker", err)
 		panic(err)
 	}
 
@@ -246,6 +258,7 @@ var GetServerLogs = func(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
+		app.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error failed to contact docker api"), http.StatusBadRequest)
 		return
 	}
@@ -287,6 +300,7 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
+		app.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error failed to contact docker api"), http.StatusBadRequest)
 		return
 	}
@@ -303,6 +317,7 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 	info, err := cli.ContainerInspect(ctx, docker.ContainerId)
 
 	if err != nil {
+		app.LogErr("docker", err)
 		fmt.Println(err.Error())
 		utils.Respond(w, utils.Message(false, "Error while retrieving port of the container"), 500)
 		return
@@ -332,6 +347,7 @@ var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
+		app.LogErr("docker", err)
 		fmt.Println("error when creating docker client", err)
 		return
 	}
@@ -362,6 +378,7 @@ var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 		info, err := cli.ContainerInspect(ctx, element.IdDocker)
 
 		if err != nil {
+			app.LogErr("docker", err)
 			fmt.Println(err.Error())
 			utils.Respond(w, map[string]interface{}{
 				"error": err.Error(),
@@ -386,6 +403,7 @@ var GetInfosUserServer = func(w http.ResponseWriter, r *http.Request) {
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
+		app.LogErr("docker", err)
 		fmt.Println("error when creating docker client", err)
 		return
 	}
@@ -412,6 +430,7 @@ var GetInfosUserServer = func(w http.ResponseWriter, r *http.Request) {
 	info, err := cli.ContainerInspect(ctx, OneDocker.IdDocker)
 
 	if err != nil {
+		app.LogErr("docker", err)
 		fmt.Println(err.Error())
 		utils.Respond(w, map[string]interface{}{
 			"error": err.Error(),
@@ -429,6 +448,7 @@ var GetInfosUserServer = func(w http.ResponseWriter, r *http.Request) {
 
 	out, err := cli.ContainerLogs(ctx, docker.ContainerId, options)
 	if err != nil {
+		app.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error bad container_id"), http.StatusBadRequest)
 		return
 	}
@@ -448,6 +468,7 @@ var GetNumberPlayers = func(containerId string) map[string]interface{} {
 	outputListPlayer, err := cmd.CombinedOutput()
 
 	if err != nil {
+		app.LogErr("docker", err)
 		return map[string]interface{}{}
 	}
 
@@ -482,6 +503,7 @@ var GetPlayersOnline = func(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
+		app.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
 		return
 	}
@@ -497,6 +519,7 @@ var ModifyGameServer = func(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
+		app.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
 		return
 	}
@@ -533,6 +556,7 @@ func checkIfUserCanCreate(UserId string) bool {
 	u64, err := strconv.ParseUint(UserId, 10, 32)
 
 	if err != nil {
+		app.LogErr("docker", err)
 		return false
 	}
 

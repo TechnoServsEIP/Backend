@@ -1,9 +1,9 @@
 package models
 
 import (
+	"github.com/TechnoServsEIP/Backend/utils"
 	"github.com/docker/docker/api/types"
 	"github.com/jinzhu/gorm"
-	"github.com/TechnoServsEIP/Backend/utils"
 )
 
 type Docker struct {
