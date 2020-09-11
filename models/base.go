@@ -10,6 +10,7 @@ import (
 )
 
 var db *gorm.DB //database
+var logType []string
 
 func Initialization() {
 	initMongoDb()
@@ -33,9 +34,13 @@ func Initialization() {
 
 	db = conn
 	db.Debug().AutoMigrate(&Account{}, &DockerStore{}, DockerDelete{}) //Database migration
+	logType = []string{"postgres", "docker", "jwt", "github"}
 }
 
 //returns a handle to the DB object
 func GetDB() *gorm.DB {
 	return db
+}
+func LogType() []string {
+	return logType
 }
