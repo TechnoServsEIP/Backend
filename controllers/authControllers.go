@@ -3,10 +3,11 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/TechnoServsEIP/Backend/app"
 	"github.com/TechnoServsEIP/Backend/models"
 	"github.com/TechnoServsEIP/Backend/utils"
-	"net/http"
 )
 
 var CreateAccount = func(w http.ResponseWriter, r *http.Request) {
@@ -14,6 +15,7 @@ var CreateAccount = func(w http.ResponseWriter, r *http.Request) {
 	account := &models.Account{}
 	err := json.NewDecoder(r.Body).Decode(account) //decode the request body into struct and failed if any error occur
 	if err != nil {
+		app.LogErr("jwt", err)
 		fmt.Println("An error occurred while decoding request ", err)
 		utils.Respond(w, utils.Message(false, "Invalid request"), 400)
 		return
@@ -27,6 +29,7 @@ var Authenticate = func(w http.ResponseWriter, r *http.Request) {
 	account := &models.Account{}
 	err := json.NewDecoder(r.Body).Decode(account) //decode the request body into struct and failed if any error occur
 	if err != nil {
+		app.LogErr("jwt", err)
 		utils.Respond(w, utils.Message(false, "Invalid request"), 400)
 		return
 	}
@@ -49,6 +52,7 @@ var Confirm = func(w http.ResponseWriter, r *http.Request) {
 	if !valid {
 		fmt.Println("invalid token")
 		if err != nil {
+			app.LogErr("jwt", err)
 			fmt.Println("error ", err)
 		}
 		return
@@ -75,6 +79,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 	}{}
 	err := json.NewDecoder(r.Body).Decode(idJson)
 	if err != nil {
+		app.LogErr("jwt", err)
 		println(err.Error())
 		utils.Respond(w, utils.Message(false, "malformed request"), 400)
 		return

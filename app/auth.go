@@ -55,6 +55,7 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 				return []byte(os.Getenv("token_password")), nil
 			})
 		if err != nil { //Malformed token, returns with http code 403 as usual
+			LogErr("jwt", err)
 			response = utils.Message(false, "Malformed authentication token")
 			w.Header().Add("Content-Type", "application/json")
 			utils.Respond(w, response, http.StatusForbidden)
@@ -102,6 +103,7 @@ func DecryptToken(tokenString string) (jwt.Claims, bool, error) {
 			return []byte(os.Getenv("token_password")), nil
 		})
 	if err != nil { //Malformed token, returns with http code 403 as usual
+		LogErr("jwt", err)
 		fmt.Println("Malformed authentication token ", err)
 		return token.Claims, token.Valid, err
 	}
