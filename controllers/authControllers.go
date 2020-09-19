@@ -58,8 +58,6 @@ var Confirm = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("after decrypt")
-
 	user := models.GetUserFromId(int(claims.(*models.Token).UserId))
 	fmt.Println(user)
 	user.Verified = true

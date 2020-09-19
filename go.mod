@@ -31,6 +31,7 @@ require (
 	github.com/spf13/afero v1.3.4 // indirect
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.5.1 // indirect
+	github.com/stripe/stripe-go/v72 v72.3.0
 	github.com/yuin/goldmark v1.1.29 // indirect
 	go.mongodb.org/mongo-driver v1.3.3
 	golang.org/x/crypto v0.0.0-20200414173820-0848c9571904
