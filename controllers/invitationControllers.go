@@ -56,7 +56,7 @@ var Invite = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	adress := "https://x2021alsablue1371139462001.northeurope.cloudapp.azure.com:"
+	adress := "x2021alsablue1371139462001.northeurope.cloudapp.azure.com:"
 
 	adress += info.HostConfig.PortBindings["25565/tcp"][0].HostPort
 
