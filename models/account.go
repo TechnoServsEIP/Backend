@@ -102,7 +102,7 @@ func (account *Account) Create() map[string]interface{} {
 	}
 	account.Token = tokenString
 
-	url := "http://technoservs.ichbinkout.eu/confirm?=token" + tokenString
+	url := "https://technoservs.ichbinkout.eu/confirm?token=" + tokenString
 
 	err = utils.SendConfirmationEmail(url, account.Email)
 	if err != nil {
