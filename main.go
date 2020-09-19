@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/stripe/stripe-go/v72"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/stripe/stripe-go/v72"
 
 	"github.com/TechnoServsEIP/Backend/models"
 
@@ -62,6 +63,8 @@ func main() {
 	router.HandleFunc("/offers/update", controllers.UpdateOffer).Methods("POST")
 	router.HandleFunc("/offers/delete", controllers.DeleteOffer).Methods("POST")
 	router.HandleFunc("/payment/new", controllers.PaymentNew).Methods("POST")
+	router.HandleFunc("/invitation", controllers.Invite).Methods("POST")
+
 	// OAuth2
 	// Login route
 	// router.HandleFunc("/login/github/", controllers.GithubLoginHandler)
