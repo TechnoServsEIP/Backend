@@ -154,7 +154,7 @@ func SendConfirmationEmail(url, to string) error {
 	m.SetHeader("Subject", "Confirm Email")
 	m.SetBody("text/html", res)
 
-	d := gomail.NewDialer("in-v3.mailjet.com", 587, "56a430fb737fca0b6c5d33a449c6206e", "097628559f09a9bab73a6fab8b2d357d")
+	d := gomail.NewDialer("in-v3.mailjet.com", 587, "<", "097628559f09a9bab73a6fab8b2d357d")
 
 	return d.DialAndSend(m)
 }
