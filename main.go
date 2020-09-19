@@ -88,7 +88,7 @@ func main() {
 	handler := c.Handler(router)
 
 	// *** http ***
-	// log.Fatal(http.ListenAndServe(":"+port, handler))
+	//log.Fatal(http.ListenAndServe(":"+port, handler))
 
 	// *** https ***
 	log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))

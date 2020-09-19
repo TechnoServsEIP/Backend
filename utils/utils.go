@@ -18,8 +18,6 @@ import (
 const charset = "abcdefghijklmnopqrstuvwxyz" +
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-
-
 var ports = []string{"25576", "25577", "25578", "25579", "26000", "26001"}
 var portsBinded = []string{}
 
@@ -136,7 +134,7 @@ func GetPort() string {
 
 func SendConfirmationEmail(url, to string) error {
 	m := gomail.NewMessage()
-	m.SetHeader("From", "jonathan.frickert@epitech.eu")
+	m.SetHeader("From", "team.technoservs@gmail.com")
 	m.SetHeader("To", to)
 	m.SetHeader("Subject", "Confirm Email")
 	m.SetBody("text/html", `<!--
@@ -932,7 +930,7 @@ Sizes: [
 
 func SendInvitationEmail(sender, url, to string) error {
 	m := gomail.NewMessage()
-	m.SetHeader("From", "jonathan.frickert@epitech.eu")
+	m.SetHeader("From", "team.technoservs@gmail.com")
 	m.SetHeader("To", to)
 	m.SetHeader("Subject", "Invitation on a minecraft server")
 	m.SetBody("text/html", `<!--
