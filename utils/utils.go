@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
 	"time"
-	"net"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-gomail/gomail"
@@ -22,7 +22,7 @@ var ports = []string{"25576", "25577", "25578", "25579", "26000", "26001"}
 var portsBinded = []string{}
 
 func checkBindedPort(port string) bool {
-	_, err := net.Listen("tcp", ":" + port)
+	_, err := net.Listen("tcp", ":"+port)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Can't listen on port %q: %s\n", port, err)
@@ -36,11 +36,11 @@ func checkBindedPort(port string) bool {
 func ReOrderPorts(allPortsBinded []string) {
 	portsBinded = allPortsBinded
 
-	if (len(portsBinded) > 0) {
+	if len(portsBinded) > 0 {
 		for i := 0; i < len(ports); i++ {
 			_, res := Find(portsBinded, ports[i])
 
-			if (res) {
+			if res {
 				ports[i] = ports[len(ports)-1]
 				ports[len(ports)-1] = ""
 				ports = ports[:len(ports)-1]
@@ -53,12 +53,12 @@ func ReOrderPorts(allPortsBinded []string) {
 }
 
 func Find(slice []string, val string) (int, bool) {
-    for i, item := range slice {
-        if item == val {
-            return i, true
-        }
-    }
-    return -1, false
+	for i, item := range slice {
+		if item == val {
+			return i, true
+		}
+	}
+	return -1, false
 }
 
 func Message(status bool, message string) map[string]interface{} {
@@ -92,7 +92,7 @@ func GenerateRandomString(length int) string {
 func FreeThePort(portToFree string) {
 	i, res := Find(portsBinded, portToFree)
 
-	if (res) {
+	if res {
 		ports = append(ports, portToFree)
 
 		portsBinded[i] = portsBinded[len(portsBinded)-1]
@@ -105,31 +105,31 @@ func FreeThePort(portToFree string) {
 }
 
 func GetPort() string {
-	if (len(ports) > 0) {
+	if len(ports) > 0 {
 		portState := checkBindedPort(ports[0])
 
-		if (portState) {
+		if portState {
 			/*
 			* Get the first port of the ports slice
-			*/
+			 */
 			portsBinded = append(portsBinded, ports[0])
 			fmt.Println("ports binded: ", portsBinded)
-		
+
 			/*
 			* Delete the first port of the ports slice
-			*/
+			 */
 			portToSend := ports[0]
 			ports = ports[1:len(ports)]
 			fmt.Println("ports available: ", ports)
 
-			return portToSend;
+			return portToSend
 		} else {
 			fmt.Println("no available ports")
-			return "no port available";
+			return "no port available"
 		}
 	}
 
-	return "no port available";
+	return "no port available"
 }
 
 func SendConfirmationEmail(url, to string) error {
@@ -138,6 +138,18 @@ func SendConfirmationEmail(url, to string) error {
 	m.SetHeader("To", to)
 	m.SetHeader("Subject", "Confirm Email")
 	m.SetBody("text/html", "Please click <a href="+url+">here</a> to confirm your email")
+
+	d := gomail.NewDialer("in-v3.mailjet.com", 587, "56a430fb737fca0b6c5d33a449c6206e", "097628559f09a9bab73a6fab8b2d357d")
+
+	return d.DialAndSend(m)
+}
+
+func SendInvitationEmail(sender, url, to string) error {
+	m := gomail.NewMessage()
+	m.SetHeader("From", "jonathan.frickert@epitech.eu")
+	m.SetHeader("To", to)
+	m.SetHeader("Subject", "Invitation on a minecraft server")
+	m.SetBody("text/html", ""+sender+" send you a minecraft server url: "+url+"")
 
 	d := gomail.NewDialer("in-v3.mailjet.com", 587, "56a430fb737fca0b6c5d33a449c6206e", "097628559f09a9bab73a6fab8b2d357d")
 
@@ -184,27 +196,27 @@ func DecryptToken(tokenString string) (jwt.StandardClaims, bool, error) {
 }
 
 func CreateTmpFolder(folderName string) error {
-    cmd := exec.Command("mkdir", folderName)
+	cmd := exec.Command("mkdir", folderName)
 
-    _, err := cmd.CombinedOutput()
+	_, err := cmd.CombinedOutput()
 
 	if err != nil {
 		return err
-    }
+	}
 
-    return nil
+	return nil
 }
 
 func DeleteTmpFolder(folderName string) error {
-    cmd := exec.Command("rm", "-rf", folderName)
+	cmd := exec.Command("rm", "-rf", folderName)
 
-    _, err := cmd.CombinedOutput()
+	_, err := cmd.CombinedOutput()
 
 	if err != nil {
 		return err
-    }
+	}
 
-    return nil
+	return nil
 }
 
 //  Example:
@@ -213,13 +225,13 @@ func DeleteTmpFolder(folderName string) error {
 //  container to local
 //  path => {containerID}:/{path}/{file}, destination => {localPath}/{file}
 func DockerCopy(path string, destination string) error {
-    cmd := exec.Command("docker", "cp", path, destination)
+	cmd := exec.Command("docker", "cp", path, destination)
 
-    _, err := cmd.CombinedOutput()
+	_, err := cmd.CombinedOutput()
 
 	if err != nil {
 		return err
-    }
+	}
 
-    return nil
+	return nil
 }
