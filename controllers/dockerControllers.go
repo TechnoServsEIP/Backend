@@ -572,3 +572,15 @@ func checkIfUserCanCreate(UserId string) bool {
 
 	return true
 }
+
+var GetTotalServers = func(w http.ResponseWriter, r *http.Request) {
+	containers := models.ListAllDockers()
+	total := len(*containers)
+	resp := map[string]interface{}{}
+
+	fmt.Println(total)
+
+	resp["total"] = total
+
+	utils.Respond(w, resp, 200)
+}
