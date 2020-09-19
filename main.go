@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/stripe/stripe-go/v72"
 	"log"
 	"net/http"
 	"os"
@@ -22,6 +23,8 @@ func main() {
 	utils.ReOrderPorts(controllers.GetAllPortBinded())
 
 	router := mux.NewRouter()
+
+	stripe.Key = "sk_test_51HT2XlJMhPRLHhSBXxWMOnayOtWI5z9Bj4bThci9hcLTjo0VgKrcEHZcadMFo0tJuAqqnjMIqphcuH4vNYiWv9DZ006Wz8UH4f"
 
 	port := os.Getenv("server_port") //Get port from .env file, we did not specify any port so this should return an empty string when tested locally
 	if port == "" {
@@ -58,7 +61,7 @@ func main() {
 	router.HandleFunc("/offers/create", controllers.CreateOffer).Methods("POST")
 	router.HandleFunc("/offers/update", controllers.UpdateOffer).Methods("POST")
 	router.HandleFunc("/offers/delete", controllers.DeleteOffer).Methods("POST")
-
+	router.HandleFunc("/payment/new", controllers.PaymentNew).Methods("POST")
 	// OAuth2
 	// Login route
 	// router.HandleFunc("/login/github/", controllers.GithubLoginHandler)
