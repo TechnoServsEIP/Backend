@@ -206,6 +206,26 @@ func ActivateUser(id int) interface{} {
 	return res
 }
 
+func VerifyUser(id int) interface{} {
+	user := GetUserFromId(id)
+	if user == nil {
+		return nil
+	}
+	user.Verified = true
+	res := GetDB().Save(&user)
+	return res
+}
+
+func RemoveVerification(id int) interface{} {
+	user := GetUserFromId(id)
+	if user == nil {
+		return nil
+	}
+	user.Verified = false
+	res := GetDB().Save(&user)
+	return res
+}
+
 func ChangePassword(password string, id uint) error {
 	account := GetUserFromId(int(id))
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)

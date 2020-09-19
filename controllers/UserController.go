@@ -3,9 +3,10 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/TechnoServsEIP/Backend/models"
 	"github.com/TechnoServsEIP/Backend/utils"
-	"net/http"
 )
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
@@ -14,7 +15,9 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func Activate(w http.ResponseWriter, r *http.Request) {
-	idJson := &struct{Id int `json:"Id,string,omitempty"`}{}
+	idJson := &struct {
+		Id int `json:"Id,string,omitempty"`
+	}{}
 	err := json.NewDecoder(r.Body).Decode(idJson)
 	if err != nil {
 		utils.Respond(w, utils.Message(false, "malformed request"), 400)
@@ -26,7 +29,9 @@ func Activate(w http.ResponseWriter, r *http.Request) {
 }
 
 func Deactivate(w http.ResponseWriter, r *http.Request) {
-	idJson := &struct{Id int `json:"Id,string,omitempty"`}{}
+	idJson := &struct {
+		Id int `json:"Id,string,omitempty"`
+	}{}
 	err := json.NewDecoder(r.Body).Decode(idJson)
 	if err != nil {
 		utils.Respond(w, utils.Message(false, "malformed request"), 400)
@@ -38,9 +43,38 @@ func Deactivate(w http.ResponseWriter, r *http.Request) {
 	utils.Respond(w, map[string]interface{}{"res": res}, 200)
 }
 
+func VerifyUser(w http.ResponseWriter, r *http.Request) {
+	idJson := &struct {
+		Id int `json:"Id,string,omitempty"`
+	}{}
+	err := json.NewDecoder(r.Body).Decode(idJson)
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "malformed request"), 400)
+		return
+	}
+	id := int(idJson.Id)
+	res := models.VerifyUser(id)
+	utils.Respond(w, map[string]interface{}{"res": res}, 200)
+}
+
+func RemoveVerification(w http.ResponseWriter, r *http.Request) {
+	idJson := &struct {
+		Id int `json:"Id,string,omitempty"`
+	}{}
+	err := json.NewDecoder(r.Body).Decode(idJson)
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "malformed request"), 400)
+		return
+	}
+	id := int(idJson.Id)
+	fmt.Println(id)
+	res := models.RemoveVerification(id)
+	utils.Respond(w, map[string]interface{}{"res": res}, 200)
+}
+
 func SendPasswordReset(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	data := struct{
+	data := struct {
 		Email string
 	}{}
 	url := "localhost:8080"
@@ -62,8 +96,8 @@ func SendPasswordReset(w http.ResponseWriter, r *http.Request) {
 
 func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	data := struct{
-		Email string
+	data := struct {
+		Email    string
 		Password string
 	}{}
 	user := &models.Account{}
