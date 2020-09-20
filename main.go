@@ -51,7 +51,9 @@ func main() {
 	router.HandleFunc("/docker/create", controllers.CreateDocker).Methods("POST")
 	router.HandleFunc("/docker/start", controllers.StartDocker).Methods("POST")
 	router.HandleFunc("/docker/stop", controllers.StopDocker).Methods("POST")
+	router.HandleFunc("/docker/stopAll", controllers.StopDockerAll).Methods("POST")
 	router.HandleFunc("/docker/delete", controllers.DeleteDocker).Methods("POST")
+	router.HandleFunc("/docker/deleteAll", controllers.DeleteDockerAll).Methods("POST")
 	router.HandleFunc("/docker/logs", controllers.GetServerLogs).Methods("POST")
 	router.HandleFunc("/docker/list", controllers.ListUserServers).Methods("POST")
 	router.HandleFunc("/docker/infos", controllers.GetInfosUserServer).Methods("POST")
@@ -90,7 +92,7 @@ func main() {
 	handler := c.Handler(router)
 
 	// *** http ***
-	//log.Fatal(http.ListenAndServe(":"+port, handler))
+	// log.Fatal(http.ListenAndServe(":"+port, handler))
 
 	// *** https ***
 	log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))

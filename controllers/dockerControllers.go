@@ -191,8 +191,7 @@ var StartDocker = func(w http.ResponseWriter, r *http.Request) {
 		UserId:   userId,
 	}
 
-	dockerStore.UpdateServerStatus("Started")
-
+	err = dockerStore.UpdateServerStatus("Started")
 	if err != nil {
 		fmt.Println("Error while updating status server")
 	}
@@ -245,10 +244,49 @@ var StopDocker = func(w http.ResponseWriter, r *http.Request) {
 		UserId:   userId,
 	}
 
-	dockerStore.UpdateServerStatus("Stoped")
-
+	err = dockerStore.UpdateServerStatus("Stopped")
 	if err != nil {
 		fmt.Println("Error while updating status server")
+	}
+
+	utils.Respond(w, map[string]interface{}{"status": 200, "message": "Container Stop successfully"}, http.StatusOK)
+}
+
+var StopDockerAll = func(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	userId := r.Context().Value("user").(uint) //Grab the id of the user that send the request
+	fmt.Println("userId: (", userId, ")")
+
+	cli, err := client.NewEnvClient()
+	if err != nil {
+		app.LogErr("docker", err)
+		panic(err)
+	}
+	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
+	if err != nil {
+		app.LogErr("docker", err)
+		panic(err)
+	}
+
+	for _, container := range containers {
+		fmt.Printf("%s %s\n", container.ID[:10], container.Image)
+
+		err = cli.ContainerStop(ctx, container.ID, nil)
+		if err != nil {
+			fmt.Println("An error occurred when stopping container ", container.ID)
+			return
+		}
+
+		dockerStore := &models.DockerStore{
+			IdDocker: container.ID,
+			UserId:   userId,
+		}
+		err = dockerStore.UpdateServerStatus("Stoped")
+		if err != nil {
+			fmt.Println("Error while updating status server: ", err)
+			utils.Respond(w, utils.Message(false, "An error append while update server status"), 500)
+		}
+		fmt.Println("Stop container " + container.ID)
 	}
 
 	utils.Respond(w, map[string]interface{}{"status": 200, "message": "Container Stop successfully"}, http.StatusOK)
@@ -334,6 +372,86 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.FreeThePort(info.HostConfig.PortBindings["25565/tcp"][0].HostPort)
+
+	dockerStore := &models.DockerStore{
+		IdDocker: docker.ContainerId,
+		UserId:   userId,
+	}
+	err = dockerStore.UpdateServerStatus("Deleted")
+	if err != nil {
+		fmt.Println("Error while updating status server: ", err)
+		utils.Respond(w, utils.Message(false, "An error append while update server status"), 500)
+	}
+	fmt.Println("Delete container " + docker.ContainerId)
+
+	resp := models.RemoveContainer(userId, docker.ContainerId)
+	utils.Respond(w, resp, 204)
+}
+
+var DeleteDockerAll = func(w http.ResponseWriter, r *http.Request) {
+	userId := r.Context().Value("user").(uint)
+	ctx := context.Background()
+	cli, err := client.NewEnvClient()
+	if err != nil {
+		app.LogErr("docker", err)
+		utils.Respond(w, utils.Message(false, "Error failed to contact docker api"), http.StatusBadRequest)
+		return
+	}
+
+	docker := &models.DockerDelete{}
+	err = json.NewDecoder(r.Body).Decode(docker)
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
+		return
+	}
+
+	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
+	if err != nil {
+		app.LogErr("docker", err)
+		panic(err)
+	}
+	for _, container := range containers {
+		fmt.Printf("%s %s\n", container.ID[:10], container.Image)
+
+		// retrieve the port to free
+		info, err := cli.ContainerInspect(ctx, docker.ContainerId)
+		if err != nil {
+			app.LogErr("docker", err)
+			fmt.Println(err.Error())
+			utils.Respond(w, utils.Message(false, "Error while retrieving port of the container"), 500)
+			return
+		}
+
+		err = cli.ContainerStop(ctx, container.ID, nil)
+		if err != nil {
+			fmt.Println("An error occurred when stopping container ", container.ID)
+			utils.Respond(w, utils.Message(false, "Error while stopping container"), 500)
+			return
+		}
+
+		utils.FreeThePort(info.HostConfig.PortBindings["25565/tcp"][0].HostPort)
+
+		dockerStore := &models.DockerStore{
+			IdDocker: container.ID,
+			UserId:   userId,
+		}
+		err = dockerStore.UpdateServerStatus("Stoped")
+		if err != nil {
+			fmt.Println("Error while updating status server: ", err)
+			utils.Respond(w, utils.Message(false, "An error append while update server status"), 500)
+		}
+		fmt.Println("Stop container " + container.ID)
+	}
+
+	err = cli.ContainerRemove(ctx, docker.ContainerId, types.ContainerRemoveOptions{
+		RemoveVolumes: true,
+		Force:         true,
+	})
+	if err != nil {
+		fmt.Println("An error appear when removing container: ", docker.ContainerId, "err ", err)
+		utils.Respond(w, utils.Message(false, "Error while removing container"), http.StatusBadRequest)
+		return
+	}
 
 	resp := models.RemoveContainer(userId, docker.ContainerId)
 

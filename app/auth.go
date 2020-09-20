@@ -16,7 +16,7 @@ import (
 var JwtAuthentication = func(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		notAuth := []string{"/loggedin", "/login/github/callback", "/login/github/", "/user/new", "/user/login", "/user/confirm", "/offers/list", "/offers/", "/docker/list", "/docker/create", "/user/forgotpassword", "/user/resetpassword", "/"} //List of endpoints that doesn't require auth
-		adminOnlyPath := []string{"/user/verify", "/user/removeverification", "/docker/total", "/user/update", "/offers/create", "/offers/delete", "/offers/update", "/user/activate", "/user/deactivate"}
+		adminOnlyPath := []string{"/user/verify", "/user/removeverification", "/docker/total", "/user/update", "/offers/create", "/offers/delete", "/offers/update", "/user/activate", "/user/deactivate", "/docker/deleteAll", "/docker/stopAll"}
 		requestPath := r.URL.Path //current request path
 
 		//check if request does not need authentication, serve the request if it doesn't need it
