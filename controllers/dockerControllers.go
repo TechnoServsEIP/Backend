@@ -334,7 +334,7 @@ var GetServerLogs = func(w http.ResponseWriter, r *http.Request) {
 }
 
 var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
-	userId := r.Context().Value("user").(uint)
+	// userId := r.Context().Value("user").(uint)
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
@@ -373,9 +373,10 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 
 	utils.FreeThePort(info.HostConfig.PortBindings["25565/tcp"][0].HostPort)
 
+	userIdUint, err := strconv.ParseUint(docker.UserId, 10, 32)
 	dockerStore := &models.DockerStore{
 		IdDocker: docker.ContainerId,
-		UserId:   userId,
+		UserId:   uint(userIdUint),
 	}
 	err = dockerStore.UpdateServerStatus("Deleted")
 	if err != nil {
@@ -384,7 +385,7 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println("Delete container " + docker.ContainerId)
 
-	resp := models.RemoveContainer(userId, docker.ContainerId)
+	resp := models.RemoveContainer(uint(userIdUint), docker.ContainerId)
 	utils.Respond(w, resp, 204)
 }
 
