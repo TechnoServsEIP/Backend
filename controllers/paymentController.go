@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/stripe/stripe-go/v72"
 	"github.com/stripe/stripe-go/v72/checkout/session"
 	"log"
@@ -13,8 +14,10 @@ type createCheckoutSessionResponse struct {
 }
 
 var PaymentNew = func(w http.ResponseWriter, r *http.Request) {
-	domain := "technoservs.ichbinkour.eu" //TODO change this
+	fmt.Println("initialing new payment")
+	domain := "https://technoservs.ichbinkour.eu/#/checkout" //TODO change this
 	params := &stripe.CheckoutSessionParams{
+		CustomerEmail: stripe.String("jonathan.frickert@epitech.eu"),
 		PaymentMethodTypes: stripe.StringSlice([]string{
 			"card",
 		}),
@@ -41,6 +44,7 @@ var PaymentNew = func(w http.ResponseWriter, r *http.Request) {
 	data := createCheckoutSessionResponse{
 		SessionID: session.ID,
 	}
+	fmt.Println("session id: ", data.SessionID)
 	js, _ := json.Marshal(data)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
