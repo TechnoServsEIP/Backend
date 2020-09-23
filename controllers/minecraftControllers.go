@@ -84,6 +84,11 @@ func UpdateServerProperties(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if data.ContainerId == "" {
+		utils.Respond(w, utils.Message(false, "Error, container_id is empty"), 401)
+		return
+	}
+
 	if err := models.CreateNewServerProperties(*data, data.ContainerId); err != nil {
 		app.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error while updating server properties"), 500)
