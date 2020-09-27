@@ -68,7 +68,7 @@ func main() {
 	router.HandleFunc("/offers/update", controllers.UpdateOffer).Methods("POST")
 	router.HandleFunc("/offers/delete", controllers.DeleteOffer).Methods("POST")
 	router.HandleFunc("/payment/new", controllers.PaymentNew).Methods("POST")
-	router.HandleFunc("/invitation", controllers.Invite).Methods("POST")
+	router.HandleFunc("/invitation", controllers.InvitePlayer).Methods("POST")
 
 	// OAuth2
 	// Login route

@@ -13,7 +13,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
-var Invite = func(w http.ResponseWriter, r *http.Request) {
+func InvitePlayer(w http.ResponseWriter, r *http.Request) {
 	invitation := &models.Invitation{}
 
 	err := json.NewDecoder(r.Body).Decode(invitation)
@@ -74,7 +74,10 @@ var Invite = func(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(user.Email)
 
-	utils.SendInvitationEmail(user.Email, adress, invitation.Recipient)
-
+	err = utils.SendInvitationEmail(user.Email, adress, invitation.Recipient)
+	if err != nil {
+		fmt.Println("an error append when sending email, err: ", err)
+		utils.Respond(w, utils.Message(false, "an error append when sending email"), 500)
+	}
 	utils.Respond(w, utils.Message(true, "The mail has been sended"), 200)
 }

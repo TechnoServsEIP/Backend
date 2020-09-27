@@ -10,7 +10,7 @@ import (
 	"github.com/TechnoServsEIP/Backend/utils"
 )
 
-var CreateAccount = func(w http.ResponseWriter, r *http.Request) {
+func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("request /user/new")
 	account := &models.Account{}
 	err := json.NewDecoder(r.Body).Decode(account) //decode the request body into struct and failed if any error occur
@@ -25,7 +25,7 @@ var CreateAccount = func(w http.ResponseWriter, r *http.Request) {
 	utils.Respond(w, resp, 201)
 }
 
-var Authenticate = func(w http.ResponseWriter, r *http.Request) {
+func Authenticate(w http.ResponseWriter, r *http.Request) {
 	account := &models.Account{}
 	err := json.NewDecoder(r.Body).Decode(account) //decode the request body into struct and failed if any error occur
 	if err != nil {
@@ -42,7 +42,7 @@ var Authenticate = func(w http.ResponseWriter, r *http.Request) {
 	utils.Respond(w, resp, 200)
 }
 
-var Confirm = func(w http.ResponseWriter, r *http.Request) {
+func Confirm(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("request /user/confirm")
 	token := r.URL.Query()["token"][0]
 	fmt.Println("len(token)")

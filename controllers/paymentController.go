@@ -13,7 +13,7 @@ type createCheckoutSessionResponse struct {
 	SessionID string `json:"id"`
 }
 
-var PaymentNew = func(w http.ResponseWriter, r *http.Request) {
+func PaymentNew(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("initialing new payment")
 	domain := "https://technoservs.ichbinkour.eu/#/checkout" //TODO change this
 	params := &stripe.CheckoutSessionParams{
@@ -37,12 +37,12 @@ var PaymentNew = func(w http.ResponseWriter, r *http.Request) {
 		SuccessURL: stripe.String(domain + "?success=true"),
 		CancelURL:  stripe.String(domain + "?canceled=true"),
 	}
-	session, err := session.New(params)
+	sessionPayment, err := session.New(params)
 	if err != nil {
 		log.Printf("session.New: %v", err)
 	}
 	data := createCheckoutSessionResponse{
-		SessionID: session.ID,
+		SessionID: sessionPayment.ID,
 	}
 	fmt.Println("session id: ", data.SessionID)
 	js, _ := json.Marshal(data)

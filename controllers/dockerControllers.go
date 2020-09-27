@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -21,10 +22,18 @@ import (
 	"github.com/docker/go-connections/nat"
 )
 
-var GetAllPortBinded = func() []string {
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
+func stopContainer(ctx context.Context, cli *client.Client, containerId string) error {
+	return cli.ContainerStop(ctx, containerId, nil)
+}
 
+func startContainer(ctx context.Context, cli *client.Client, containerId string) error {
+	return cli.ContainerStart(ctx, containerId, types.ContainerStartOptions{})
+}
+
+func GetAllPortBinded() []string {
+	ctx := context.Background()
+
+	cli, err := client.NewEnvClient()
 	if err != nil {
 		app.LogErr("docker", err)
 		fmt.Printf("Impossible to use the docker client\n")
@@ -32,21 +41,16 @@ var GetAllPortBinded = func() []string {
 	}
 
 	containers := models.ListAllDockers()
-	if err != nil {
-		fmt.Printf("Error when try to retrieve containers ports\n")
-		return []string{}
-	}
-
-	tmpPortsBinded := []string{}
+	var tmpPortsBinded []string
 
 	if containers != nil {
 		for _, container := range *containers {
 			info, err := cli.ContainerInspect(ctx, container.IdDocker)
-
 			if err != nil {
 				fmt.Println(err.Error())
 				return []string{}
 			}
+
 			tmpPortsBinded = append(tmpPortsBinded, info.HostConfig.PortBindings["25565/tcp"][0].HostPort)
 		}
 	}
@@ -54,15 +58,12 @@ var GetAllPortBinded = func() []string {
 	return tmpPortsBinded
 }
 
-var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
-	//user := r.Context().Value("user").(uint) //Grab the id of the user that send the request
-	//fmt.Println("user: (", user, ")")
-
+func CreateDocker(w http.ResponseWriter, r *http.Request) {
 	docker := &models.Docker{}
 
 	err := json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
-		app.LogErr("docker", err)
+		fmt.Println("an error occurred when decoding body, err :", err)
 		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
 		return
 	}
@@ -80,14 +81,17 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
-		app.LogErr("docker", err)
-		fmt.Println("error when creating docker client", err)
+		errorLog := errors.New("error when creating docker client, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "An error occurred when creating container"), 500)
 		return
 	}
 
 	port := utils.GetPort()
 
 	if port == "no port available" {
+		fmt.Println("An error occurred, No port available")
 		utils.Respond(w, utils.Message(false, "No port available"), 413)
 		return
 	}
@@ -98,8 +102,10 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	}
 	containerPort, err := nat.NewPort("tcp", "25565")
 	if err != nil {
-		app.LogErr("docker", err)
-		fmt.Println("error when creating container port", err)
+		errorLog := errors.New("Error while assigning container port, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "An error occurred while creating server"), 500)
 		return
 	}
 	portBinding := nat.PortMap{
@@ -115,14 +121,19 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 		nil,
 		contName)
 	if err != nil {
-		app.LogErr("docker", err)
-		fmt.Println("error when creating container", err)
+		errorLog := errors.New("Error while creating container, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "An error occurred while creating server"), 500)
 		return
 	}
 
-	err = cli.ContainerStart(ctx, cont.ID, types.ContainerStartOptions{})
+	err = startContainer(ctx, cli, cont.ID)
 	if err != nil {
-		fmt.Println("an error occurred when starting container", "container_id=", cont.ID, "err", err)
+		errorLog := errors.New("Error while starting container, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "An error occurred while creating server"), 500)
 		return
 	}
 	fmt.Println("Starting container ", cont.ID)
@@ -139,20 +150,19 @@ var CreateDocker = func(w http.ResponseWriter, r *http.Request) {
 	resp := dockerStore.Create()
 
 	info, err := cli.ContainerInspect(ctx, cont.ID)
-
 	if err != nil {
-		app.LogErr("docker", err)
-		fmt.Println(err)
-		utils.Respond(w, resp, http.StatusCreated)
+		errorLog := errors.New("Error while listing docker env, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "An error occurred while creating server"), 500)
 		return
 	}
 
 	resp["settings"] = &info
-
 	utils.Respond(w, resp, http.StatusCreated)
 }
 
-var StartDocker = func(w http.ResponseWriter, r *http.Request) {
+func StartDocker(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	userId := r.Context().Value("user").(uint) //Grab the id of the user that send the request
 	fmt.Println("userId: (", userId, ")")
@@ -161,28 +171,35 @@ var StartDocker = func(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
-		app.LogErr("docker", err)
+		fmt.Println("error while decoding body, err: ", err)
 		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
 		return
 	}
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
-		app.LogErr("docker", err)
-		panic(err)
+		errorLog := errors.New("Error while creating docker env, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "An error occurred when starting container"), 500)
+		return
 	}
-	err = cli.ContainerStart(ctx, docker.ContainerId, types.ContainerStartOptions{})
+	err = startContainer(ctx, cli, docker.ContainerId)
 	if err != nil {
-		fmt.Println("an error occurred when starting container", "container_id=", docker.ContainerId, "err", err)
+		errorLog := errors.New("an error occurred when starting container" +
+			"container_id=" + docker.ContainerId + "err" + err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "An error occurred when starting container"), 500)
 		return
 	}
 	fmt.Println("Starting container ", docker.ContainerId)
 
 	info, err := cli.ContainerInspect(ctx, docker.ContainerId)
-
 	if err != nil {
-		app.LogErr("docker", err)
-		fmt.Println(err)
+		errorLog := errors.New("an error occurred when inspecting container, err :" +
+			err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "An error occurred when starting container"), 500)
 		return
 	}
 
@@ -190,10 +207,14 @@ var StartDocker = func(w http.ResponseWriter, r *http.Request) {
 		IdDocker: docker.ContainerId,
 		UserId:   userId,
 	}
-
 	err = dockerStore.UpdateServerStatus("Started")
 	if err != nil {
-		fmt.Println("Error while updating status server")
+		_ = stopContainer(ctx, cli, docker.ContainerId)
+		errorLog := errors.New("Error while updating status server, err: " +
+			err.Error())
+		app.LogErr("postgres", errorLog)
+		utils.Respond(w, utils.Message(false, "An error occurred when starting container"), 500)
+		return
 	}
 
 	resp := map[string]interface{}{}
@@ -203,7 +224,7 @@ var StartDocker = func(w http.ResponseWriter, r *http.Request) {
 	utils.Respond(w, resp, 200)
 }
 
-var StopDocker = func(w http.ResponseWriter, r *http.Request) {
+func StopDocker(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	userId := r.Context().Value("user").(uint) //Grab the id of the user that send the request
 	fmt.Println("userId: (", userId, ")")
@@ -212,31 +233,40 @@ var StopDocker = func(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
-		app.LogErr("docker", err)
+		fmt.Println("An error occurred while decoding body, err: ", err)
 		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
 		return
 	}
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
-		app.LogErr("docker", err)
-		panic(err)
+		errorLog := errors.New("an error occurred when creating docker env, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "An error append while stopping container"), 500)
+		return
 	}
 
 	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
 	if err != nil {
-		app.LogErr("docker", err)
-		panic(err)
+		errorLog := errors.New("an error occurred when listing docker container, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "An error append while stopping container"), 500)
+		return
 	}
 
-	for _, container := range containers {
-		fmt.Printf("%s %s\n", container.ID[:10], container.Image)
+	for _, _container := range containers {
+		fmt.Printf("%s %s\n", _container.ID[:10], _container.Image)
 	}
 	fmt.Println("Stop container " + docker.ContainerId)
 
-	err = cli.ContainerStop(ctx, docker.ContainerId, nil)
+	err = stopContainer(ctx, cli, docker.ContainerId)
 	if err != nil {
-		fmt.Println("An error occurred when stopping container ", docker.ContainerId)
+		errorLog := errors.New("An error occurred when stopping container, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "An error append while stopping container"), 500)
 		return
 	}
 	dockerStore := &models.DockerStore{
@@ -246,57 +276,74 @@ var StopDocker = func(w http.ResponseWriter, r *http.Request) {
 
 	err = dockerStore.UpdateServerStatus("Stopped")
 	if err != nil {
-		fmt.Println("Error while updating status server")
+		errorLog := errors.New("Error while updating status server, err: " +
+			err.Error())
+		app.LogErr("postgres", errorLog)
+		utils.Respond(w, utils.Message(false, "An error append while update server status"), 500)
+		return
 	}
 
 	utils.Respond(w, map[string]interface{}{"status": 200, "message": "Container Stop successfully"}, http.StatusOK)
 }
 
-var StopDockerAll = func(w http.ResponseWriter, r *http.Request) {
+func StopDockerAll(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	userId := r.Context().Value("user").(uint) //Grab the id of the user that send the request
 	fmt.Println("userId: (", userId, ")")
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
-		app.LogErr("docker", err)
-		panic(err)
+		errorLog := errors.New("an error occurred when creating docker env, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "An error append stopping containers"), 500)
+		return
 	}
+
 	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
 	if err != nil {
-		app.LogErr("docker", err)
-		panic(err)
+		errorLog := errors.New("an error occurred when listing containers, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "An error append while update server status"), 500)
+		return
 	}
 
-	for _, container := range containers {
-		fmt.Printf("%s %s\n", container.ID[:10], container.Image)
+	for _, _container := range containers {
+		fmt.Printf("%s %s\n", _container.ID[:10], _container.Image)
 
-		err = cli.ContainerStop(ctx, container.ID, nil)
+		err = cli.ContainerStop(ctx, _container.ID, nil)
 		if err != nil {
-			fmt.Println("An error occurred when stopping container ", container.ID)
+			fmt.Println("An error occurred when stopping container ", _container.ID)
+			utils.Respond(w, utils.Message(false, "An error append while stopping server"), 500)
 			return
 		}
 
 		dockerStore := &models.DockerStore{
-			IdDocker: container.ID,
+			IdDocker: _container.ID,
 			UserId:   userId,
 		}
-		err = dockerStore.UpdateServerStatus("Stoped")
+		err = dockerStore.UpdateServerStatus("Stopped")
 		if err != nil {
-			fmt.Println("Error while updating status server: ", err)
+			errorLog := errors.New("an error occurred when updating server status, err: " +
+				err.Error())
+			app.LogErr("postgres", errorLog)
 			utils.Respond(w, utils.Message(false, "An error append while update server status"), 500)
+			return
 		}
-		fmt.Println("Stop container " + container.ID)
+		fmt.Println("Stop container " + _container.ID)
 	}
 
 	utils.Respond(w, map[string]interface{}{"status": 200, "message": "Container Stop successfully"}, http.StatusOK)
 }
 
-var GetServerLogs = func(w http.ResponseWriter, r *http.Request) {
+func GetServerLogs(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
-		app.LogErr("docker", err)
+		errorLog := errors.New("an error occurred when creating docker env, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
 		utils.Respond(w, utils.Message(false, "Error failed to contact docker api"), http.StatusBadRequest)
 		return
 	}
@@ -317,14 +364,16 @@ var GetServerLogs = func(w http.ResponseWriter, r *http.Request) {
 
 	out, err := cli.ContainerLogs(ctx, docker.ContainerId, options)
 	if err != nil {
-		app.LogErr("docker", err)
+		errorLog := errors.New("an error occurred when reading docker logs, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
 		utils.Respond(w, utils.Message(false, "Error bad container_id"), http.StatusBadRequest)
 		return
 	}
 
 	var logs bytes.Buffer
 
-	io.Copy(&logs, out)
+	_, _ = io.Copy(&logs, out)
 
 	resp := map[string]interface{}{
 		"logs": logs.String(),
@@ -333,12 +382,14 @@ var GetServerLogs = func(w http.ResponseWriter, r *http.Request) {
 	utils.Respond(w, resp, 200)
 }
 
-var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
+func DeleteDocker(w http.ResponseWriter, r *http.Request) {
 	// userId := r.Context().Value("user").(uint)
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
-		app.LogErr("docker", err)
+		errorLog := errors.New("an error occurred when creating docker env, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
 		utils.Respond(w, utils.Message(false, "Error failed to contact docker api"), http.StatusBadRequest)
 		return
 	}
@@ -355,8 +406,9 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 	info, err := cli.ContainerInspect(ctx, docker.ContainerId)
 
 	if err != nil {
-		app.LogErr("docker", err)
-		fmt.Println(err.Error())
+		errorLog := errors.New("an error occurred when inspecting container, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
 		utils.Respond(w, utils.Message(false, "Error while retrieving port of the container"), 500)
 		return
 	}
@@ -366,6 +418,9 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 		Force:         true,
 	})
 	if err != nil {
+		errorLog := errors.New("an error occurred when removing container, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
 		fmt.Println("An error appear when removing container: ", docker.ContainerId, "err ", err)
 		utils.Respond(w, utils.Message(false, "Error while removing container"), http.StatusBadRequest)
 		return
@@ -380,7 +435,9 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 	}
 	err = dockerStore.UpdateServerStatus("Deleted")
 	if err != nil {
-		fmt.Println("Error while updating status server: ", err)
+		errorLog := errors.New("Error while updating status server, err " +
+			err.Error())
+		app.LogErr("postgres", errorLog)
 		utils.Respond(w, utils.Message(false, "An error append while update server status"), 500)
 	}
 	fmt.Println("Delete container " + docker.ContainerId)
@@ -389,12 +446,14 @@ var DeleteDocker = func(w http.ResponseWriter, r *http.Request) {
 	utils.Respond(w, resp, 204)
 }
 
-var DeleteDockerAll = func(w http.ResponseWriter, r *http.Request) {
+func DeleteDockerAll(w http.ResponseWriter, r *http.Request) {
 	userId := r.Context().Value("user").(uint)
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
-		app.LogErr("docker", err)
+		errorLog := errors.New("an error occurred when creating docker env, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
 		utils.Respond(w, utils.Message(false, "Error failed to contact docker api"), http.StatusBadRequest)
 		return
 	}
@@ -408,24 +467,29 @@ var DeleteDockerAll = func(w http.ResponseWriter, r *http.Request) {
 
 	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
 	if err != nil {
-		app.LogErr("docker", err)
+		errorLog := errors.New("an error occurred when listing containers, err: " +
+			err.Error())
+		app.LogErr("docker", errorLog)
 		panic(err)
 	}
-	for _, container := range containers {
-		fmt.Printf("%s %s\n", container.ID[:10], container.Image)
+	for _, _container := range containers {
+		fmt.Printf("%s %s\n", _container.ID[:10], _container.Image)
 
 		// retrieve the port to free
 		info, err := cli.ContainerInspect(ctx, docker.ContainerId)
 		if err != nil {
-			app.LogErr("docker", err)
-			fmt.Println(err.Error())
+			errorLog := errors.New("An error occurred when inspecting container" +
+				",err: " + err.Error())
+			app.LogErr("docker", errorLog)
 			utils.Respond(w, utils.Message(false, "Error while retrieving port of the container"), 500)
 			return
 		}
 
-		err = cli.ContainerStop(ctx, container.ID, nil)
+		err = cli.ContainerStop(ctx, _container.ID, nil)
 		if err != nil {
-			fmt.Println("An error occurred when stopping container ", container.ID)
+			errorLog := errors.New("An error occurred when stopping container " +
+				_container.ID + ", err " + err.Error())
+			app.LogErr("docker", errorLog)
 			utils.Respond(w, utils.Message(false, "Error while stopping container"), 500)
 			return
 		}
@@ -433,15 +497,17 @@ var DeleteDockerAll = func(w http.ResponseWriter, r *http.Request) {
 		utils.FreeThePort(info.HostConfig.PortBindings["25565/tcp"][0].HostPort)
 
 		dockerStore := &models.DockerStore{
-			IdDocker: container.ID,
+			IdDocker: _container.ID,
 			UserId:   userId,
 		}
-		err = dockerStore.UpdateServerStatus("Stoped")
+		err = dockerStore.UpdateServerStatus("Stopped")
 		if err != nil {
-			fmt.Println("Error while updating status server: ", err)
+			errorLog := errors.New("Error while updating status server:" +
+				" err: " + err.Error())
+			app.LogErr("postgres", errorLog)
 			utils.Respond(w, utils.Message(false, "An error append while update server status"), 500)
 		}
-		fmt.Println("Stop container " + container.ID)
+		fmt.Println("Stop container " + _container.ID)
 	}
 
 	err = cli.ContainerRemove(ctx, docker.ContainerId, types.ContainerRemoveOptions{
@@ -449,25 +515,27 @@ var DeleteDockerAll = func(w http.ResponseWriter, r *http.Request) {
 		Force:         true,
 	})
 	if err != nil {
-		fmt.Println("An error appear when removing container: ", docker.ContainerId, "err ", err)
+		errorLog := errors.New("An error appear when removing container: " +
+			docker.ContainerId + "err " + err.Error())
+		app.LogErr("docker", errorLog)
 		utils.Respond(w, utils.Message(false, "Error while removing container"), http.StatusBadRequest)
 		return
 	}
 
 	resp := models.RemoveContainer(userId, docker.ContainerId)
-
 	utils.Respond(w, resp, 204)
 }
 
-var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
+func ListUserServers(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	docker := &models.DockerList{}
 	// userId := r.Context().Value("user").(uint)
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
-		app.LogErr("docker", err)
-		fmt.Println("error when creating docker client", err)
+		errorLog := errors.New("an error occurred when creating docker env," +
+			" err: " + err.Error())
+		app.LogErr("docker", errorLog)
 		return
 	}
 
@@ -497,8 +565,9 @@ var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 		info, err := cli.ContainerInspect(ctx, element.IdDocker)
 
 		if err != nil {
-			app.LogErr("docker", err)
-			fmt.Println(err.Error())
+			errorLog := errors.New("an error occurred when inspecting container," +
+				" err: " + err.Error())
+			app.LogErr("docker", errorLog)
 			utils.Respond(w, map[string]interface{}{
 				"error": err.Error(),
 			}, 500)
@@ -516,14 +585,14 @@ var ListUserServers = func(w http.ResponseWriter, r *http.Request) {
 	utils.Respond(w, resp, 200)
 }
 
-var GetInfosUserServer = func(w http.ResponseWriter, r *http.Request) {
+func GetInfosUserServer(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	docker := &models.DockerDelete{}
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
-		app.LogErr("docker", err)
-		fmt.Println("error when creating docker client", err)
+		errorLog := errors.New("error when creating docker client, err: " + err.Error())
+		app.LogErr("docker", errorLog)
 		return
 	}
 
@@ -549,8 +618,9 @@ var GetInfosUserServer = func(w http.ResponseWriter, r *http.Request) {
 	info, err := cli.ContainerInspect(ctx, OneDocker.IdDocker)
 
 	if err != nil {
-		app.LogErr("docker", err)
-		fmt.Println(err.Error())
+		errorLog := errors.New("an error occurred when inspecting container," +
+			" err: " + err.Error())
+		app.LogErr("docker", errorLog)
 		utils.Respond(w, map[string]interface{}{
 			"error": err.Error(),
 		}, 500)
@@ -567,14 +637,16 @@ var GetInfosUserServer = func(w http.ResponseWriter, r *http.Request) {
 
 	out, err := cli.ContainerLogs(ctx, docker.ContainerId, options)
 	if err != nil {
-		app.LogErr("docker", err)
+		errorLog := errors.New("an error occurred when reading container logs, " +
+			"err: " + err.Error())
+		app.LogErr("docker", errorLog)
 		utils.Respond(w, utils.Message(false, "Error bad container_id"), http.StatusBadRequest)
 		return
 	}
 
 	var logs bytes.Buffer
 
-	io.Copy(&logs, out)
+	_, _ = io.Copy(&logs, out)
 	serverInfo["logs"] = logs.String()
 
 	serverInfo["playersOnline"] = GetNumberPlayers(docker.ContainerId)
@@ -582,12 +654,14 @@ var GetInfosUserServer = func(w http.ResponseWriter, r *http.Request) {
 	utils.Respond(w, serverInfo, 200)
 }
 
-var GetNumberPlayers = func(containerId string) map[string]interface{} {
+func GetNumberPlayers(containerId string) map[string]interface{} {
 	cmd := exec.Command("docker", "exec", containerId, "rcon-cli", "list")
 	outputListPlayer, err := cmd.CombinedOutput()
 
 	if err != nil {
-		app.LogErr("docker", err)
+		errorLog := errors.New("an error occurred when executing list user command, " +
+			"err: " + err.Error())
+		app.LogErr("docker", errorLog)
 		return map[string]interface{}{}
 	}
 
@@ -617,12 +691,13 @@ var GetNumberPlayers = func(containerId string) map[string]interface{} {
 	}
 }
 
-var GetPlayersOnline = func(w http.ResponseWriter, r *http.Request) {
+func GetPlayersOnline(w http.ResponseWriter, r *http.Request) {
 	docker := &models.DockerDelete{}
 
 	err := json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
-		app.LogErr("docker", err)
+		errorLog := errors.New("an error occurred when decoding body, err: " + err.Error())
+		app.LogErr("docker", errorLog)
 		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
 		return
 	}
@@ -633,12 +708,13 @@ var GetPlayersOnline = func(w http.ResponseWriter, r *http.Request) {
 	utils.Respond(w, playersOnline, 200)
 }
 
-var ModifyGameServer = func(w http.ResponseWriter, r *http.Request) {
+func ModifyGameServer(w http.ResponseWriter, r *http.Request) {
 	docker := &models.GameServer{}
 
 	err := json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
-		app.LogErr("docker", err)
+		errorLog := errors.New("an error occurred when decoding body, err: " + err.Error())
+		app.LogErr("docker", errorLog)
 		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
 		return
 	}
@@ -675,7 +751,8 @@ func checkIfUserCanCreate(UserId string) bool {
 	u64, err := strconv.ParseUint(UserId, 10, 32)
 
 	if err != nil {
-		app.LogErr("docker", err)
+		errorLog := errors.New("an error occured when converting userId, err: " + err.Error())
+		app.LogErr("docker", errorLog)
 		return false
 	}
 
@@ -692,7 +769,7 @@ func checkIfUserCanCreate(UserId string) bool {
 	return true
 }
 
-var GetTotalServers = func(w http.ResponseWriter, r *http.Request) {
+func GetTotalServers(w http.ResponseWriter, r *http.Request) {
 	containers := models.ListAllDockers()
 	total := len(*containers)
 	resp := map[string]interface{}{}

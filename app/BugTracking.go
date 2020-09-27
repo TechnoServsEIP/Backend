@@ -24,7 +24,7 @@ func CreateLogFile() {
 	}
 }
 func writeError(terr string, err error) {
-	fmt.Println(terr, err)
+	fmt.Println(err)
 	file, errFile := os.OpenFile("LogFile/"+terr+".log", os.O_CREATE|os.O_APPEND, 0644)
 	if errFile != nil {
 		fmt.Println(errFile.Error())
