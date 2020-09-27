@@ -36,6 +36,7 @@ func main() {
 
 	//TODO load database + pass to app struct
 	router.HandleFunc("/", controllers.Home).Methods("GET")
+	router.HandleFunc("/token/refresh", controllers.RefreshToken).Methods("GET")
 	router.HandleFunc("/user/new", controllers.CreateAccount).Methods("POST")
 	router.HandleFunc("/user/update", controllers.UpdateAccount).Methods("POST")
 	router.HandleFunc("/user/confirm", controllers.Confirm).Methods("POST")
@@ -92,7 +93,7 @@ func main() {
 	handler := c.Handler(router)
 
 	// *** http ***
-	// log.Fatal(http.ListenAndServe(":"+port, handler))
+	//log.Fatal(http.ListenAndServe(":"+port, handler))
 
 	// *** https ***
 	log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))

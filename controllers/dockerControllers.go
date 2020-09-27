@@ -139,6 +139,11 @@ func CreateDocker(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting container ", cont.ID)
 
 	u64, err := strconv.ParseUint(docker.UserId, 10, 32)
+	if err != nil {
+		fmt.Println("error while parsing docker id, err: ", err)
+		utils.Respond(w, utils.Message(false, "An error occurred while creating server"), 500)
+		return
+	}
 
 	dockerStore := &models.DockerStore{
 		Game:         docker.Game,

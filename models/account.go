@@ -21,15 +21,21 @@ type Token struct {
 	jwt.StandardClaims
 }
 
+type RefreshToken struct {
+	UserId uint
+	jwt.StandardClaims
+}
+
 //a struct to rep user account
 type Account struct {
 	gorm.Model
-	Role     string
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Token    string `json:"token";sql:"-"`
-	Verified bool
-	Activate bool
+	Role         string
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	Token        string `json:"token";sql:"-"`
+	RefreshToken string `json:"refresh_token";sql:"-"`
+	Verified     bool
+	Activate     bool
 }
 
 type GithubData struct {
@@ -37,19 +43,34 @@ type GithubData struct {
 	Id    int    `json:"id"`
 }
 
-func (account Account) generateJWT() (string, error) {
+func (account Account) GenerateJWT() (map[string]string, error) {
 	fmt.Println("attribute user number ", account.ID)
+	//Generating access_token with role, user_id, and exp duration
 	tk := &Token{
 		UserId: account.ID,
 		Role:   account.Role,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 1 * 1).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 		},
 	}
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, tk)
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tk)
-	tokenString, err := token.SignedString([]byte(os.Getenv("token_password")))
-	return tokenString, err
+	//Generating refresh_token with user_id, and exp duration
+	rtk := &RefreshToken{
+		UserId: account.ID,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 36).Unix(),
+		},
+	}
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, rtk)
+
+	tokenString, err := accessToken.SignedString([]byte(os.Getenv("token_password")))
+	refreshTokenString, err := refreshToken.SignedString([]byte(os.Getenv("token_password")))
+
+	return map[string]string{
+		"access_token":  tokenString,
+		"refresh_token": refreshTokenString,
+	}, err
 }
 
 //Validate incoming user details...
@@ -96,13 +117,14 @@ func (account *Account) Create() map[string]interface{} {
 	//}
 	//Create new JWT token for the newly registered account
 	GetDB().Create(account)
-	tokenString, err := account.generateJWT()
+	tokenMapString, err := account.GenerateJWT()
 	if err != nil {
 		return utils.Message(false, "Failed to create account")
 	}
-	account.Token = tokenString
+	account.Token = tokenMapString["access_token"]
+	account.RefreshToken = tokenMapString["refresh_token"]
 
-	url := "https://technoservs.ichbinkour.eu/#/confirm?token=" + tokenString
+	url := "https://technoservs.ichbinkour.eu/#/confirm?token=" + account.Token
 
 	err = utils.SendConfirmationEmail(url, account.Email)
 	if err != nil {
@@ -139,11 +161,12 @@ func Login(email, password string) map[string]interface{} {
 	account.Password = ""
 
 	//Create JWT token
-	tokenString, err := account.generateJWT()
+	tokenMapString, err := account.GenerateJWT()
 	if err != nil {
 		return utils.Message(false, "Failed to create account")
 	}
-	account.Token = tokenString //Store the token in the response
+	account.Token = tokenMapString["access_token"]
+	account.RefreshToken = tokenMapString["refresh_token"]
 
 	resp := utils.Message(true, "Logged In")
 	resp["account"] = account
@@ -181,7 +204,7 @@ func Update(Id int, fieldsToUpdate map[string]interface{}) *Account {
 }
 
 func GetUsers() interface{} {
-	users := []Account{}
+	var users []Account
 	res := GetDB().Find(&users)
 	return res
 }

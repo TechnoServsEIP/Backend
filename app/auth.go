@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -15,13 +16,12 @@ import (
 
 func JwtAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		notAuth := []string{"/loggedin", "/login/github/callback", "/login/github/", "/user/new", "/user/login", "/user/confirm", "/offers/list", "/offers/", "/docker/list", "/docker/create", "/user/forgotpassword", "/user/resetpassword", "/"} //List of endpoints that doesn't require auth
+		notAuth := []string{"/loggedin", "/login/github/callback", "/login/github/", "/user/new", "/user/login", "/user/confirm", "/offers/list", "/offers/", "/docker/list", "/docker/create", "/user/forgotpassword", "/user/resetpassword", "/", "/token/refresh"} //List of endpoints that doesn't require auth
 		adminOnlyPath := []string{"/user/verify", "/user/removeverification", "/docker/total", "/user/update", "/offers/create", "/offers/delete", "/offers/update", "/user/activate", "/user/deactivate", "/docker/deleteAll", "/docker/stopAll"}
 		requestPath := r.URL.Path //current request path
 
 		//check if request does not need authentication, serve the request if it doesn't need it
 		for _, value := range notAuth {
-
 			if value == requestPath {
 				next.ServeHTTP(w, r)
 				return
@@ -55,7 +55,9 @@ func JwtAuthentication(next http.Handler) http.Handler {
 				return []byte(os.Getenv("token_password")), nil
 			})
 		if err != nil { //Malformed token, returns with http code 403 as usual
-			LogErr("jwt", err)
+			errorLog := errors.New("Malformed or expired token, err: " +
+				err.Error())
+			LogErr("jwt", errorLog)
 			response = utils.Message(false, "Malformed authentication token")
 			w.Header().Add("Content-Type", "application/json")
 			utils.Respond(w, response, http.StatusForbidden)

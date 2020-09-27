@@ -2,8 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/TechnoServsEIP/Backend/app"
 	"github.com/TechnoServsEIP/Backend/models"
@@ -15,14 +19,75 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	account := &models.Account{}
 	err := json.NewDecoder(r.Body).Decode(account) //decode the request body into struct and failed if any error occur
 	if err != nil {
-		app.LogErr("jwt", err)
-		fmt.Println("An error occurred while decoding request ", err)
+		errorLog := errors.New("An error occurred while decoding request, err: " +
+			err.Error())
+		app.LogErr("jwt", errorLog)
 		utils.Respond(w, utils.Message(false, "Invalid request"), 400)
 		return
 	}
 
 	resp := account.Create() //Create account
 	utils.Respond(w, resp, 201)
+}
+
+func RefreshToken(w http.ResponseWriter, r *http.Request) {
+	type tokenReqBody struct {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+	}
+	refreshTokenRequest := &tokenReqBody{}
+
+	err := json.NewDecoder(r.Body).Decode(refreshTokenRequest)
+	if err != nil {
+		errorLog := errors.New("An error occurred while decoding request, err: " +
+			err.Error())
+		app.LogErr("jwt", errorLog)
+		utils.Respond(w, utils.Message(false, "Invalid request"), 400)
+		return
+	}
+	rtk := &models.RefreshToken{}
+
+	response := make(map[string]interface{})
+	refreshToken, err := jwt.ParseWithClaims(refreshTokenRequest.RefreshToken, rtk,
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(os.Getenv("token_password")), nil
+		})
+	if err != nil { //Malformed token, returns with http code 403 as usual
+		errorLog := errors.New("Malformed or expired refresh token, err: " +
+			err.Error())
+		app.LogErr("jwt", errorLog)
+		response = utils.Message(false, "Malformed authentication token")
+		w.Header().Add("Content-Type", "application/json")
+		utils.Respond(w, response, http.StatusForbidden)
+		return
+	}
+
+	if refreshToken.Valid && refreshToken.Claims.Valid() == nil {
+		fmt.Println("everything is fine until here lets test user")
+		fmt.Println("userid: ", rtk.UserId)
+		fmt.Println("test expiration")
+		tmp := rtk.VerifyExpiresAt(time.Now().Unix(), true)
+		if !tmp {
+			fmt.Println("token expired")
+			return
+		}
+		fmt.Println("token good !")
+	}
+	user := models.GetUserFromId(int(rtk.UserId))
+	resp, err := user.GenerateJWT()
+	if err != nil {
+		errorLog := errors.New("Error append when generating refresh token, err: " +
+			err.Error())
+		app.LogErr("jwt", errorLog)
+		utils.Respond(w, utils.Message(false, "An error append when generating refresh token"),
+			500)
+		return
+	}
+
+	utils.Respond(w, map[string]interface{}{
+		"access_token":  resp["access_token"],
+		"refresh_token": resp["refresh_token"],
+	}, 200)
 }
 
 func Authenticate(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +129,6 @@ func Confirm(w http.ResponseWriter, r *http.Request) {
 	models.Update(int(user.ID), map[string]interface{}{
 		"verified": true,
 	})
-	//c.Redirect(http.StatusPermanentRedirect, "https://localhost:8000/#/login")
 }
 
 func UpdateAccount(w http.ResponseWriter, r *http.Request) {
