@@ -70,6 +70,7 @@ func main() {
 	router.HandleFunc("/offers/delete", controllers.DeleteOffer).Methods("POST")
 	router.HandleFunc("/payment/new", controllers.PaymentNew).Methods("POST")
 	router.HandleFunc("/invitation", controllers.InvitePlayer).Methods("POST")
+	router.HandleFunc("/Command", controllers.CommandRoute).Methods("POST")
 
 	// OAuth2
 	// Login route
@@ -93,8 +94,8 @@ func main() {
 	handler := c.Handler(router)
 
 	// *** http ***
-	//log.Fatal(http.ListenAndServe(":"+port, handler))
+	log.Fatal(http.ListenAndServe(":"+port, handler))
 
 	// *** https ***
-	log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))
+	//log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))
 }
