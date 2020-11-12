@@ -151,6 +151,7 @@ func CreateDocker(w http.ResponseWriter, r *http.Request) {
 		UserId:       uint(u64),
 		ServerName:   docker.ServerName,
 		ServerStatus: "Started",
+		LimitPlayers: 20,
 	}
 	resp := dockerStore.Create()
 
@@ -783,5 +784,117 @@ func GetTotalServers(w http.ResponseWriter, r *http.Request) {
 
 	resp["total"] = total
 
+	utils.Respond(w, resp, 200)
+}
+
+/*
+ * Update the limit of number players of a minecraft server into the DB
+ * Update the max-players attribut into server.properties of the concerned minecraft
+ * The concerned minecraft server is not restarted
+ */
+func LimitNumberPlayers(w http.ResponseWriter, r *http.Request) {
+	docker := &models.DockerLimitPlayers{}
+
+	// Decode the body
+	err := json.NewDecoder(r.Body).Decode(docker)
+	if err != nil {
+		errorLog := errors.New("an error occurred when decoding body, err: " + err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
+		return
+	}
+
+	// Convert userId in uint
+	userID, err := strconv.ParseUint(docker.UserId, 10, 32)
+
+	// Create a dockerStore struct
+	dockerStore := &models.DockerStore{
+		IdDocker: docker.ContainerId,
+		UserId:   uint(userID),
+	}
+
+	// Change the limit number player into the DB
+	if err := dockerStore.ChangeLimitPlayer(docker.LimitPlayers); err != nil {
+		errorLog := errors.New("An error occurred when changing limit number players into the DB: " + err.Error())
+		app.LogErr("postgres", errorLog)
+		utils.Respond(w, utils.Message(false, "Error while changing limit number players into the DB"), 500)
+		return
+	}
+
+	// Update the max players into the server.properties
+	if err := models.UpdateMaxPlayers(docker.LimitPlayers, docker.ContainerId); err != nil {
+		errorLog := errors.New("An error occurred when updating players into the server.properties: " + err.Error())
+		app.LogErr("docker", errorLog)
+		utils.Respond(w, utils.Message(false, "Error while updating players into the server.properties"), 500)
+		return
+	}
+
+	// Return the limit players in response
+	resp := map[string]interface{}{}
+	resp["limit_players"] = docker.LimitPlayers
+	utils.Respond(w, resp, 200)
+}
+
+/*
+ * Update the limit of number players of a minecraft user servers into the DB
+ * Update the max-players attribut into server.properties of the minecraft user servers
+ * The concerned minecraft servers is not restarted
+ */
+func LimitNumberPlayersOfUserServers(w http.ResponseWriter, r *http.Request) {
+	docker := &models.DockerLimitPlayersUserServers{}
+
+	// Decode the body
+	err := json.NewDecoder(r.Body).Decode(docker)
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
+		return
+	}
+
+	// Check if userId exist
+	if docker.UserId == "" {
+		utils.Respond(w, utils.Message(false, "User ID is empty"), http.StatusBadRequest)
+		return
+	}
+
+	// Convert userId in uint
+	userID, err := strconv.ParseUint(docker.UserId, 10, 32)
+
+	// Get all user servers
+	allDocker := models.UserServers(uint(userID))
+
+	// Trigger a invalid userId
+	if allDocker == nil {
+		utils.Respond(w, utils.Message(false, "invalid user_id"), 500)
+		return
+	}
+
+	// Create a empty list of docker store
+	list := make([]models.DockerStore, 0)
+
+	// Change limit number player into the DB and update max players into the server.properties for each server
+	for _, element := range *allDocker {
+		// Change the limit number player into the DB
+		if err := element.ChangeLimitPlayer(docker.LimitPlayers); err != nil {
+			errorLog := errors.New("An error occurred when changing limit number players into the DB: " + err.Error())
+			app.LogErr("postgres", errorLog)
+			utils.Respond(w, utils.Message(false, "Error while changing limit number players into the DB"), 500)
+			return
+		}
+
+		// Update the max players into the server.properties
+		if err := models.UpdateMaxPlayers(docker.LimitPlayers, element.IdDocker); err != nil {
+			errorLog := errors.New("An error occurred when updating players into the server.properties: " + err.Error())
+			app.LogErr("docker", errorLog)
+			utils.Respond(w, utils.Message(false, "Error while updating players into the server.properties"), 500)
+			return
+		}
+
+		// Append a server into the list
+		list = append(list, element)
+	}
+
+	// Return user servers updated
+	resp := map[string]interface{}{}
+	resp["user_servers"] = list
 	utils.Respond(w, resp, 200)
 }

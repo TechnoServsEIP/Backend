@@ -59,6 +59,8 @@ func main() {
 	router.HandleFunc("/docker/list", controllers.ListUserServers).Methods("POST")
 	router.HandleFunc("/docker/infos", controllers.GetInfosUserServer).Methods("POST")
 	router.HandleFunc("/docker/playersonline", controllers.GetPlayersOnline).Methods("POST")
+	router.HandleFunc("/docker/limitnumberplayers", controllers.LimitNumberPlayers).Methods("POST")
+	router.HandleFunc("/docker/limitnumberplayersofuserservers", controllers.LimitNumberPlayersOfUserServers).Methods("POST")
 	router.HandleFunc("/docker/total", controllers.GetTotalServers).Methods("GET")
 	router.HandleFunc("/minecraft/getserverproperties", controllers.GetServerProperties).Methods("POST")
 	router.HandleFunc("/minecraft/updateserverproperties", controllers.UpdateServerProperties).Methods("POST")
@@ -94,7 +96,7 @@ func main() {
 	handler := c.Handler(router)
 
 	// *** http ***
-	//log.Fatal(http.ListenAndServe(":"+port, handler))
+	// log.Fatal(http.ListenAndServe(":"+port, handler))
 
 	// *** https ***
 	log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))

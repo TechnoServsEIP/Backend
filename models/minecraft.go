@@ -1,180 +1,180 @@
 package models
 
-import (  
-    "fmt"
-    "os"
-    "bufio"
-    "encoding/json"
-    "io/ioutil"
-    "unicode"
-    "strconv"
-    "strings"
-    "reflect"
+import (
+	"bufio"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"reflect"
+	"strconv"
+	"strings"
+	"unicode"
 
-    "github.com/TechnoServsEIP/Backend/utils"
+	"github.com/TechnoServsEIP/Backend/utils"
 )
 
 type properties struct {
-    Choices         []string
-    Description     string
-    Min             int
-    Max             int
-    Name            string
-    DataType        string
-    DefaultValue    string
-    Value           string
+	Choices      []string
+	Description  string
+	Min          int
+	Max          int
+	Name         string
+	DataType     string
+	DefaultValue string
+	Value        string
 }
 
 type ServerProperties struct {
-	SpawnProtection          properties `json:"SpawnProtection"`
-    GeneratorSettings        properties `json:"GeneratorSettings"`
-    ForceGamemode            properties `json:"ForceGamemode"`
-    AllowNether              properties `json:"AllowNether"`
-    EnforceWhitelist         properties `json:"EnforceWhitelist"`
-    Gamemode                 properties `json:"Gamemode"`
-    PlayerIdleTimeout        properties `json:"PlayerIdleTimeout"`
-    Difficulty               properties `json:"Difficulty"`
-    SpawnMonsters            properties `json:"SpawnMonsters"`
-    OpPermissionLevel        properties `json:"OpPermissionLevel"`
-    Pvp                      properties `json:"Pvp"`
-    SnooperEnabled           properties `json:"SnooperEnabled"`
-    LevelType                properties `json:"LevelType"`
-    Hardcore                 properties `json:"Hardcore"`
-    EnableStatus             properties `json:"EnableStatus"`
-    EnableCommandBlock       properties `json:"EnableCommandBlock"`
-    MaxPlayers               properties `json:"MaxPlayers"`
-    MaxWorldSize             properties `json:"MaxWorldSize"`
-    FunctionPermissionLevel  properties `json:"FunctionPermissionLevel"`
-    SpawnNpcs                properties `json:"SpawnNpcs"`
-    AllowFlight              properties `json:"AllowFlight"`
-    LevelName                properties `json:"LevelName"`
-    ViewDistance             properties `json:"ViewDistance"`
-    ResourcePack             properties `json:"ResourcePack"`
-    SpawnAnimals             properties `json:"SpawnAnimals"`
-    WhitLlist                properties `json:"WhitLlist"`
-    GenerateStructures       properties `json:"GenerateStructures"`
-    OnlineMode               properties `json:"OnlineMode"`
-    LevelSeed                properties `json:"LevelSeed"`
-    Motd                     properties `json:"Motd"`
+	SpawnProtection         properties `json:"SpawnProtection"`
+	GeneratorSettings       properties `json:"GeneratorSettings"`
+	ForceGamemode           properties `json:"ForceGamemode"`
+	AllowNether             properties `json:"AllowNether"`
+	EnforceWhitelist        properties `json:"EnforceWhitelist"`
+	Gamemode                properties `json:"Gamemode"`
+	PlayerIdleTimeout       properties `json:"PlayerIdleTimeout"`
+	Difficulty              properties `json:"Difficulty"`
+	SpawnMonsters           properties `json:"SpawnMonsters"`
+	OpPermissionLevel       properties `json:"OpPermissionLevel"`
+	Pvp                     properties `json:"Pvp"`
+	SnooperEnabled          properties `json:"SnooperEnabled"`
+	LevelType               properties `json:"LevelType"`
+	Hardcore                properties `json:"Hardcore"`
+	EnableStatus            properties `json:"EnableStatus"`
+	EnableCommandBlock      properties `json:"EnableCommandBlock"`
+	MaxPlayers              properties `json:"MaxPlayers"`
+	MaxWorldSize            properties `json:"MaxWorldSize"`
+	FunctionPermissionLevel properties `json:"FunctionPermissionLevel"`
+	SpawnNpcs               properties `json:"SpawnNpcs"`
+	AllowFlight             properties `json:"AllowFlight"`
+	LevelName               properties `json:"LevelName"`
+	ViewDistance            properties `json:"ViewDistance"`
+	ResourcePack            properties `json:"ResourcePack"`
+	SpawnAnimals            properties `json:"SpawnAnimals"`
+	WhitLlist               properties `json:"WhitLlist"`
+	GenerateStructures      properties `json:"GenerateStructures"`
+	OnlineMode              properties `json:"OnlineMode"`
+	LevelSeed               properties `json:"LevelSeed"`
+	Motd                    properties `json:"Motd"`
 }
 
 type UpdateServerProperties struct {
-    UserId                  string  `json:"user_id"`
-    ContainerId             string  `json:"container_id"`
+	UserId      string `json:"user_id"`
+	ContainerId string `json:"container_id"`
 
-	SpawnProtection          int    `json:"SpawnProtection"`
-    GeneratorSettings        string `json:"GeneratorSettings"`
-    ForceGamemode            bool   `json:"ForceGamemode"`
-    AllowNether              bool   `json:"AllowNether"`
-    EnforceWhitelist         bool   `json:"EnforceWhitelist"`
-    Gamemode                 string `json:"Gamemode"`
-    PlayerIdleTimeout        int    `json:"PlayerIdleTimeout"`
-    Difficulty               string `json:"Difficulty"`
-    SpawnMonsters            bool   `json:"SpawnMonsters"`
-    OpPermissionLevel        int    `json:"OpPermissionLevel"`
-    Pvp                      bool   `json:"Pvp"`
-    SnooperEnabled           bool   `json:"SnooperEnabled"`
-    LevelType                string `json:"LevelType"`
-    Hardcore                 bool   `json:"Hardcore"`
-    EnableStatus             bool   `json:"EnableStatus"`
-    EnableCommandBlock       bool   `json:"EnableCommandBlock"`
-    MaxPlayers               int    `json:"MaxPlayers"`
-    MaxWorldSize             int    `json:"MaxWorldSize"`
-    FunctionPermissionLevel  int    `json:"FunctionPermissionLevel"`
-    SpawnNpcs                bool   `json:"SpawnNpcs"`
-    AllowFlight              bool   `json:"AllowFlight"`
-    LevelName                string `json:"LevelName"`
-    ViewDistance             int    `json:"ViewDistance"`
-    ResourcePack             string `json:"ResourcePack"`
-    SpawnAnimals             bool   `json:"SpawnAnimals"`
-    WhitLlist                bool   `json:"WhitLlist"`
-    GenerateStructures       bool   `json:"GenerateStructures"`
-    OnlineMode               bool   `json:"OnlineMode"`
-    LevelSeed                string `json:"LevelSeed"`
-    Motd                     string `json:"Motd"`
+	SpawnProtection         int    `json:"SpawnProtection"`
+	GeneratorSettings       string `json:"GeneratorSettings"`
+	ForceGamemode           bool   `json:"ForceGamemode"`
+	AllowNether             bool   `json:"AllowNether"`
+	EnforceWhitelist        bool   `json:"EnforceWhitelist"`
+	Gamemode                string `json:"Gamemode"`
+	PlayerIdleTimeout       int    `json:"PlayerIdleTimeout"`
+	Difficulty              string `json:"Difficulty"`
+	SpawnMonsters           bool   `json:"SpawnMonsters"`
+	OpPermissionLevel       int    `json:"OpPermissionLevel"`
+	Pvp                     bool   `json:"Pvp"`
+	SnooperEnabled          bool   `json:"SnooperEnabled"`
+	LevelType               string `json:"LevelType"`
+	Hardcore                bool   `json:"Hardcore"`
+	EnableStatus            bool   `json:"EnableStatus"`
+	EnableCommandBlock      bool   `json:"EnableCommandBlock"`
+	MaxPlayers              int    `json:"MaxPlayers"`
+	MaxWorldSize            int    `json:"MaxWorldSize"`
+	FunctionPermissionLevel int    `json:"FunctionPermissionLevel"`
+	SpawnNpcs               bool   `json:"SpawnNpcs"`
+	AllowFlight             bool   `json:"AllowFlight"`
+	LevelName               string `json:"LevelName"`
+	ViewDistance            int    `json:"ViewDistance"`
+	ResourcePack            string `json:"ResourcePack"`
+	SpawnAnimals            bool   `json:"SpawnAnimals"`
+	WhitLlist               bool   `json:"WhitLlist"`
+	GenerateStructures      bool   `json:"GenerateStructures"`
+	OnlineMode              bool   `json:"OnlineMode"`
+	LevelSeed               string `json:"LevelSeed"`
+	Motd                    string `json:"Motd"`
 }
 
 func kebabToCamelCase(str string) string {
-    tmp := ""
-    upper := true
+	tmp := ""
+	upper := true
 
-    for _, char := range str {
-        
-        if (char != '-' && !upper) {
-            tmp += string(char)
-        } else {
-            upper = true
-        }
+	for _, char := range str {
 
-        if (upper && char != '-') {
-            tmp += string(unicode.ToUpper(char))
-            upper = false
-        }
-    }
+		if char != '-' && !upper {
+			tmp += string(char)
+		} else {
+			upper = true
+		}
 
-    return tmp
+		if upper && char != '-' {
+			tmp += string(unicode.ToUpper(char))
+			upper = false
+		}
+	}
+
+	return tmp
 }
 
 func ServerPropertiesByServerId(containerId string) *ServerProperties {
-    /*
-     * Load JSON width default description of server.properties
-     */
-    file, _ := ioutil.ReadFile("./models/serverProperties.json")
+	/*
+	 * Load JSON width default description of server.properties
+	 */
+	file, _ := ioutil.ReadFile("./models/serverProperties.json")
 
-    data := ServerProperties{}
+	data := ServerProperties{}
 
-    _ = json.Unmarshal([]byte(file), &data)
-
-    /*
-     * Read server.properties file
-     */
-    tmpFolder := "./models/" + containerId
-
-    if err := utils.CreateTmpFolder(tmpFolder); err != nil {
-        fmt.Println(err)
-		return nil
-    }
-
-    serverFile := containerId + ":/data/server.properties"
-
-	if err := utils.DockerCopy(serverFile, tmpFolder); err != nil {
-        fmt.Println(err)
-		return nil
-    }
-
-    fileServerProp, err := os.Open(tmpFolder + "/server.properties")
-    if err != nil {
-		fmt.Println(err)
-		return nil
-    }
-    defer fileServerProp.Close()
+	_ = json.Unmarshal([]byte(file), &data)
 
 	/*
-     * Set property value
-     */
-    scanner := bufio.NewScanner(fileServerProp)
-    for scanner.Scan() {
-        property := strings.Split(scanner.Text(), "=")
+	 * Read server.properties file
+	 */
+	tmpFolder := "./models/" + containerId
 
-        if (len(property) > 1) {
-            if (reflect.ValueOf(&data).Elem().FieldByName(kebabToCamelCase(property[0])) != reflect.Value{}) {
-                reflect.ValueOf(&data).Elem().FieldByName(kebabToCamelCase(property[0])).FieldByName("Value").SetString(property[1])
-            }
-        }
-    }
-
-    if err := scanner.Err(); err != nil {
+	if err := utils.CreateTmpFolder(tmpFolder); err != nil {
 		fmt.Println(err)
 		return nil
 	}
 
-    /*
-     * Remove server.property
-     */
-    if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
-        fmt.Println(err)
+	serverFile := containerId + ":/data/server.properties"
+
+	if err := utils.DockerCopy(serverFile, tmpFolder); err != nil {
+		fmt.Println(err)
 		return nil
-    }
+	}
+
+	fileServerProp, err := os.Open(tmpFolder + "/server.properties")
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	defer fileServerProp.Close()
+
+	/*
+	 * Set property value
+	 */
+	scanner := bufio.NewScanner(fileServerProp)
+	for scanner.Scan() {
+		property := strings.Split(scanner.Text(), "=")
+
+		if len(property) > 1 {
+			if (reflect.ValueOf(&data).Elem().FieldByName(kebabToCamelCase(property[0])) != reflect.Value{}) {
+				reflect.ValueOf(&data).Elem().FieldByName(kebabToCamelCase(property[0])).FieldByName("Value").SetString(property[1])
+			}
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	/*
+	 * Remove server.property
+	 */
+	if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
+		fmt.Println(err)
+		return nil
+	}
 
 	return &data
 }
@@ -190,62 +190,62 @@ func ServerPropertiesByServerId(containerId string) *ServerProperties {
  * return: map with each line of the server.properties file updating
  */
 func getValueToUpdate(data UpdateServerProperties, tmpFolder string, containerId string, serverFile string) map[int]interface{} {
-    // create tmp folder
-    if err := utils.CreateTmpFolder(tmpFolder); err != nil {
-        fmt.Println(err)
+	// create tmp folder
+	if err := utils.CreateTmpFolder(tmpFolder); err != nil {
+		fmt.Println(err)
 		return map[int]interface{}{}
-    }
+	}
 
-    // copy server.properties from the client container into tmpfolder
+	// copy server.properties from the client container into tmpfolder
 	if err := utils.DockerCopy(serverFile, tmpFolder); err != nil {
-        fmt.Println(err)
-        
-        if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
-            fmt.Println(err)
-            return map[int]interface{}{}
-        }
+		fmt.Println(err)
+
+		if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
+			fmt.Println(err)
+			return map[int]interface{}{}
+		}
 
 		return map[int]interface{}{}
-    }
+	}
 
-    // read the server.properties and attach defaults and new values
-    fileServerProp, err := os.Open(tmpFolder + "/server.properties")
-    if err != nil {
-        fmt.Println(err)
-        return map[int]interface{}{}
-    }
-    defer fileServerProp.Close()
+	// read the server.properties and attach defaults and new values
+	fileServerProp, err := os.Open(tmpFolder + "/server.properties")
+	if err != nil {
+		fmt.Println(err)
+		return map[int]interface{}{}
+	}
+	defer fileServerProp.Close()
 
-    lines := make(map[int]interface{})
-    i := 0
+	lines := make(map[int]interface{})
+	i := 0
 
-    scanner := bufio.NewScanner(fileServerProp)
-    for scanner.Scan() {
-        property := strings.Split(scanner.Text(), "=")
+	scanner := bufio.NewScanner(fileServerProp)
+	for scanner.Scan() {
+		property := strings.Split(scanner.Text(), "=")
 
-        if (len(property) > 1) {
-            if (reflect.ValueOf(&data).Elem().FieldByName(kebabToCamelCase(property[0])) != reflect.Value{}) {
-                switch v := reflect.ValueOf(&data).Elem().FieldByName(kebabToCamelCase(property[0])); v.Kind() {
-                case reflect.Bool:
-                    lines[i] = property[0] + "=" + strconv.FormatBool(v.Bool())
-                case reflect.String:
-                    lines[i] = property[0] + "=" + v.String()
-                case reflect.Int:
-                    lines[i] = property[0] + "=" + strconv.FormatInt(v.Int(), 10)
-                }
-            } else {
-                lines[i] = property[0] + "=" + property[1]
-            }
-        }
-        i++
-    }
+		if len(property) > 1 {
+			if (reflect.ValueOf(&data).Elem().FieldByName(kebabToCamelCase(property[0])) != reflect.Value{}) {
+				switch v := reflect.ValueOf(&data).Elem().FieldByName(kebabToCamelCase(property[0])); v.Kind() {
+				case reflect.Bool:
+					lines[i] = property[0] + "=" + strconv.FormatBool(v.Bool())
+				case reflect.String:
+					lines[i] = property[0] + "=" + v.String()
+				case reflect.Int:
+					lines[i] = property[0] + "=" + strconv.FormatInt(v.Int(), 10)
+				}
+			} else {
+				lines[i] = property[0] + "=" + property[1]
+			}
+		}
+		i++
+	}
 
-    if err := scanner.Err(); err != nil {
-        fmt.Println(err)
-        return map[int]interface{}{}
-    }
+	if err := scanner.Err(); err != nil {
+		fmt.Println(err)
+		return map[int]interface{}{}
+	}
 
-    return lines
+	return lines
 }
 
 /*
@@ -254,50 +254,128 @@ func getValueToUpdate(data UpdateServerProperties, tmpFolder string, containerId
  * data: new value send by the client
  * containerId: the containerId of the client server
  *
- * return: error or nil if no error 
+ * return: error or nil if no error
  */
-func CreateNewServerProperties(data UpdateServerProperties, containerId string) error {
-    tmpFolder := "./models/" + containerId
-    serverFile := containerId + ":/data/server.properties"
-    values := getValueToUpdate(data, tmpFolder, containerId, serverFile)
+func CreateNewServerProperties(data UpdateServerProperties, containerId string, maxPalyers int64) error {
+	tmpFolder := "./models/" + containerId
+	serverFile := containerId + ":/data/server.properties"
+	values := getValueToUpdate(data, tmpFolder, containerId, serverFile)
 
-    f, err := os.Create(tmpFolder + "/server.properties")
-    if err != nil {
-        fmt.Println(err)
-        f.Close()
-        return err
-    }
+	f, err := os.Create(tmpFolder + "/server.properties")
+	if err != nil {
+		fmt.Println(err)
+		f.Close()
+		return err
+	}
 
-    for _, v := range values {
-        fmt.Fprintln(f, v)
-        if err != nil {
-            fmt.Println(err)
-            return err
-        }
-    }
-    err = f.Close()
-    if err != nil {
-        fmt.Println(err)
-        return err
-    }
+	for _, v := range values {
+		v, _ = checkMaxPlayersValue(v, maxPalyers)
+		fmt.Fprintln(f, v)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
+	err = f.Close()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 
-    // Copy the new server.properties file into the client container
-    if err := utils.DockerCopy(tmpFolder + "/server.properties", containerId + ":/data"); err != nil {
-        fmt.Println(err)
-        
-        if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
-            fmt.Println(err)
-            return err
-        }
+	// Copy the new server.properties file into the client container
+	if err := utils.DockerCopy(tmpFolder+"/server.properties", containerId+":/data"); err != nil {
+		fmt.Println(err)
+
+		if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
+			fmt.Println(err)
+			return err
+		}
 
 		return err
-    }
+	}
 
-    // remove the tmp folder
-    if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
-        fmt.Println(err)
-        return err
-    }
+	// remove the tmp folder
+	if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
+		fmt.Println(err)
+		return err
+	}
 
-    return nil
+	return nil
+}
+
+/*
+ * Check if the interface contain maxPlayers value and if this value is bellow of the limit
+ * Set and return the limit maxPlayer if the initial value is above of the limit
+ * Else return the initial value
+ */
+func checkMaxPlayersValue(value interface{}, maxPlayers int64) (interface{}, error) {
+	str := fmt.Sprintf("%v", value)
+	if strings.Contains(str, "max-players") {
+		result := strings.Split(str, "=")
+		number, err := strconv.ParseInt(result[1], 10, 64)
+
+		if err == nil {
+			if number > maxPlayers {
+				var newValue interface{} = "max-players=" + strconv.FormatInt(maxPlayers, 10)
+				return newValue, nil
+			}
+		}
+	}
+
+	return value, nil
+}
+
+/*
+ * Update the max players value
+ */
+func UpdateMaxPlayers(maxPlayers int64, containerId string) error {
+	serverFile := containerId + ":/data/server.properties"
+	tmpFolder := "./models/" + containerId
+
+	// create tmp folder
+	if err := utils.CreateTmpFolder(tmpFolder); err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	// copy server.properties from the client container into tmpfolder
+	if err := utils.DockerCopy(serverFile, tmpFolder); err != nil {
+		fmt.Println(err)
+
+		if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		return err
+	}
+
+	// replace max players value
+	input, err := ioutil.ReadFile(tmpFolder + "/server.properties")
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	lines := strings.Split(string(input), "\n")
+
+	for i, line := range lines {
+		if strings.Contains(line, "max-players") {
+			lines[i] = "max-players=" + strconv.FormatInt(maxPlayers, 10)
+		}
+	}
+	output := strings.Join(lines, "\n")
+	err = ioutil.WriteFile(tmpFolder+"/server.properties", []byte(output), 0644)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	// remove the tmp folder
+	if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
 }
