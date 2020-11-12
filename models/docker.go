@@ -24,6 +24,7 @@ type DockerStore struct {
 	ServerName   string               `json:"server_name"`
 	ServerStatus string               `json:"server_status"`
 	UserId       uint                 `json:"user_id"` //The user that this id belongs to
+	LimitPlayers int64                `json:"limit_players"`
 	Settings     *types.ContainerJSON `json:"settings"`
 }
 
@@ -35,6 +36,17 @@ type GameServer struct {
 	UserId      string `json:"user_id"`
 	ContainerId string `json:"container_id"`
 	ServerName  string `json:"server_name"`
+}
+
+type DockerLimitPlayers struct {
+	UserId       string `json:"user_id"`
+	ContainerId  string `json:"container_id"`
+	LimitPlayers int64  `json:"limit_players"`
+}
+
+type DockerLimitPlayersUserServers struct {
+	UserId       string `json:"user_id"`
+	LimitPlayers int64  `json:"limit_players"`
 }
 
 func (docker *DockerStore) Validate() (map[string]interface{}, bool) {
@@ -152,4 +164,39 @@ func ListAllDockers() *[]DockerStore {
 		return nil
 	}
 	return dockers
+}
+
+/*
+ * Change the limit number players on the server
+ */
+func (docker *DockerStore) ChangeLimitPlayer(limit int64) error {
+	err := GetDB().Table("docker_stores").Where("id_docker = ?", docker.IdDocker).First(docker).Error
+
+	if err != nil {
+		return err
+	}
+
+	docker.LimitPlayers = limit
+
+	GetDB().Save(docker)
+
+	return nil
+}
+
+/*
+ * Get the limit number players on the server
+ */
+func (docker *DockerStore) GetLimitPlayer() (int64, error) {
+	err := GetDB().Table("docker_stores").Where("id_docker = ?", docker.IdDocker).First(docker).Error
+
+	if err != nil {
+		return 20, err
+	}
+
+	if docker.LimitPlayers == 0 {
+		docker.LimitPlayers = 20
+		GetDB().Save(docker)
+	}
+
+	return docker.LimitPlayers, nil
 }
