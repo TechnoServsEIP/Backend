@@ -11,9 +11,9 @@ import (
 )
 
 type Command struct {
-	UserID uint
-	DockerID string
-	Command string
+	UserID   uint   `json:"user_id"`
+	DockerID string `json:"docker_id"`
+	Command  string `json:"command"`
 }
 
 func CommandRoute(w http.ResponseWriter, request *http.Request ) {
