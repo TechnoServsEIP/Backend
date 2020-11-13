@@ -371,6 +371,18 @@ func UpdateMaxPlayers(maxPlayers int64, containerId string) error {
 		return err
 	}
 
+	// Copy the new server.properties file into the client container
+	if err := utils.DockerCopy(tmpFolder+"/server.properties", containerId+":/data"); err != nil {
+		fmt.Println(err)
+
+		if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		return err
+	}
+
 	// remove the tmp folder
 	if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
 		fmt.Println(err)
