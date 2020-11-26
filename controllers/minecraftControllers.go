@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -38,7 +39,7 @@ func GetServerProperties(w http.ResponseWriter, r *http.Request) {
 	utils.Respond(w, resp, 200)
 }
 
-func restartServer(containerId string, userId string) error {
+func RestartServer(containerId string, userId string) error {
 	ctx := context.Background()
 
 	cli, err := client.NewEnvClient()
@@ -89,13 +90,29 @@ func UpdateServerProperties(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := models.CreateNewServerProperties(*data, data.ContainerId); err != nil {
+	// Convert userId in uint
+	userID, err := strconv.ParseUint(data.UserId, 10, 32)
+
+	// Create a dockerStore struct
+	dockerStore := &models.DockerStore{
+		IdDocker: data.ContainerId,
+		UserId:   uint(userID),
+	}
+
+	maxPlayers, err := dockerStore.GetLimitPlayer()
+
+	if err != nil {
+		errorLog := errors.New("An error occurred when get limit number players from the DB: " + err.Error())
+		app.LogErr("postgres", errorLog)
+	}
+
+	if err := models.CreateNewServerProperties(*data, data.ContainerId, maxPlayers); err != nil {
 		app.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error while updating server properties"), 500)
 		return
 	}
 
-	if err := restartServer(data.ContainerId, data.UserId); err != nil {
+	if err := RestartServer(data.ContainerId, data.UserId); err != nil {
 		app.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error while updating server properties"), 500)
 		return
