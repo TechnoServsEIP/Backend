@@ -142,7 +142,7 @@ func Login(email, password string) map[string]interface{} {
 	account := &Account{}
 	err := GetDB().Table("accounts").Where("email = ?", email).First(account).Error
 	if !account.Activate {
-		return utils.Message(false, "account deacivate")
+		return utils.Message(false, "account deactivated")
 	}
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {

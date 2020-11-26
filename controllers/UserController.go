@@ -103,12 +103,18 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	user := &models.Account{}
 	msgSuccess := utils.Message(true, "password change")
 	msgFailure := utils.Message(false, "request failed")
+	missingPassword := utils.Message(false, "Missing password")
 	err := json.NewDecoder(r.Body).Decode(&data)
 
 	if err != nil {
 		utils.Respond(w, msgFailure, 400)
 		return
 	}
+	if data.Password == "" {
+		utils.Respond(w, missingPassword, 400)
+		return
+	}
+
 	err = models.GetDB().Where("email = ?", data.Email).Find(user).Error
 	if err != nil {
 		utils.Respond(w, msgFailure, 400)
