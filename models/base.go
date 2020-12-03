@@ -33,7 +33,8 @@ func Initialization() {
 	}
 
 	db = conn
-	db.Debug().AutoMigrate(&Account{}, &DockerStore{}, DockerDelete{}) //Database migration
+	db.Debug().AutoMigrate(&Account{}, &DockerStore{}, &DockerDelete{},
+		&DockerHistory{}) //Database migration
 	logType = []string{"postgres", "docker", "jwt", "github"}
 }
 

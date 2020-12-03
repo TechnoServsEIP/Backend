@@ -49,6 +49,8 @@ func main() {
 	router.HandleFunc("/user/removeverification", controllers.RemoveVerification).Methods("POST")
 	router.HandleFunc("/user/forgotpassword", controllers.SendPasswordReset).Methods("POST")
 	router.HandleFunc("/user/resetpassword", controllers.ChangePassword).Methods("POST")
+	router.HandleFunc("/user/getactivitybyuser", controllers.GetActivityByUser).Methods("POST")
+	router.HandleFunc("/user/gettotalmoney", controllers.GetTotalToBePaidPerMonthByUser).Methods("POST")
 	router.HandleFunc("/docker/create", controllers.CreateDocker).Methods("POST")
 	router.HandleFunc("/docker/start", controllers.StartDocker).Methods("POST")
 	router.HandleFunc("/docker/stop", controllers.StopDocker).Methods("POST")
@@ -96,8 +98,8 @@ func main() {
 	handler := c.Handler(router)
 
 	// *** http ***
-	// log.Fatal(http.ListenAndServe(":"+port, handler))
+	log.Fatal(http.ListenAndServe(":"+port, handler))
 
 	// *** https ***
-	log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))
+	//log.Fatal(http.ListenAndServeTLS(":"+port, "/go/src/app/certs/fullchain.pem", "/go/src/app/certs/privkey.pem", handler))
 }

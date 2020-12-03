@@ -18,7 +18,7 @@ require (
 	github.com/gorilla/mux v1.7.4
 	github.com/jfeliu007/goplantuml v1.5.0 // indirect
 	github.com/jinzhu/gorm v1.9.12
-	github.com/jinzhu/now v1.1.1 // indirect
+	github.com/jinzhu/now v1.1.1
 	github.com/joho/godotenv v1.3.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/lib/pq v1.3.0 // indirect

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/TechnoServsEIP/Backend/models"
 	"github.com/TechnoServsEIP/Backend/utils"
@@ -97,15 +98,16 @@ func SendPasswordReset(w http.ResponseWriter, r *http.Request) {
 func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	data := struct {
-		Email    string
-		Password string
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}{}
 	user := &models.Account{}
+
 	msgSuccess := utils.Message(true, "password change")
 	msgFailure := utils.Message(false, "request failed")
 	missingPassword := utils.Message(false, "Missing password")
-	err := json.NewDecoder(r.Body).Decode(&data)
 
+	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
 		utils.Respond(w, msgFailure, 400)
 		return
@@ -132,9 +134,9 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 func GetEmail(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	userId := r.Context().Value("user")
-	user := &models.Account{}
 	msgFailure := utils.Message(false, "request failed")
 
+	user := &models.Account{}
 	err := models.GetDB().Where("id = ?", userId).Find(user).Error
 	if err != nil {
 		utils.Respond(w, msgFailure, 400)
@@ -142,4 +144,53 @@ func GetEmail(w http.ResponseWriter, r *http.Request) {
 	}
 	msgSuccess := utils.Message(true, user.Email)
 	utils.Respond(w, msgSuccess, 200)
+}
+
+func GetActivityByUser(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	userId := r.Context().Value("user").(uint)
+
+	resp := models.GetUserActivity(userId)
+
+	resp["total_time"] = getTotalTimeActivity(userId)
+	fmt.Println(resp)
+
+	utils.Respond(w, resp, 200)
+}
+
+func getTotalTimeActivity(userId uint) time.Duration {
+	resp := models.GetUserActivity(userId)
+	dockers := resp["docker"].([]models.DockerHistory)
+	var totalDuration time.Duration
+
+	for _, docker := range dockers {
+		totalDuration += docker.ActivityTimeStop.
+			Sub(docker.ActivityTimeStart)
+	}
+	return totalDuration
+}
+
+func getTotalTimeActivityPerMonth(userId uint, currentMonth time.Time) time.Duration {
+	resp := models.GetUserActivity(userId)
+	dockers := resp["docker"].([]models.DockerHistory)
+	var currentMonthDuration time.Duration
+	endOfCurrentMonth := currentMonth.Month() * 1
+
+	fmt.Println("currentMonth: ", currentMonth)
+	fmt.Println("endof current month: ", endOfCurrentMonth)
+
+	for _, docker := range dockers {
+		currentMonthDuration += docker.ActivityTimeStop.
+			Sub(docker.ActivityTimeStart)
+	}
+	return currentMonthDuration
+}
+
+func GetTotalToBePaidPerMonthByUser(w http.ResponseWriter, r *http.Request) {
+	//defer r.Body.Close()
+	//userId := r.Context().Value("user").(uint)
+	//
+	//
+	//totalTimeMonth := now.BeginningOfMonth().Sub(now.EndOfMonth())
+
 }

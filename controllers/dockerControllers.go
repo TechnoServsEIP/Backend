@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/TechnoServsEIP/Backend/app"
 	"github.com/TechnoServsEIP/Backend/models"
@@ -223,10 +224,16 @@ func StartDocker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	dockerHistory := &models.DockerHistory{
+		IdDocker:          docker.ContainerId,
+		UserId:            userId,
+		ActivityTimeStart: time.Now(),
+	}
+	fmt.Println("Insert start activity for user,  ", userId)
+	_ = dockerHistory.InsertStartActivityContainer()
+
 	resp := map[string]interface{}{}
-
 	resp["settings"] = info
-
 	utils.Respond(w, resp, 200)
 }
 
@@ -288,6 +295,13 @@ func StopDocker(w http.ResponseWriter, r *http.Request) {
 		utils.Respond(w, utils.Message(false, "An error append while update server status"), 500)
 		return
 	}
+
+	resp := models.InsertStopActivityContainer(userId, docker.ContainerId)
+	if resp["status"] == false {
+		errorMsg := errors.New(resp["message"].(string))
+		app.LogErr("docker", errorMsg)
+	}
+	fmt.Println("Insert stop activity for user,  ", userId)
 
 	utils.Respond(w, map[string]interface{}{"status": 200, "message": "Container Stop successfully"}, http.StatusOK)
 }

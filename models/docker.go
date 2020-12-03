@@ -4,6 +4,7 @@ import (
 	"github.com/TechnoServsEIP/Backend/utils"
 	"github.com/docker/docker/api/types"
 	"github.com/jinzhu/gorm"
+	"time"
 )
 
 type Docker struct {
@@ -15,6 +16,21 @@ type Docker struct {
 type DockerDelete struct {
 	UserId      string `json:"user_id"`
 	ContainerId string `json:"container_id"`
+}
+
+type DockerHistory struct {
+	gorm.Model
+	IdDocker          string    `json:"id_docker"`
+	UserId            uint      `json:"user_id"` //The user that this id belongs to
+	ActivityTimeStart time.Time `json:"activity_time_start"`
+	ActivityTimeStop  time.Time `json:"activity_time_stop"`
+}
+
+type DockerActivity struct {
+	IdDocker          string    `json:"id_docker"`
+	UserId            uint      `json:"user_id"` //The user that this id belongs to
+	ActivityTimeStart time.Time `json:"activity_time_start"`
+	ActivityTimeStop  time.Time `json:"activity_time_stop"`
 }
 
 type DockerStore struct {
@@ -49,8 +65,49 @@ type DockerLimitPlayersUserServers struct {
 	LimitPlayers int64  `json:"limit_players"`
 }
 
-func (docker *DockerStore) Validate() (map[string]interface{}, bool) {
+func (docker *DockerHistory) InsertStartActivityContainer() map[string]interface{} {
+	GetDB().Create(docker)
 
+	resp := utils.Message(true, "success")
+	resp["docker"] = docker
+	return resp
+}
+
+func InsertStopActivityContainer(userId uint, containerId string) map[string]interface{} {
+	lastActivity := &DockerHistory{}
+
+	err := GetDB().Table("docker_histories").
+		Where("user_id = ?", userId).
+		Where("id_docker = ?", containerId).
+		Last(lastActivity).Update("activity_time_stop", time.Now()).Error
+	if err != nil {
+		return utils.Message(false, err.Error())
+	}
+
+	resp := utils.Message(true, "success")
+	resp["docker"] = lastActivity
+	return resp
+}
+
+func GetUserActivity(userId uint) map[string]interface{} {
+	var dockers []DockerHistory
+	//selectedFields := []string{"id_docker", "user_id", "activity_time_start",
+	//	"activity_time_stop"}
+
+	err := GetDB().Table("docker_histories").
+		Where("user_id = ?", userId).
+		Select("id_docker, user_id, activity_time_start, activity_time_stop").
+		Find(&dockers).Error
+	if err != nil {
+		return utils.Message(false, "No record found")
+	}
+
+	resp := utils.Message(true, "success")
+	resp["docker"] = dockers
+	return resp
+}
+
+func (docker *DockerStore) Validate() (map[string]interface{}, bool) {
 	if docker.IdDocker == "" {
 		return utils.Message(false, "Docker container id can't be null"), false
 	}
