@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/TechnoServsEIP/Backend/tracking"
 	"net/http"
 	"os"
 	"strings"
@@ -57,7 +58,7 @@ func JwtAuthentication(next http.Handler) http.Handler {
 		if err != nil { //Malformed token, returns with http code 403 as usual
 			errorLog := errors.New("Malformed or expired token, err: " +
 				err.Error())
-			LogErr("jwt", errorLog)
+			tracking.LogErr("jwt", errorLog)
 			response = utils.Message(false, "Malformed authentication token")
 			w.Header().Add("Content-Type", "application/json")
 			utils.Respond(w, response, http.StatusForbidden)
@@ -105,7 +106,7 @@ func DecryptToken(tokenString string) (jwt.Claims, bool, error) {
 			return []byte(os.Getenv("token_password")), nil
 		})
 	if err != nil { //Malformed token, returns with http code 403 as usual
-		LogErr("jwt", err)
+		tracking.LogErr("jwt", err)
 		fmt.Println("Malformed authentication token ", err)
 		return token.Claims, token.Valid, err
 	}

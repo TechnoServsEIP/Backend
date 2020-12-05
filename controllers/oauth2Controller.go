@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/TechnoServsEIP/Backend/tracking"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 
-	"github.com/TechnoServsEIP/Backend/app"
 	"github.com/TechnoServsEIP/Backend/models"
 	"github.com/TechnoServsEIP/Backend/utils"
 )
@@ -34,7 +34,7 @@ func LoggedinHandler(w http.ResponseWriter, r *http.Request, githubData string) 
 	// json.indent is a library utility function to prettify JSON indentation
 	parserr := json.Indent(&prettyJSON, []byte(githubData), "", "\t")
 	if parserr != nil {
-		app.LogErr("github", parserr)
+		tracking.LogErr("github", parserr)
 		log.Panic("JSON parse error")
 	}
 
@@ -114,7 +114,7 @@ func getGithubAccessToken(code string) string {
 	// POST request to set URL
 	req, reqerr := http.NewRequest("POST", "https://github.com/login/oauth/access_token", bytes.NewBuffer(requestJSON))
 	if reqerr != nil {
-		app.LogErr("github", reqerr)
+		tracking.LogErr("github", reqerr)
 		log.Panic("Request creation failed")
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -123,7 +123,7 @@ func getGithubAccessToken(code string) string {
 	// Get the response
 	resp, resperr := http.DefaultClient.Do(req)
 	if resperr != nil {
-		app.LogErr("github", resperr)
+		tracking.LogErr("github", resperr)
 		log.Panic("Request failed")
 	}
 
@@ -149,7 +149,7 @@ func getGithubData(accessToken string) string {
 	// Get request to a set URL
 	req, reqerr := http.NewRequest("GET", "https://api.github.com/user", nil)
 	if reqerr != nil {
-		app.LogErr("github", reqerr)
+		tracking.LogErr("github", reqerr)
 		log.Panic("API Request creation failed")
 	}
 
@@ -161,7 +161,7 @@ func getGithubData(accessToken string) string {
 	// Make the request
 	resp, resperr := http.DefaultClient.Do(req)
 	if resperr != nil {
-		app.LogErr("github", resperr)
+		tracking.LogErr("github", resperr)
 		log.Panic("Request failed")
 	}
 

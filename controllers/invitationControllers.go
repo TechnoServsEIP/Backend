@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/TechnoServsEIP/Backend/tracking"
 	"net/http"
 	"strconv"
 
-	"github.com/TechnoServsEIP/Backend/app"
 	"github.com/TechnoServsEIP/Backend/models"
 	"github.com/TechnoServsEIP/Backend/utils"
 	"github.com/docker/docker/client"
@@ -30,7 +30,7 @@ func InvitePlayer(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
-		app.LogErr("docker", err)
+		tracking.LogErr("docker", err)
 		fmt.Println("error when creating docker client", err)
 		utils.Respond(w, utils.Message(false, "Error when open client docker env"), 500)
 		return
@@ -48,7 +48,7 @@ func InvitePlayer(w http.ResponseWriter, r *http.Request) {
 	info, err := cli.ContainerInspect(ctx, OneDocker.IdDocker)
 
 	if err != nil {
-		app.LogErr("docker", err)
+		tracking.LogErr("docker", err)
 		fmt.Println(err.Error())
 		utils.Respond(w, map[string]interface{}{
 			"error": err.Error(),

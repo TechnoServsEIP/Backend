@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/TechnoServsEIP/Backend/tracking"
 	"net/http"
 	"strconv"
 
-	"github.com/TechnoServsEIP/Backend/app"
 	"github.com/TechnoServsEIP/Backend/models"
 	"github.com/TechnoServsEIP/Backend/utils"
 	"github.com/docker/docker/api/types"
@@ -20,7 +20,7 @@ func GetServerProperties(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
-		app.LogErr("docker", err)
+		tracking.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
 		return
 	}
@@ -44,7 +44,7 @@ func RestartServer(containerId string, userId string) error {
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
-		app.LogErr("docker", err)
+		tracking.LogErr("docker", err)
 		fmt.Println("An error occurred when stopping container ", containerId)
 		return err
 	}
@@ -65,7 +65,7 @@ func RestartServer(containerId string, userId string) error {
 
 	err = cli.ContainerStart(ctx, containerId, types.ContainerStartOptions{})
 	if err != nil {
-		app.LogErr("docker", err)
+		tracking.LogErr("docker", err)
 		fmt.Println("An error occurred when starting container", "container_id=", containerId, "err", err)
 		return err
 	}
@@ -80,7 +80,7 @@ func UpdateServerProperties(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(data)
 	if err != nil {
-		app.LogErr("docker", err)
+		tracking.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error while decoding request body"), http.StatusBadRequest)
 		return
 	}
@@ -103,17 +103,17 @@ func UpdateServerProperties(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		errorLog := errors.New("An error occurred when get limit number players from the DB: " + err.Error())
-		app.LogErr("postgres", errorLog)
+		tracking.LogErr("postgres", errorLog)
 	}
 
 	if err := models.CreateNewServerProperties(*data, data.ContainerId, maxPlayers); err != nil {
-		app.LogErr("docker", err)
+		tracking.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error while updating server properties"), 500)
 		return
 	}
 
 	if err := RestartServer(data.ContainerId, data.UserId); err != nil {
-		app.LogErr("docker", err)
+		tracking.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error while updating server properties"), 500)
 		return
 	}

@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/TechnoServsEIP/Backend/tracking"
 	"os"
 
 	"github.com/jinzhu/gorm"
@@ -10,7 +11,6 @@ import (
 )
 
 var db *gorm.DB //database
-var logType []string
 
 func Initialization() {
 	initMongoDb()
@@ -29,19 +29,16 @@ func Initialization() {
 
 	conn, err := gorm.Open("postgres", dbUri)
 	if err != nil {
+		tracking.LogErr("postgres", err)
 		panic(err.Error())
 	}
 
 	db = conn
 	db.Debug().AutoMigrate(&Account{}, &DockerStore{}, &DockerDelete{},
 		&DockerHistory{}) //Database migration
-	logType = []string{"postgres", "docker", "jwt", "github"}
 }
 
 //returns a handle to the DB object
 func GetDB() *gorm.DB {
 	return db
-}
-func LogType() []string {
-	return logType
 }

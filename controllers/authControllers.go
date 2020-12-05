@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/TechnoServsEIP/Backend/tracking"
 	"github.com/dgrijalva/jwt-go"
 	"net/http"
 	"os"
@@ -21,7 +22,7 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		errorLog := errors.New("An error occurred while decoding request, err: " +
 			err.Error())
-		app.LogErr("jwt", errorLog)
+		tracking.LogErr("jwt", errorLog)
 		utils.Respond(w, utils.Message(false, "Invalid request"), 400)
 		return
 	}
@@ -41,7 +42,7 @@ func RefreshToken(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		errorLog := errors.New("An error occurred while decoding request, err: " +
 			err.Error())
-		app.LogErr("jwt", errorLog)
+		tracking.LogErr("jwt", errorLog)
 		utils.Respond(w, utils.Message(false, "Invalid request"), 400)
 		return
 	}
@@ -55,7 +56,7 @@ func RefreshToken(w http.ResponseWriter, r *http.Request) {
 	if err != nil { //Malformed token, returns with http code 403 as usual
 		errorLog := errors.New("Malformed or expired refresh token, err: " +
 			err.Error())
-		app.LogErr("jwt", errorLog)
+		tracking.LogErr("jwt", errorLog)
 		response = utils.Message(false, "Malformed authentication token")
 		w.Header().Add("Content-Type", "application/json")
 		utils.Respond(w, response, http.StatusForbidden)
@@ -78,7 +79,7 @@ func RefreshToken(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		errorLog := errors.New("Error append when generating refresh token, err: " +
 			err.Error())
-		app.LogErr("jwt", errorLog)
+		tracking.LogErr("jwt", errorLog)
 		utils.Respond(w, utils.Message(false, "An error append when generating refresh token"),
 			500)
 		return
@@ -94,7 +95,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) {
 	account := &models.Account{}
 	err := json.NewDecoder(r.Body).Decode(account) //decode the request body into struct and failed if any error occur
 	if err != nil {
-		app.LogErr("jwt", err)
+		tracking.LogErr("jwt", err)
 		utils.Respond(w, utils.Message(false, "Invalid request"), 400)
 		return
 	}
@@ -117,7 +118,7 @@ func Confirm(w http.ResponseWriter, r *http.Request) {
 	if !valid {
 		fmt.Println("invalid token")
 		if err != nil {
-			app.LogErr("jwt", err)
+			tracking.LogErr("jwt", err)
 			fmt.Println("error ", err)
 		}
 		return
@@ -141,7 +142,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 	}{}
 	err := json.NewDecoder(r.Body).Decode(idJson)
 	if err != nil {
-		app.LogErr("jwt", err)
+		tracking.LogErr("jwt", err)
 		println(err.Error())
 		utils.Respond(w, utils.Message(false, "malformed request"), 400)
 		return
