@@ -13,7 +13,7 @@ func writeError(terr string, err error) {
 	if errFile != nil {
 		fmt.Println(errFile.Error())
 	}
-	if _, err := file.WriteString(err.Error()); err != nil {
+	if _, err := file.WriteString(err.Error()+"\n"); err != nil {
 		log.Println(err)
 	}
 	file.Close()
