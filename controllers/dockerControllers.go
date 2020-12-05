@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/TechnoServsEIP/Backend/tracking"
 	"io"
 	"net/http"
 	"os/exec"
@@ -14,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/TechnoServsEIP/Backend/tracking"
 
 	"github.com/TechnoServsEIP/Backend/models"
 	"github.com/TechnoServsEIP/Backend/utils"
@@ -145,6 +146,16 @@ func CreateDocker(w http.ResponseWriter, r *http.Request) {
 		utils.Respond(w, utils.Message(false, "An error occurred while creating server"), 500)
 		return
 	}
+
+	// Insert start activity for user after first create
+	userId := uint(u64)
+	dockerHistory := &models.DockerHistory{
+		IdDocker:          cont.ID,
+		UserId:            userId,
+		ActivityTimeStart: time.Now(),
+	}
+	fmt.Println("Insert start activity for user,  ", userId)
+	_ = dockerHistory.InsertStartActivityContainer()
 
 	dockerStore := &models.DockerStore{
 		Game:         docker.Game,
@@ -453,6 +464,11 @@ func DeleteDocker(w http.ResponseWriter, r *http.Request) {
 		IdDocker: docker.ContainerId,
 		UserId:   uint(userIdUint),
 	}
+
+	// Retrieve server info in order to insert stop activity container before remove it
+	userId := uint(userIdUint)
+	serverToDelete := models.OneUserServer(userId, docker.ContainerId)
+
 	err = dockerStore.UpdateServerStatus("Deleted")
 	if err != nil {
 		errorLog := errors.New("Error while updating status server, err " +
@@ -461,6 +477,16 @@ func DeleteDocker(w http.ResponseWriter, r *http.Request) {
 		utils.Respond(w, utils.Message(false, "An error append while update server status"), 500)
 	}
 	fmt.Println("Delete container " + docker.ContainerId)
+
+	// If user has not stopped his server we insert stop activity container before remove it
+	if serverToDelete.ServerStatus == "Started" {
+		resp := models.InsertStopActivityContainer(userId, docker.ContainerId)
+		if resp["status"] == false {
+			errorMsg := errors.New(resp["message"].(string))
+			tracking.LogErr("postgres", errorMsg)
+		}
+		fmt.Println("Insert stop activity for user,  ", userId)
+	}
 
 	resp := models.RemoveContainer(uint(userIdUint), docker.ContainerId)
 	utils.Respond(w, resp, 204)
