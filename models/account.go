@@ -38,6 +38,15 @@ type Account struct {
 	Activate     bool
 }
 
+//a struct to rep user account
+type Bill struct {
+	gorm.Model
+	UserId  uint   `json:"user_id"`
+	Email   string `json:"email"`
+	Price   string `json:"price"`
+	Product string `json:"product"`
+}
+
 type GithubData struct {
 	Login string `json:"login"`
 	Id    int    `json:"id"`
@@ -190,6 +199,23 @@ func GetUserFromId(Id int) *Account {
 	return acc
 }
 
+func GetUserFromEmail(email string) *Account {
+	acc := &Account{}
+
+	err := GetDB().Table("accounts").Where("email = ?", email).First(acc).Error
+	if err != nil {
+		fmt.Println("error fetching user ", err)
+		return nil
+	}
+	fmt.Println(acc)
+	if acc.Email == "" { //User not found!
+		return nil
+	}
+
+	acc.Password = ""
+	return acc
+}
+
 func Update(Id int, fieldsToUpdate map[string]interface{}) *Account {
 	acc := &Account{}
 
@@ -306,4 +332,29 @@ func LoginGithub(email string, password string) map[string]interface{} {
 	account.Password = password
 
 	return AuthenticateOAuth2User(account)
+}
+
+func GetBillsByUser(userId uint) map[string]interface{} {
+	var bills []Bill
+
+	err := GetDB().Table("bills").
+		Where("user_id = ?", userId).
+		Find(&bills).Error
+	if err != nil {
+		return utils.Message(false, "No record found")
+	}
+
+	resp := utils.Message(true, "success")
+	resp["payment"] = bills
+	return resp
+}
+
+func (bill *Bill) InsertBill() map[string]interface{} {
+	err := GetDB().Create(bill).Error
+	if err != nil {
+		return utils.Message(true, err.Error())
+	}
+
+	resp := utils.Message(true, "success")
+	return resp
 }

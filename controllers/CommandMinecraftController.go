@@ -17,7 +17,7 @@ type Command struct {
 	Command  string `json:"command"`
 }
 
-func CommandRoute(w http.ResponseWriter, request *http.Request ) {
+func CommandRoute(w http.ResponseWriter, request *http.Request) {
 	defer request.Body.Close()
 	command := &Command{}
 	err := json.NewDecoder(request.Body).Decode(command)
@@ -37,7 +37,7 @@ func CommandRoute(w http.ResponseWriter, request *http.Request ) {
 			cmd := exec.Command("docker", "exec", command.DockerID, "rcon-cli", command.Command)
 			output, err := cmd.CombinedOutput()
 			if err != nil {
-				errorLog := errors.New("an error occurred when executing" + command.Command+ "user command, " +
+				errorLog := errors.New("an error occurred when executing" + command.Command + "user command, " +
 					"err: " + err.Error())
 				tracking.LogErr("docker", errorLog)
 				utils.Respond(w, utils.Message(false, "Invalid Request"), 400)

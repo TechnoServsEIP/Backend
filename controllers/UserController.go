@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/jinzhu/now"
 	"net/http"
 	"time"
 
@@ -152,7 +153,8 @@ func GetActivityByUser(w http.ResponseWriter, r *http.Request) {
 
 	resp := models.GetUserActivity(userId)
 
-	resp["total_time"] = getTotalTimeActivity(userId)
+	resp["total_time"] = getTotalTimeActivityPerMonth(userId,
+		now.BeginningOfMonth())
 	fmt.Println(resp)
 
 	utils.Respond(w, resp, 200)
@@ -170,7 +172,7 @@ func getTotalTimeActivity(userId uint) time.Duration {
 	return totalDuration
 }
 
-func getTotalTimeActivityPerMonth(userId uint, currentMonth time.Time) time.Duration {
+func getTotalTimeActivityPerMonth(userId uint, currentMonth time.Time) float64 {
 	resp := models.GetUserActivity(userId)
 	dockers := resp["docker"].([]models.DockerHistory)
 	var currentMonthDuration time.Duration
@@ -183,14 +185,13 @@ func getTotalTimeActivityPerMonth(userId uint, currentMonth time.Time) time.Dura
 		currentMonthDuration += docker.ActivityTimeStop.
 			Sub(docker.ActivityTimeStart)
 	}
-	return currentMonthDuration
+	return float64(currentMonthDuration / time.Hour)
 }
 
-func GetTotalToBePaidPerMonthByUser(w http.ResponseWriter, r *http.Request) {
-	//defer r.Body.Close()
-	//userId := r.Context().Value("user").(uint)
-	//
-	//
-	//totalTimeMonth := now.BeginningOfMonth().Sub(now.EndOfMonth())
+func GetTotalToPaidPerMonthByUser(userId uint) float64 {
+	currentMonth := now.BeginningOfMonth()
+	totalTimeActivity := getTotalTimeActivityPerMonth(userId, currentMonth)
+	pricePerHour := 0.65
 
+	return totalTimeActivity * pricePerHour
 }

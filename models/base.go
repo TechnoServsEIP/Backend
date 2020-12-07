@@ -35,7 +35,7 @@ func Initialization() {
 
 	db = conn
 	db.Debug().AutoMigrate(&Account{}, &DockerStore{}, &DockerDelete{},
-		&DockerHistory{}) //Database migration
+		&DockerHistory{}, &Bill{}) //Database migration
 }
 
 //returns a handle to the DB object

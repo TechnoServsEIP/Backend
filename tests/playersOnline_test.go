@@ -1,17 +1,17 @@
 package tests
 
 import (
-	"testing"
-	"fmt"
-	"time"
 	"context"
+	"fmt"
+	"testing"
+	"time"
 
+	"github.com/TechnoServsEIP/Backend/controllers"
+	"github.com/TechnoServsEIP/Backend/utils"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
-	"github.com/TechnoServsEIP/Backend/utils"
 	"github.com/docker/go-connections/nat"
-	"github.com/TechnoServsEIP/Backend/controllers"
 )
 
 func CreateServer() string {
@@ -80,7 +80,7 @@ func StopServer(contID string) {
 
 func DelServer(contID string) {
 	ctx := context.Background()
-	
+
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		fmt.Println("Error failed to contact docker api")
@@ -107,7 +107,6 @@ func TestPlayersOnline(t *testing.T) {
 	time.Sleep(120 * time.Second)
 
 	playersOnline := controllers.GetNumberPlayers(contID)
-
 
 	if playersOnline["connectedPlayers"] != 0 {
 		t.Errorf("Error number of connected players")

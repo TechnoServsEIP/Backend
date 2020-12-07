@@ -3,10 +3,13 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/TechnoServsEIP/Backend/models"
+	"github.com/TechnoServsEIP/Backend/utils"
 	"github.com/stripe/stripe-go/v72"
 	"github.com/stripe/stripe-go/v72/checkout/session"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type createCheckoutSessionResponse struct {
@@ -15,9 +18,25 @@ type createCheckoutSessionResponse struct {
 
 func PaymentNew(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("initialing new payment")
+	defer r.Body.Close()
+	userId := r.Context().Value("user").(uint)
+
+	req := struct {
+		Email   string `json:"email"`
+		Product string `json:"product"`
+	}{}
+	msgFailure := utils.Message(false, "request failed")
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		utils.Respond(w, msgFailure, 400)
+		return
+	}
+
+	priceToPaid := int64(GetTotalToPaidPerMonthByUser(userId))
+
 	domain := "https://technoservs.ichbinkour.eu/#/checkout" //TODO change this
 	params := &stripe.CheckoutSessionParams{
-		CustomerEmail: stripe.String("jonathan.frickert@epitech.eu"),
+		CustomerEmail: stripe.String(req.Email),
 		PaymentMethodTypes: stripe.StringSlice([]string{
 			"card",
 		}),
@@ -28,7 +47,7 @@ func PaymentNew(w http.ResponseWriter, r *http.Request) {
 					ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
 						Name: stripe.String("Minecraft"),
 					},
-					UnitAmount: stripe.Int64(1200),
+					UnitAmount: stripe.Int64(priceToPaid),
 				},
 				Quantity: stripe.Int64(1),
 			},
@@ -44,6 +63,16 @@ func PaymentNew(w http.ResponseWriter, r *http.Request) {
 	data := createCheckoutSessionResponse{
 		SessionID: sessionPayment.ID,
 	}
+
+	bill := &models.Bill{
+		UserId:  userId,
+		Email:   req.Email,
+		Price:   strconv.FormatInt(priceToPaid, 10),
+		Product: req.Product,
+	}
+	bill.InsertBill()
+
+	fmt.Println(*bill)
 	fmt.Println("session id: ", data.SessionID)
 	js, _ := json.Marshal(data)
 	w.Header().Set("Content-Type", "application/json")

@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"testing"
 	"os/exec"
+	"testing"
 )
 
 func TestCreateTmpFolder(t *testing.T) {
@@ -15,7 +15,7 @@ func TestCreateTmpFolder(t *testing.T) {
 	cmd := exec.Command("ls", folderName)
 
 	_, err := cmd.CombinedOutput()
-	
+
 	if err != nil {
 		t.Errorf("Error when test to ls folder")
 	}
@@ -31,7 +31,7 @@ func TestDeleteTmpFolder(t *testing.T) {
 	cmd := exec.Command("ls", folderName)
 
 	_, err := cmd.CombinedOutput()
-	
+
 	if err == nil {
 		t.Errorf("Error when test to ls folder")
 	}
