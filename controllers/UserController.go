@@ -208,3 +208,40 @@ func GetBillsByUser(w http.ResponseWriter, r *http.Request) {
 
 	utils.Respond(w, resp, 200)
 }
+
+func InsertBills(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	userId := r.Context().Value("user").(uint)
+
+	req := struct {
+		Email       string `json:"email"`
+		Product     string `json:"product"`
+		PriceToPaid string `json:"price"`
+	}{}
+	msgFailure := utils.Message(false, "request failed")
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		utils.Respond(w, msgFailure, 400)
+		return
+	}
+
+	currentTime := time.Now()
+	bill := &models.Bill{
+		UserId:       userId,
+		Email:        req.Email,
+		Price:        req.PriceToPaid,
+		Product:      req.Product,
+		StartSubDate: currentTime,
+		EndSubDate:   currentTime.AddDate(0, 1, 0),
+	}
+	bill.InsertBill()
+	fmt.Println(*bill)
+
+	resp := models.GetBillsByUser(userId)
+	fmt.Println(resp)
+	if resp["status"] == false {
+		utils.Respond(w, resp, 404)
+	}
+
+	utils.Respond(w, resp, 200)
+}

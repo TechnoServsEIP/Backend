@@ -3,14 +3,12 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/TechnoServsEIP/Backend/models"
 	"github.com/TechnoServsEIP/Backend/utils"
 	"github.com/stripe/stripe-go/v72"
 	"github.com/stripe/stripe-go/v72/checkout/session"
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 type createCheckoutSessionResponse struct {
@@ -20,7 +18,6 @@ type createCheckoutSessionResponse struct {
 func PaymentNew(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("initialing new payment")
 	defer r.Body.Close()
-	userId := r.Context().Value("user").(uint)
 
 	req := struct {
 		Email   string `json:"email"`
@@ -67,18 +64,7 @@ func PaymentNew(w http.ResponseWriter, r *http.Request) {
 	data := createCheckoutSessionResponse{
 		SessionID: sessionPayment.ID,
 	}
-	currentTime := time.Now()
-	bill := &models.Bill{
-		UserId:       userId,
-		Email:        req.Email,
-		Price:        strconv.FormatInt(priceToPaid, 10),
-		Product:      req.Product + " first time subscription",
-		StartSubDate: currentTime,
-		EndSubDate:   currentTime.AddDate(0, 1, 0),
-	}
-	bill.InsertBill()
 
-	fmt.Println(*bill)
 	fmt.Println("session id: ", data.SessionID)
 	js, _ := json.Marshal(data)
 	w.Header().Set("Content-Type", "application/json")
@@ -135,18 +121,7 @@ func PaymentRenew(w http.ResponseWriter, r *http.Request) {
 	data := createCheckoutSessionResponse{
 		SessionID: sessionPayment.ID,
 	}
-	currentTime := time.Now()
-	bill := &models.Bill{
-		UserId:       userId,
-		Email:        req.Email,
-		Price:        strconv.FormatInt(priceToPaid, 10),
-		Product:      req.Product,
-		StartSubDate: currentTime,
-		EndSubDate:   currentTime.AddDate(0, 1, 0),
-	}
-	bill.InsertBill()
 
-	fmt.Println(*bill)
 	fmt.Println("session id: ", data.SessionID)
 	js, _ := json.Marshal(data)
 	w.Header().Set("Content-Type", "application/json")

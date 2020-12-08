@@ -25,7 +25,7 @@ func main() {
 
 	router := mux.NewRouter()
 
-	stripe.Key = "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"
+	stripe.Key = "sk_test_51HT2XlJMhPRLHhSBXxWMOnayOtWI5z9Bj4bThci9hcLTjo0VgKrcEHZcadMFo0tJuAqqnjMIqphcuH4vNYiWv9DZ006Wz8UH4f"
 
 	port := os.Getenv("server_port") //Get port from .env file, we did not specify any port so this should return an empty string when tested locally
 	if port == "" {
@@ -51,6 +51,7 @@ func main() {
 	router.HandleFunc("/user/resetpassword", controllers.ChangePassword).Methods("POST")
 	router.HandleFunc("/user/getactivitybyuser", controllers.GetActivityByUser).Methods("POST")
 	router.HandleFunc("/user/getbills", controllers.GetBillsByUser).Methods("POST")
+	router.HandleFunc("/user/insertbill", controllers.InsertBills).Methods("POST")
 	router.HandleFunc("/docker/create", controllers.CreateDocker).Methods("POST")
 	router.HandleFunc("/docker/start", controllers.StartDocker).Methods("POST")
 	router.HandleFunc("/docker/stop", controllers.StopDocker).Methods("POST")
