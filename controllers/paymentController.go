@@ -33,7 +33,7 @@ func PaymentNew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	priceToPaid := int64(6) //first payment offer
+	priceToPaid := int64(600) //first payment offer
 
 	domain := "https://technoservs.ichbinkour.eu/#/checkout"
 	params := &stripe.CheckoutSessionParams{
@@ -102,6 +102,7 @@ func PaymentRenew(w http.ResponseWriter, r *http.Request) {
 	}
 
 	priceToPaid := int64(GetTotalToPaidPerMonthByUser(userId))
+	fmt.Println("the user have to pay " + strconv.FormatInt(priceToPaid, 10))
 
 	domain := "https://technoservs.ichbinkour.eu/#/checkout"
 	params := &stripe.CheckoutSessionParams{
