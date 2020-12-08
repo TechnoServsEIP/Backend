@@ -33,7 +33,7 @@ func PaymentNew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	priceToPaid := int64(600) //first payment offer
+	priceToPaid := int64(100) //first payment offer
 
 	domain := "https://app.technoservs.co/#/checkout"
 	params := &stripe.CheckoutSessionParams{
