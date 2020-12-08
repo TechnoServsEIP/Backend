@@ -2,8 +2,9 @@ package models
 
 import (
 	"fmt"
-	"github.com/TechnoServsEIP/Backend/tracking"
 	"os"
+
+	"github.com/TechnoServsEIP/Backend/tracking"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -13,8 +14,6 @@ import (
 var db *gorm.DB //database
 
 func Initialization() {
-	initMongoDb()
-
 	err := godotenv.Load() //Load .env file
 	if err != nil {
 		fmt.Print("error when opening .env file", err)
