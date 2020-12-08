@@ -14,14 +14,6 @@ services:
     volumes:
       - ./docker/db:/var/lib/postgresql
 
-  # Mongo Database
-  mongo:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    volumes:
-      - ./docker/mongo:/data/db
-
   technoservs_app:
     build: .
     volumes:
@@ -40,5 +32,3 @@ services:
       - technoservs_db
     links:
       - technoservs_db
-      - mongo
-
