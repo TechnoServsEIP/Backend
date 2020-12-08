@@ -41,10 +41,12 @@ type Account struct {
 //a struct to rep user account
 type Bill struct {
 	gorm.Model
-	UserId  uint   `json:"user_id"`
-	Email   string `json:"email"`
-	Price   string `json:"price"`
-	Product string `json:"product"`
+	UserId       uint      `json:"user_id"`
+	Email        string    `json:"email"`
+	Price        string    `json:"price"`
+	Product      string    `json:"product"`
+	StartSubDate time.Time `json:"start_subscription_date"`
+	EndSubDate   time.Time `json:"end_subscription_date"`
 }
 
 type GithubData struct {

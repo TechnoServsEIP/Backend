@@ -72,6 +72,7 @@ func main() {
 	router.HandleFunc("/offers/update", controllers.UpdateOffer).Methods("POST")
 	router.HandleFunc("/offers/delete", controllers.DeleteOffer).Methods("POST")
 	router.HandleFunc("/payment/new", controllers.PaymentNew).Methods("POST")
+	router.HandleFunc("/payment/renew", controllers.PaymentRenew).Methods("POST")
 	router.HandleFunc("/invitation", controllers.InvitePlayer).Methods("POST")
 	router.HandleFunc("/Command", controllers.CommandRoute).Methods("POST")
 

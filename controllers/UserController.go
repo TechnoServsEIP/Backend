@@ -191,7 +191,7 @@ func getTotalTimeActivityPerMonth(userId uint, currentMonth time.Time) float64 {
 func GetTotalToPaidPerMonthByUser(userId uint) float64 {
 	currentMonth := now.BeginningOfMonth()
 	totalTimeActivity := getTotalTimeActivityPerMonth(userId, currentMonth)
-	pricePerHour := 0.65
+	pricePerHour := 0.35
 
 	return totalTimeActivity * pricePerHour
 }
