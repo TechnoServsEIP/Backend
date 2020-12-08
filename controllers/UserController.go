@@ -195,3 +195,16 @@ func GetTotalToPaidPerMonthByUser(userId uint) float64 {
 
 	return totalTimeActivity * pricePerHour
 }
+
+func GetBillsByUser(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	userId := r.Context().Value("user").(uint)
+
+	resp := models.GetBillsByUser(userId)
+	fmt.Println(resp)
+	if resp["status"] == false {
+		utils.Respond(w, resp, 404)
+	}
+
+	utils.Respond(w, resp, 200)
+}

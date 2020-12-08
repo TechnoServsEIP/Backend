@@ -347,7 +347,7 @@ func GetBillsByUser(userId uint) map[string]interface{} {
 	}
 
 	resp := utils.Message(true, "success")
-	resp["payment"] = bills
+	resp["payments"] = bills
 	return resp
 }
 
