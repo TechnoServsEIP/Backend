@@ -16,13 +16,15 @@ import (
 
 //JWT claims struct
 type Token struct {
-	UserId uint
-	Role   string
+	UserId   uint
+	Role     string
+	IsRevoke bool
 	jwt.StandardClaims
 }
 
 type RefreshToken struct {
-	UserId uint
+	UserId   uint
+	IsRevoke bool
 	jwt.StandardClaims
 }
 
@@ -58,8 +60,9 @@ func (account Account) GenerateJWT() (map[string]string, error) {
 	fmt.Println("attribute user number ", account.ID)
 	//Generating access_token with role, user_id, and exp duration
 	tk := &Token{
-		UserId: account.ID,
-		Role:   account.Role,
+		UserId:   account.ID,
+		Role:     account.Role,
+		IsRevoke: false,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 		},
@@ -68,7 +71,8 @@ func (account Account) GenerateJWT() (map[string]string, error) {
 
 	//Generating refresh_token with user_id, and exp duration
 	rtk := &RefreshToken{
-		UserId: account.ID,
+		UserId:   account.ID,
+		IsRevoke: false,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 36).Unix(),
 		},

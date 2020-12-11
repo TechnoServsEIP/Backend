@@ -17,7 +17,7 @@ import (
 
 func JwtAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		notAuth := []string{"/loggedin", "/login/github/callback", "/login/github/", "/user/new", "/user/login", "/user/confirm", "/offers/list", "/offers/", "/docker/list", "/docker/create", "/user/forgotpassword", "/user/resetpassword", "/", "/token/refresh"} //List of endpoints that doesn't require auth
+		notAuth := []string{"/token/revoke", "/loggedin", "/login/github/callback", "/login/github/", "/user/new", "/user/login", "/user/confirm", "/offers/list", "/offers/", "/docker/list", "/docker/create", "/user/forgotpassword", "/user/resetpassword", "/", "/token/refresh"} //List of endpoints that doesn't require auth
 		adminOnlyPath := []string{"/user/verify", "/user/removeverification", "/docker/total", "/user/update", "/offers/create", "/offers/delete", "/offers/update", "/user/activate", "/user/deactivate", "/docker/deleteAll", "/docker/stopAll", "/docker/limitnumberplayers", "/docker/limitnumberplayersofuserservers"}
 		requestPath := r.URL.Path //current request path
 
@@ -65,7 +65,7 @@ func JwtAuthentication(next http.Handler) http.Handler {
 			return
 		}
 
-		if !token.Valid { //Token is invalid, maybe not signed on this server
+		if !token.Valid || tk.IsRevoke == true { //Token is invalid, maybe not signed on this server
 			response = utils.Message(false, "Token is not valid.")
 			w.WriteHeader(http.StatusForbidden)
 			w.Header().Add("Content-Type", "application/json")

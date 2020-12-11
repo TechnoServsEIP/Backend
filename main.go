@@ -37,6 +37,7 @@ func main() {
 	//TODO load database + pass to app struct
 	router.HandleFunc("/", controllers.Home).Methods("GET")
 	router.HandleFunc("/token/refresh", controllers.RefreshToken).Methods("POST")
+	router.HandleFunc("/token/revoke", controllers.RevokeToken).Methods("POST")
 	router.HandleFunc("/user/new", controllers.CreateAccount).Methods("POST")
 	router.HandleFunc("/user/update", controllers.UpdateAccount).Methods("POST")
 	router.HandleFunc("/user/confirm", controllers.Confirm).Methods("POST")

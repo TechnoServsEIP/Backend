@@ -91,6 +91,68 @@ func RefreshToken(w http.ResponseWriter, r *http.Request) {
 	}, 200)
 }
 
+func RevokeToken(w http.ResponseWriter, r *http.Request) {
+	type tokenReqBody struct {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+	}
+	TokenRequest := &tokenReqBody{}
+	act := &models.Token{}
+
+	err := json.NewDecoder(r.Body).Decode(TokenRequest)
+	if err != nil {
+		errorLog := errors.New("An error occurred while decoding request, err: " +
+			err.Error())
+		tracking.LogErr("jwt", errorLog)
+		utils.Respond(w, utils.Message(false, "Invalid request"), 400)
+		return
+	}
+	resp := make(map[string]interface{})
+
+	_, err = jwt.ParseWithClaims(TokenRequest.AccessToken, act,
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(os.Getenv("token_password")), nil
+		})
+	if err != nil { //Malformed token, returns with http code 403 as usual
+		errorLog := errors.New("Malformed or expired refresh token, err: " +
+			err.Error())
+		tracking.LogErr("jwt", errorLog)
+		resp = utils.Message(false, "Malformed authentication token")
+		w.Header().Add("Content-Type", "application/json")
+		utils.Respond(w, resp, http.StatusForbidden)
+		return
+	}
+
+	user := models.GetUserFromId(int(act.UserId))
+
+	ack := &models.Token{
+		UserId:   user.ID,
+		Role:     user.Role,
+		IsRevoke: true,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+		},
+	}
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, ack)
+	//Generating refresh_token with user_id, and exp duration
+	rtk := &models.RefreshToken{
+		UserId:   user.ID,
+		IsRevoke: true,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+		},
+	}
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, rtk)
+
+	tokenString, err := accessToken.SignedString([]byte(os.Getenv("token_password")))
+	refreshTokenString, err := refreshToken.SignedString([]byte(os.Getenv("token_password")))
+
+	utils.Respond(w, map[string]interface{}{
+		"access_token":  tokenString,
+		"refresh_token": refreshTokenString,
+	}, 200)
+}
+
 func Authenticate(w http.ResponseWriter, r *http.Request) {
 	account := &models.Account{}
 	err := json.NewDecoder(r.Body).Decode(account) //decode the request body into struct and failed if any error occur
