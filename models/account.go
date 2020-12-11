@@ -139,7 +139,7 @@ func (account *Account) Create() map[string]interface{} {
 	account.Token = tokenMapString["access_token"]
 	account.RefreshToken = tokenMapString["refresh_token"]
 
-	url := "https://app.technoservs.co/#/confirm?token=" + account.Token
+	url := "https://blissful-lamarr-d0eb92.netlify.app/#/confirm?token=" + account.Token
 
 	err = utils.SendConfirmationEmail(url, account.Email)
 	if err != nil {

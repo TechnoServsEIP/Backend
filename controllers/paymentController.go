@@ -3,12 +3,13 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/TechnoServsEIP/Backend/utils"
-	"github.com/stripe/stripe-go/v72"
-	"github.com/stripe/stripe-go/v72/checkout/session"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/TechnoServsEIP/Backend/utils"
+	"github.com/stripe/stripe-go/v72"
+	"github.com/stripe/stripe-go/v72/checkout/session"
 )
 
 type createCheckoutSessionResponse struct {
@@ -32,7 +33,7 @@ func PaymentNew(w http.ResponseWriter, r *http.Request) {
 
 	priceToPaid := int64(100) //first payment offer
 
-	domain := "https://app.technoservs.co/#/checkout"
+	domain := "https://blissful-lamarr-d0eb92.netlify.app/#/checkout"
 	params := &stripe.CheckoutSessionParams{
 		CustomerEmail: stripe.String(req.Email),
 		PaymentMethodTypes: stripe.StringSlice([]string{
@@ -90,7 +91,7 @@ func PaymentRenew(w http.ResponseWriter, r *http.Request) {
 	priceToPaid := int64(GetTotalToPaidPerMonthByUser(userId))
 	fmt.Println("the user have to pay " + strconv.FormatInt(priceToPaid, 10))
 
-	domain := "https://app.technoservs.co/#/checkout"
+	domain := "https://blissful-lamarr-d0eb92.netlify.app/#/checkout"
 	params := &stripe.CheckoutSessionParams{
 		CustomerEmail: stripe.String(req.Email),
 		PaymentMethodTypes: stripe.StringSlice([]string{
