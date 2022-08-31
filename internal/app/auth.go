@@ -4,13 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/TechnoServsEIP/Backend/tracking"
+	"log"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/TechnoServsEIP/Backend/models"
+	"github.com/TechnoServsEIP/Backend/tracking"
+
+	"github.com/TechnoServsEIP/Backend/model"
 	"github.com/TechnoServsEIP/Backend/utils"
 	jwt "github.com/dgrijalva/jwt-go"
 )
@@ -33,7 +35,7 @@ func JwtAuthentication(next http.Handler) http.Handler {
 		tokenHeader := r.Header.Get("Authorization") //Grab the token from the header
 
 		if tokenHeader == "" { //Token is missing, returns with error code 403 Unauthorized
-			fmt.Println("token is empty")
+			log.Default().Println("token is empty")
 			response = utils.Message(false, "Missing auth token")
 			w.Header().Add("Content-Type", "application/json")
 			utils.Respond(w, response, http.StatusForbidden)
@@ -49,7 +51,7 @@ func JwtAuthentication(next http.Handler) http.Handler {
 		}
 
 		tokenPart := splitted[1] //Grab the token part, what we are truly interested in
-		tk := &models.Token{}
+		tk := &model.Token{}
 
 		token, err := jwt.ParseWithClaims(tokenPart, tk,
 			func(token *jwt.Token) (interface{}, error) {
@@ -93,7 +95,7 @@ func JwtAuthentication(next http.Handler) http.Handler {
 			}
 		}
 		//everything went well, proceed with the request and set the caller to the user retrieved from the parsed token
-		fmt.Println("User ", tk.UserId) //Useful for monitoring
+		log.Default().Println("User ", tk.UserId) //Useful for monitoring
 		ctx := context.WithValue(r.Context(), "user", tk.UserId)
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r) //proceed in the middleware chain!
@@ -101,16 +103,16 @@ func JwtAuthentication(next http.Handler) http.Handler {
 }
 
 func DecryptToken(tokenString string) (jwt.Claims, bool, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &models.Token{},
+	token, err := jwt.ParseWithClaims(tokenString, &model.Token{},
 		func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("token_password")), nil
 		})
 	if err != nil { //Malformed token, returns with http code 403 as usual
 		tracking.LogErr("jwt", err)
-		fmt.Println("Malformed authentication token ", err)
+		log.Default().Println("Malformed authentication token ", err)
 		return token.Claims, token.Valid, err
 	}
 
-	fmt.Println(token.Claims.(*models.Token).UserId)
+	log.Default().Println(token.Claims.(*model.Token).UserId)
 	return token.Claims, token.Valid, nil
 }

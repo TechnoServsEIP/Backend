@@ -1,14 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/stripe/stripe-go/v72"
 
-	"github.com/TechnoServsEIP/Backend/models"
+	"github.com/TechnoServsEIP/Backend/model"
 
 	"github.com/TechnoServsEIP/Backend/app"
 	"github.com/TechnoServsEIP/Backend/controllers"
@@ -18,7 +17,7 @@ import (
 )
 
 func main() {
-	models.Initialization()
+	model.Initialization()
 
 	// Set ports already binded
 	utils.ReOrderPorts(controllers.GetAllPortBinded())
@@ -32,7 +31,7 @@ func main() {
 		port = "8000" //localhost
 	}
 
-	fmt.Println("listen on port", port)
+	log.Default().Println("listen on port", port)
 
 	//TODO load database + pass to app struct
 	router.HandleFunc("/", controllers.Home).Methods("GET")

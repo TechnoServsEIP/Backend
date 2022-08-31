@@ -3,18 +3,19 @@ package controllers
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"github.com/TechnoServsEIP/Backend/tracking"
+	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/TechnoServsEIP/Backend/models"
+	"github.com/TechnoServsEIP/Backend/tracking"
+
+	"github.com/TechnoServsEIP/Backend/model"
 	"github.com/TechnoServsEIP/Backend/utils"
 	"github.com/docker/docker/client"
 )
 
 func InvitePlayer(w http.ResponseWriter, r *http.Request) {
-	invitation := &models.Invitation{}
+	invitation := &model.Invitation{}
 
 	err := json.NewDecoder(r.Body).Decode(invitation)
 	if err != nil {
@@ -31,14 +32,14 @@ func InvitePlayer(w http.ResponseWriter, r *http.Request) {
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		tracking.LogErr("docker", err)
-		fmt.Println("error when creating docker client", err)
+		log.Default().Println("error when creating docker client", err)
 		utils.Respond(w, utils.Message(false, "Error when open client docker env"), 500)
 		return
 	}
 
 	u64, err := strconv.ParseUint(invitation.UserId, 10, 32)
 
-	OneDocker := models.OneUserServer(uint(u64), invitation.ContainerId)
+	OneDocker := model.OneUserServer(uint(u64), invitation.ContainerId)
 
 	if OneDocker == nil {
 		utils.Respond(w, utils.Message(false, "invalid user_id or container_id"), 500)
@@ -49,7 +50,7 @@ func InvitePlayer(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		tracking.LogErr("docker", err)
-		fmt.Println(err.Error())
+		log.Default().Println(err.Error())
 		utils.Respond(w, map[string]interface{}{
 			"error": err.Error(),
 		}, 500)
@@ -60,11 +61,11 @@ func InvitePlayer(w http.ResponseWriter, r *http.Request) {
 
 	adress += info.HostConfig.PortBindings["25565/tcp"][0].HostPort
 
-	fmt.Println(adress)
+	log.Default().Println(adress)
 
-	user := &models.Account{}
+	user := &model.Account{}
 
-	err = models.GetDB().Where("id = ?", u64).Find(user).Error
+	err = model.GetDB().Where("id = ?", u64).Find(user).Error
 	if err != nil {
 		utils.Respond(w, map[string]interface{}{
 			"error": err.Error(),
@@ -72,11 +73,11 @@ func InvitePlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(user.Email)
+	log.Default().Println(user.Email)
 
 	err = utils.SendInvitationEmail(user.Email, adress, invitation.Recipient)
 	if err != nil {
-		fmt.Println("an error append when sending email, err: ", err)
+		log.Default().Println("an error append when sending email, err: ", err)
 		utils.Respond(w, utils.Message(false, "an error append when sending email"), 500)
 	}
 	utils.Respond(w, utils.Message(true, "The mail has been sended"), 200)

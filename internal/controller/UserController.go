@@ -2,17 +2,21 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/jinzhu/now"
+	"log"
 	"net/http"
 	"time"
 
-	"github.com/TechnoServsEIP/Backend/models"
+	"github.com/jinzhu/now"
+
+	"github.com/TechnoServsEIP/Backend/model"
 	"github.com/TechnoServsEIP/Backend/utils"
 )
 
+type UserController struct {
+}
+
 func GetUsers(w http.ResponseWriter, r *http.Request) {
-	res := models.GetUsers()
+	res := model.GetUsers()
 	utils.Respond(w, map[string]interface{}{"res": res}, 200)
 }
 
@@ -26,7 +30,7 @@ func Activate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := int(idJson.Id)
-	res := models.ActivateUser(id)
+	res := model.ActivateUser(id)
 	utils.Respond(w, map[string]interface{}{"res": res}, 200)
 }
 
@@ -40,8 +44,8 @@ func Deactivate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := int(idJson.Id)
-	fmt.Println(id)
-	res := models.DeactivateUser(id)
+	log.Default().Println(id)
+	res := model.DeactivateUser(id)
 	utils.Respond(w, map[string]interface{}{"res": res}, 200)
 }
 
@@ -55,7 +59,7 @@ func VerifyUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := int(idJson.Id)
-	res := models.VerifyUser(id)
+	res := model.VerifyUser(id)
 	utils.Respond(w, map[string]interface{}{"res": res}, 200)
 }
 
@@ -69,8 +73,8 @@ func RemoveVerification(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := int(idJson.Id)
-	fmt.Println(id)
-	res := models.RemoveVerification(id)
+	log.Default().Println(id)
+	res := model.RemoveVerification(id)
 	utils.Respond(w, map[string]interface{}{"res": res}, 200)
 }
 
@@ -102,7 +106,7 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}{}
-	user := &models.Account{}
+	user := &model.Account{}
 
 	msgSuccess := utils.Message(true, "password change")
 	msgFailure := utils.Message(false, "request failed")
@@ -118,12 +122,12 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = models.GetDB().Where("email = ?", data.Email).Find(user).Error
+	err = model.GetDB().Where("email = ?", data.Email).Find(user).Error
 	if err != nil {
 		utils.Respond(w, msgFailure, 400)
 		return
 	}
-	err = models.ChangePassword(data.Password, user.ID)
+	err = model.ChangePassword(data.Password, user.ID)
 	if err != nil {
 		utils.Respond(w, msgFailure, 400)
 		return
@@ -137,8 +141,8 @@ func GetEmail(w http.ResponseWriter, r *http.Request) {
 	userId := r.Context().Value("user")
 	msgFailure := utils.Message(false, "request failed")
 
-	user := &models.Account{}
-	err := models.GetDB().Where("id = ?", userId).Find(user).Error
+	user := &model.Account{}
+	err := model.GetDB().Where("id = ?", userId).Find(user).Error
 	if err != nil {
 		utils.Respond(w, msgFailure, 400)
 		return
@@ -151,18 +155,18 @@ func GetActivityByUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	userId := r.Context().Value("user").(uint)
 
-	resp := models.GetUserActivity(userId)
+	resp := model.GetUserActivity(userId)
 
 	resp["total_time"] = getTotalTimeActivityPerMonth(userId,
 		now.BeginningOfMonth())
-	fmt.Println(resp)
+	log.Default().Println(resp)
 
 	utils.Respond(w, resp, 200)
 }
 
 func getTotalTimeActivity(userId uint) time.Duration {
-	resp := models.GetUserActivity(userId)
-	dockers := resp["docker"].([]models.DockerHistory)
+	resp := model.GetUserActivity(userId)
+	dockers := resp["docker"].([]model.DockerHistory)
 	var totalDuration time.Duration
 
 	for _, docker := range dockers {
@@ -173,13 +177,13 @@ func getTotalTimeActivity(userId uint) time.Duration {
 }
 
 func getTotalTimeActivityPerMonth(userId uint, currentMonth time.Time) float64 {
-	resp := models.GetUserActivity(userId)
-	dockers := resp["docker"].([]models.DockerHistory)
+	resp := model.GetUserActivity(userId)
+	dockers := resp["docker"].([]model.DockerHistory)
 	var currentMonthDuration time.Duration
 	endOfCurrentMonth := currentMonth.Month() * 1
 
-	fmt.Println("currentMonth: ", currentMonth)
-	fmt.Println("endof current month: ", endOfCurrentMonth)
+	log.Default().Println("currentMonth: ", currentMonth)
+	log.Default().Println("endof current month: ", endOfCurrentMonth)
 
 	for _, docker := range dockers {
 		currentMonthDuration += docker.ActivityTimeStop.
@@ -200,8 +204,8 @@ func GetBillsByUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	userId := r.Context().Value("user").(uint)
 
-	resp := models.GetBillsByUser(userId)
-	fmt.Println(resp)
+	resp := model.GetBillsByUser(userId)
+	log.Default().Println(resp)
 	if resp["status"] == false {
 		utils.Respond(w, resp, 404)
 	}
@@ -226,7 +230,7 @@ func InsertBills(w http.ResponseWriter, r *http.Request) {
 	}
 
 	currentTime := time.Now()
-	bill := &models.Bill{
+	bill := &model.Bill{
 		UserId:       userId,
 		Email:        req.Email,
 		Price:        req.PriceToPaid,
@@ -235,10 +239,10 @@ func InsertBills(w http.ResponseWriter, r *http.Request) {
 		EndSubDate:   currentTime.AddDate(0, 1, 0),
 	}
 	bill.InsertBill()
-	fmt.Println(*bill)
+	log.Default().Println(*bill)
 
-	resp := models.GetBillsByUser(userId)
-	fmt.Println(resp)
+	resp := model.GetBillsByUser(userId)
+	log.Default().Println(resp)
 	if resp["status"] == false {
 		utils.Respond(w, resp, 404)
 	}

@@ -3,21 +3,28 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
-	"github.com/TechnoServsEIP/Backend/tracking"
-	"github.com/dgrijalva/jwt-go"
+	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/TechnoServsEIP/Backend/internal/model"
+	"github.com/TechnoServsEIP/Backend/internal/port"
+	"github.com/TechnoServsEIP/Backend/tracking"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
+
 	"github.com/TechnoServsEIP/Backend/app"
-	"github.com/TechnoServsEIP/Backend/models"
+	"github.com/TechnoServsEIP/Backend/model"
 	"github.com/TechnoServsEIP/Backend/utils"
 )
 
+type AuthController struct {
+}
+
 func CreateAccount(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("request /user/new")
-	account := &models.Account{}
+	log.Default().Println("request /user/new")
+	account := &model.Account{}
 	err := json.NewDecoder(r.Body).Decode(account) //decode the request body into struct and failed if any error occur
 	if err != nil {
 		errorLog := errors.New("An error occurred while decoding request, err: " +
@@ -31,25 +38,11 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	utils.Respond(w, resp, 201)
 }
 
-func RefreshToken(w http.ResponseWriter, r *http.Request) {
-	type tokenReqBody struct {
-		AccessToken  string `json:"access_token"`
-		RefreshToken string `json:"refresh_token"`
-	}
-	refreshTokenRequest := &tokenReqBody{}
-
-	err := json.NewDecoder(r.Body).Decode(refreshTokenRequest)
-	if err != nil {
-		errorLog := errors.New("An error occurred while decoding request, err: " +
-			err.Error())
-		tracking.LogErr("jwt", errorLog)
-		utils.Respond(w, utils.Message(false, "Invalid request"), 400)
-		return
-	}
-	rtk := &models.RefreshToken{}
+func (a *AuthController) RefreshToken(rt, access_token string) error {
+	rtk := &model.RefreshToken{}
 
 	response := make(map[string]interface{})
-	refreshToken, err := jwt.ParseWithClaims(refreshTokenRequest.RefreshToken, rtk,
+	refreshToken, err := jwt.ParseWithClaims(rt, rtk,
 		func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("token_password")), nil
 		})
@@ -57,24 +50,19 @@ func RefreshToken(w http.ResponseWriter, r *http.Request) {
 		errorLog := errors.New("Malformed or expired refresh token, err: " +
 			err.Error())
 		tracking.LogErr("jwt", errorLog)
-		response = utils.Message(false, "Malformed authentication token")
-		w.Header().Add("Content-Type", "application/json")
-		utils.Respond(w, response, http.StatusForbidden)
-		return
+		return errorLog
 	}
 
 	if refreshToken.Valid && refreshToken.Claims.Valid() == nil {
-		fmt.Println("everything is fine until here lets test user")
-		fmt.Println("userid: ", rtk.UserId)
-		fmt.Println("test expiration")
-		tmp := rtk.VerifyExpiresAt(time.Now().Unix(), true)
-		if !tmp {
-			fmt.Println("token expired")
-			return
+		log.Default().Println("userid: ", rtk.UserId)
+		ok := rtk.VerifyExpiresAt(time.Now().Unix(), true)
+		if !ok {
+			log.Default().Println("token expired")
+			return port.ErrTokenExpired
 		}
-		fmt.Println("token good !")
+		log.Default().Println("token good !")
 	}
-	user := models.GetUserFromId(int(rtk.UserId))
+	user := model.GetUserFromId(int(rtk.UserId))
 	resp, err := user.GenerateJWT()
 	if err != nil {
 		errorLog := errors.New("Error append when generating refresh token, err: " +
@@ -91,13 +79,13 @@ func RefreshToken(w http.ResponseWriter, r *http.Request) {
 	}, 200)
 }
 
-func RevokeToken(w http.ResponseWriter, r *http.Request) {
+func (a *AuthController) RevokeToken(w http.ResponseWriter, r *http.Request) {
 	type tokenReqBody struct {
 		AccessToken  string `json:"access_token"`
 		RefreshToken string `json:"refresh_token"`
 	}
 	TokenRequest := &tokenReqBody{}
-	act := &models.Token{}
+	act := &model.Token{}
 
 	err := json.NewDecoder(r.Body).Decode(TokenRequest)
 	if err != nil {
@@ -123,9 +111,9 @@ func RevokeToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := models.GetUserFromId(int(act.UserId))
+	user := model.GetUserFromId(int(act.UserId))
 
-	ack := &models.Token{
+	ack := &model.Token{
 		UserId:   user.ID,
 		Role:     user.Role,
 		IsRevoke: true,
@@ -135,7 +123,7 @@ func RevokeToken(w http.ResponseWriter, r *http.Request) {
 	}
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, ack)
 	//Generating refresh_token with user_id, and exp duration
-	rtk := &models.RefreshToken{
+	rtk := &model.RefreshToken{
 		UserId:   user.ID,
 		IsRevoke: true,
 		StandardClaims: jwt.StandardClaims{
@@ -154,7 +142,7 @@ func RevokeToken(w http.ResponseWriter, r *http.Request) {
 }
 
 func Authenticate(w http.ResponseWriter, r *http.Request) {
-	account := &models.Account{}
+	account := &model.Account{}
 	err := json.NewDecoder(r.Body).Decode(account) //decode the request body into struct and failed if any error occur
 	if err != nil {
 		tracking.LogErr("jwt", err)
@@ -162,7 +150,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := models.Login(account.Email, account.Password)
+	resp := model.Login(account.Email, account.Password)
 	if resp["status"] == false {
 		utils.Respond(w, resp, 400)
 		return
@@ -171,32 +159,32 @@ func Authenticate(w http.ResponseWriter, r *http.Request) {
 }
 
 func Confirm(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("request /user/confirm")
+	log.Default().Println("request /user/confirm")
 	token := r.URL.Query()["token"][0]
-	fmt.Println("len(token)")
-	fmt.Println(len(token))
-	fmt.Println(token)
+	log.Default().Println("len(token)")
+	log.Default().Println(len(token))
+	log.Default().Println(token)
 	claims, valid, err := app.DecryptToken(token)
 	if !valid {
-		fmt.Println("invalid token")
+		log.Default().Println("invalid token")
 		if err != nil {
 			tracking.LogErr("jwt", err)
-			fmt.Println("error ", err)
+			log.Default().Println("error ", err)
 		}
 		return
 	}
 
-	user := models.GetUserFromId(int(claims.(*models.Token).UserId))
-	fmt.Println(user)
+	user := model.GetUserFromId(int(claims.(*model.Token).UserId))
+	log.Default().Println(user)
 	user.Verified = true
-	models.Update(int(user.ID), map[string]interface{}{
+	model.Update(int(user.ID), map[string]interface{}{
 		"verified": true,
 	})
 }
 
 func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	fmt.Println("request /user/update")
+	log.Default().Println("request /user/update")
 
 	idJson := &struct {
 		Id   int `json:"Id,string,omitempty"`
@@ -210,9 +198,9 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := int(idJson.Id)
-	fmt.Println(id)
-	fmt.Println(idJson.Role)
-	models.Update(id, map[string]interface{}{
+	log.Default().Println(id)
+	log.Default().Println(idJson.Role)
+	model.Update(id, map[string]interface{}{
 		"role": idJson.Role,
 	})
 	response := utils.Message(true, "role update")

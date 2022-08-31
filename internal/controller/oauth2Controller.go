@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/TechnoServsEIP/Backend/tracking"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 
-	"github.com/TechnoServsEIP/Backend/models"
+	"github.com/TechnoServsEIP/Backend/tracking"
+
+	"github.com/TechnoServsEIP/Backend/model"
 	"github.com/TechnoServsEIP/Backend/utils"
 )
 
@@ -87,11 +88,11 @@ func GithubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 	githubData := getGithubData(githubAccessToken)
 
-	data := &models.GithubData{}
+	data := &model.GithubData{}
 	json.Unmarshal([]byte(githubData), data)
 
 	password := strconv.Itoa(data.Id)
-	response := models.LoginGithub("@"+data.Login, password)
+	response := model.LoginGithub("@"+data.Login, password)
 
 	if response["status"] == false {
 		utils.Respond(w, response, 400)

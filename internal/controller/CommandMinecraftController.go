@@ -3,12 +3,13 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
-	"github.com/TechnoServsEIP/Backend/models"
-	"github.com/TechnoServsEIP/Backend/tracking"
-	"github.com/TechnoServsEIP/Backend/utils"
 	"net/http"
 	"os/exec"
 	"strings"
+
+	"github.com/TechnoServsEIP/Backend/model"
+	"github.com/TechnoServsEIP/Backend/tracking"
+	"github.com/TechnoServsEIP/Backend/utils"
 )
 
 type Command struct {
@@ -31,7 +32,7 @@ func CommandRoute(w http.ResponseWriter, request *http.Request) {
 		utils.Respond(w, utils.Message(false, "This command is forbidden"), 404)
 		return
 	}
-	dockers := models.UserServers(command.UserID)
+	dockers := model.UserServers(command.UserID)
 	for _, docker := range *dockers {
 		if docker.IdDocker == command.DockerID {
 			cmd := exec.Command("docker", "exec", command.DockerID, "rcon-cli", command.Command)

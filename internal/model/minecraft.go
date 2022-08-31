@@ -1,10 +1,11 @@
-package models
+package model
 
 import (
 	"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"reflect"
 	"strconv"
@@ -119,7 +120,7 @@ func ServerPropertiesByServerId(containerId string) *ServerProperties {
 	/*
 	 * Load JSON width default description of server.properties
 	 */
-	file, _ := ioutil.ReadFile("./models/serverProperties.json")
+	file, _ := ioutil.ReadFile("./model/serverProperties.json")
 
 	data := ServerProperties{}
 
@@ -128,23 +129,23 @@ func ServerPropertiesByServerId(containerId string) *ServerProperties {
 	/*
 	 * Read server.properties file
 	 */
-	tmpFolder := "./models/" + containerId
+	tmpFolder := "./model/" + containerId
 
 	if err := utils.CreateTmpFolder(tmpFolder); err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		return nil
 	}
 
 	serverFile := containerId + ":/data/server.properties"
 
 	if err := utils.DockerCopy(serverFile, tmpFolder); err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		return nil
 	}
 
 	fileServerProp, err := os.Open(tmpFolder + "/server.properties")
 	if err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		return nil
 	}
 	defer fileServerProp.Close()
@@ -164,7 +165,7 @@ func ServerPropertiesByServerId(containerId string) *ServerProperties {
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		return nil
 	}
 
@@ -172,7 +173,7 @@ func ServerPropertiesByServerId(containerId string) *ServerProperties {
 	 * Remove server.property
 	 */
 	if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		return nil
 	}
 
@@ -192,16 +193,16 @@ func ServerPropertiesByServerId(containerId string) *ServerProperties {
 func getValueToUpdate(data UpdateServerProperties, tmpFolder string, containerId string, serverFile string) map[int]interface{} {
 	// create tmp folder
 	if err := utils.CreateTmpFolder(tmpFolder); err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		return map[int]interface{}{}
 	}
 
 	// copy server.properties from the client container into tmpfolder
 	if err := utils.DockerCopy(serverFile, tmpFolder); err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 
 		if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
-			fmt.Println(err)
+			log.Default().Println(err)
 			return map[int]interface{}{}
 		}
 
@@ -211,7 +212,7 @@ func getValueToUpdate(data UpdateServerProperties, tmpFolder string, containerId
 	// read the server.properties and attach defaults and new values
 	fileServerProp, err := os.Open(tmpFolder + "/server.properties")
 	if err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		return map[int]interface{}{}
 	}
 	defer fileServerProp.Close()
@@ -241,7 +242,7 @@ func getValueToUpdate(data UpdateServerProperties, tmpFolder string, containerId
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		return map[int]interface{}{}
 	}
 
@@ -257,13 +258,13 @@ func getValueToUpdate(data UpdateServerProperties, tmpFolder string, containerId
  * return: error or nil if no error
  */
 func CreateNewServerProperties(data UpdateServerProperties, containerId string, maxPalyers int64) error {
-	tmpFolder := "./models/" + containerId
+	tmpFolder := "./model/" + containerId
 	serverFile := containerId + ":/data/server.properties"
 	values := getValueToUpdate(data, tmpFolder, containerId, serverFile)
 
 	f, err := os.Create(tmpFolder + "/server.properties")
 	if err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		f.Close()
 		return err
 	}
@@ -272,22 +273,22 @@ func CreateNewServerProperties(data UpdateServerProperties, containerId string, 
 		v, _ = checkMaxPlayersValue(v, maxPalyers)
 		fmt.Fprintln(f, v)
 		if err != nil {
-			fmt.Println(err)
+			log.Default().Println(err)
 			return err
 		}
 	}
 	err = f.Close()
 	if err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		return err
 	}
 
 	// Copy the new server.properties file into the client container
 	if err := utils.DockerCopy(tmpFolder+"/server.properties", containerId+":/data"); err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 
 		if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
-			fmt.Println(err)
+			log.Default().Println(err)
 			return err
 		}
 
@@ -296,7 +297,7 @@ func CreateNewServerProperties(data UpdateServerProperties, containerId string, 
 
 	// remove the tmp folder
 	if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		return err
 	}
 
@@ -330,20 +331,20 @@ func checkMaxPlayersValue(value interface{}, maxPlayers int64) (interface{}, err
  */
 func UpdateMaxPlayers(maxPlayers int64, containerId string) error {
 	serverFile := containerId + ":/data/server.properties"
-	tmpFolder := "./models/" + containerId
+	tmpFolder := "./model/" + containerId
 
 	// create tmp folder
 	if err := utils.CreateTmpFolder(tmpFolder); err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		return err
 	}
 
 	// copy server.properties from the client container into tmpfolder
 	if err := utils.DockerCopy(serverFile, tmpFolder); err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 
 		if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
-			fmt.Println(err)
+			log.Default().Println(err)
 			return err
 		}
 
@@ -353,7 +354,7 @@ func UpdateMaxPlayers(maxPlayers int64, containerId string) error {
 	// replace max players value
 	input, err := ioutil.ReadFile(tmpFolder + "/server.properties")
 	if err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		return err
 	}
 
@@ -367,16 +368,16 @@ func UpdateMaxPlayers(maxPlayers int64, containerId string) error {
 	output := strings.Join(lines, "\n")
 	err = ioutil.WriteFile(tmpFolder+"/server.properties", []byte(output), 0644)
 	if err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		return err
 	}
 
 	// Copy the new server.properties file into the client container
 	if err := utils.DockerCopy(tmpFolder+"/server.properties", containerId+":/data"); err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 
 		if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
-			fmt.Println(err)
+			log.Default().Println(err)
 			return err
 		}
 
@@ -385,7 +386,7 @@ func UpdateMaxPlayers(maxPlayers int64, containerId string) error {
 
 	// remove the tmp folder
 	if err := utils.DeleteTmpFolder(tmpFolder); err != nil {
-		fmt.Println(err)
+		log.Default().Println(err)
 		return err
 	}
 

@@ -1,10 +1,11 @@
-package models
+package model
 
 import (
+	"time"
+
 	"github.com/TechnoServsEIP/Backend/utils"
 	"github.com/docker/docker/api/types"
 	"github.com/jinzhu/gorm"
-	"time"
 )
 
 type Docker struct {

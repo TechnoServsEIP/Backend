@@ -1,4 +1,4 @@
-package models
+package model
 
 type Invitation struct {
 	UserId      string `json:"user_id"`

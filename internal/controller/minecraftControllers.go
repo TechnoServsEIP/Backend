@@ -4,19 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"github.com/TechnoServsEIP/Backend/tracking"
+	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/TechnoServsEIP/Backend/models"
+	"github.com/TechnoServsEIP/Backend/tracking"
+
+	"github.com/TechnoServsEIP/Backend/model"
 	"github.com/TechnoServsEIP/Backend/utils"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 )
 
 func GetServerProperties(w http.ResponseWriter, r *http.Request) {
-	docker := &models.DockerDelete{}
+	docker := &model.DockerDelete{}
 
 	err := json.NewDecoder(r.Body).Decode(docker)
 	if err != nil {
@@ -25,7 +26,7 @@ func GetServerProperties(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := models.ServerPropertiesByServerId(docker.ContainerId)
+	data := model.ServerPropertiesByServerId(docker.ContainerId)
 
 	if data == nil {
 		utils.Respond(w, utils.Message(false, "Error while retrieve server properties"), 500)
@@ -45,18 +46,18 @@ func RestartServer(containerId string, userId string) error {
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		tracking.LogErr("docker", err)
-		fmt.Println("An error occurred when stopping container ", containerId)
+		log.Default().Println("An error occurred when stopping container ", containerId)
 		return err
 	}
 
 	err = cli.ContainerStop(ctx, containerId, nil)
 	if err != nil {
-		fmt.Println("An error occurred when stopping container or the container is already stopped", containerId)
+		log.Default().Println("An error occurred when stopping container or the container is already stopped", containerId)
 	}
 
 	u64, err := strconv.ParseUint(userId, 10, 32)
 
-	dockerStore := &models.DockerStore{
+	dockerStore := &model.DockerStore{
 		IdDocker: containerId,
 		UserId:   uint(u64),
 	}
@@ -66,7 +67,7 @@ func RestartServer(containerId string, userId string) error {
 	err = cli.ContainerStart(ctx, containerId, types.ContainerStartOptions{})
 	if err != nil {
 		tracking.LogErr("docker", err)
-		fmt.Println("An error occurred when starting container", "container_id=", containerId, "err", err)
+		log.Default().Println("An error occurred when starting container", "container_id=", containerId, "err", err)
 		return err
 	}
 
@@ -76,7 +77,7 @@ func RestartServer(containerId string, userId string) error {
 }
 
 func UpdateServerProperties(w http.ResponseWriter, r *http.Request) {
-	data := &models.UpdateServerProperties{}
+	data := &model.UpdateServerProperties{}
 
 	err := json.NewDecoder(r.Body).Decode(data)
 	if err != nil {
@@ -94,7 +95,7 @@ func UpdateServerProperties(w http.ResponseWriter, r *http.Request) {
 	userID, err := strconv.ParseUint(data.UserId, 10, 32)
 
 	// Create a dockerStore struct
-	dockerStore := &models.DockerStore{
+	dockerStore := &model.DockerStore{
 		IdDocker: data.ContainerId,
 		UserId:   uint(userID),
 	}
@@ -106,7 +107,7 @@ func UpdateServerProperties(w http.ResponseWriter, r *http.Request) {
 		tracking.LogErr("postgres", errorLog)
 	}
 
-	if err := models.CreateNewServerProperties(*data, data.ContainerId, maxPlayers); err != nil {
+	if err := model.CreateNewServerProperties(*data, data.ContainerId, maxPlayers); err != nil {
 		tracking.LogErr("docker", err)
 		utils.Respond(w, utils.Message(false, "Error while updating server properties"), 500)
 		return

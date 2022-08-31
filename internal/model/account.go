@@ -1,9 +1,9 @@
-package models
+package model
 
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -57,7 +57,7 @@ type GithubData struct {
 }
 
 func (account Account) GenerateJWT() (map[string]string, error) {
-	fmt.Println("attribute user number ", account.ID)
+	log.Default().Println("attribute user number ", account.ID)
 	//Generating access_token with role, user_id, and exp duration
 	tk := &Token{
 		UserId:   account.ID,
@@ -119,7 +119,7 @@ func (account *Account) Validate() (map[string]interface{}, bool) {
 
 func (account *Account) Create() map[string]interface{} {
 	if resp, ok := account.Validate(); !ok {
-		fmt.Println("account validate resp:", resp)
+		log.Default().Println("account validate resp:", resp)
 		return resp
 	}
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)
@@ -193,10 +193,10 @@ func GetUserFromId(Id int) *Account {
 
 	err := GetDB().Table("accounts").Where("id = ?", Id).First(acc).Error
 	if err != nil {
-		fmt.Println("error fetching user ", err)
+		log.Default().Println("error fetching user ", err)
 		return nil
 	}
-	fmt.Println(acc)
+	log.Default().Println(acc)
 	if acc.Email == "" { //User not found!
 		return nil
 	}
@@ -210,10 +210,10 @@ func GetUserFromEmail(email string) *Account {
 
 	err := GetDB().Table("accounts").Where("email = ?", email).First(acc).Error
 	if err != nil {
-		fmt.Println("error fetching user ", err)
+		log.Default().Println("error fetching user ", err)
 		return nil
 	}
-	fmt.Println(acc)
+	log.Default().Println(acc)
 	if acc.Email == "" { //User not found!
 		return nil
 	}
@@ -300,11 +300,11 @@ func DecryptToken(tokenString string) (jwt.Claims, bool, error) {
 			return []byte(os.Getenv("token_password")), nil
 		})
 	if err != nil {
-		fmt.Println("Malformed authentication token ", err)
+		log.Default().Println("Malformed authentication token ", err)
 		return token.Claims, token.Valid, err
 	}
 
-	fmt.Println(token.Claims.(*Token).UserId)
+	log.Default().Println(token.Claims.(*Token).UserId)
 	return token.Claims, token.Valid, nil
 }
 

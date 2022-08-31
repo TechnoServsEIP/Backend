@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"net"
 	"net/http"
@@ -48,8 +49,8 @@ func ReOrderPorts(allPortsBinded []string) {
 			}
 		}
 	}
-	fmt.Println("ports binded: ", portsBinded)
-	fmt.Println("ports: ", ports)
+	log.Default().Println("ports binded: ", portsBinded)
+	log.Default().Println("ports: ", ports)
 }
 
 func Find(slice []string, val string) (int, bool) {
@@ -100,8 +101,8 @@ func FreeThePort(portToFree string) {
 		portsBinded = portsBinded[:len(portsBinded)-1]
 	}
 
-	fmt.Println("ports binded: ", portsBinded)
-	fmt.Println("ports: ", ports)
+	log.Default().Println("ports binded: ", portsBinded)
+	log.Default().Println("ports: ", ports)
 }
 
 func GetPort() string {
@@ -113,18 +114,18 @@ func GetPort() string {
 			* Get the first port of the ports slice
 			 */
 			portsBinded = append(portsBinded, ports[0])
-			fmt.Println("ports binded: ", portsBinded)
+			log.Default().Println("ports binded: ", portsBinded)
 
 			/*
 			* Delete the first port of the ports slice
 			 */
 			portToSend := ports[0]
 			ports = ports[1:len(ports)]
-			fmt.Println("ports available: ", ports)
+			log.Default().Println("ports available: ", ports)
 
 			return portToSend
 		} else {
-			fmt.Println("no available ports")
+			log.Default().Println("no available ports")
 			return "no port available"
 		}
 	}
@@ -1737,7 +1738,7 @@ func DecryptToken(tokenString string) (jwt.StandardClaims, bool, error) {
 		return []byte(os.Getenv("token_password")), nil
 	})
 	if err != nil { //Malformed token, returns with http code 403 as usual
-		fmt.Println("Malformed authentication token", err)
+		log.Default().Println("Malformed authentication token", err)
 		return jwt.StandardClaims{}, false, errors.New("error")
 	}
 	claims, valid := decryptToken.Claims.(jwt.StandardClaims)
@@ -1751,7 +1752,7 @@ func DecryptToken(tokenString string) (jwt.StandardClaims, bool, error) {
 	//	return []byte(os.Getenv("token_password")), nil
 	//})
 	//if err != nil { //Malformed token, returns with http code 403 as usual
-	//	fmt.Println("Malformed authentication token")
+	//	log.Default().Println("Malformed authentication token")
 	//	return tokenParsed.Claims.(jwt.StandardClaims), false, errors.New("error")
 	//}
 	//return tokenParsed.Claims.(jwt.StandardClaims), tokenParsed.Valid, nil

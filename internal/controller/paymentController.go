@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -17,7 +16,7 @@ type createCheckoutSessionResponse struct {
 }
 
 func PaymentNew(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("initialing new payment")
+	log.Default().Println("initialing new payment")
 	defer r.Body.Close()
 
 	req := struct {
@@ -66,14 +65,14 @@ func PaymentNew(w http.ResponseWriter, r *http.Request) {
 		SessionID: sessionPayment.ID,
 	}
 
-	fmt.Println("session id: ", data.SessionID)
+	log.Default().Println("session id: ", data.SessionID)
 	js, _ := json.Marshal(data)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
 
 func PaymentRenew(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("initialing new payment")
+	log.Default().Println("initialing new payment")
 	defer r.Body.Close()
 	userId := r.Context().Value("user").(uint)
 
@@ -89,7 +88,7 @@ func PaymentRenew(w http.ResponseWriter, r *http.Request) {
 	}
 
 	priceToPaid := int64(GetTotalToPaidPerMonthByUser(userId))
-	fmt.Println("the user have to pay " + strconv.FormatInt(priceToPaid, 10))
+	log.Default().Println("the user have to pay " + strconv.FormatInt(priceToPaid, 10))
 
 	domain := "https://blissful-lamarr-d0eb92.netlify.app/#/checkout"
 	params := &stripe.CheckoutSessionParams{
@@ -123,7 +122,7 @@ func PaymentRenew(w http.ResponseWriter, r *http.Request) {
 		SessionID: sessionPayment.ID,
 	}
 
-	fmt.Println("session id: ", data.SessionID)
+	log.Default().Println("session id: ", data.SessionID)
 	js, _ := json.Marshal(data)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)

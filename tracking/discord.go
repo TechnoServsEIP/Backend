@@ -3,7 +3,7 @@ package tracking
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -13,10 +13,10 @@ func PublishError(logFile string, errorMessage error) {
 		"logFile": logFile,
 	})
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Default().Println(err.Error())
 	}
 	_, err = http.Post("http://serverlog:3000/log", "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Default().Println(err.Error())
 	}
 }
